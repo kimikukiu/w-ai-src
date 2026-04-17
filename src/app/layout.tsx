@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WHOAMISec AI — Hermes Bot Agent v4.0",
+  title: "WHOAMISec AI — Agentic Coding Platform",
   description: "WHOAMISec AI — Platformă AI completă cu 19+ modele, coding agentic, Red Team testing, Loop Coder, QuantumSwarm Intelligence.",
   icons: {
     icon: "/whoamisec-logo.jpg",

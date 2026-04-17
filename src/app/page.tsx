@@ -236,7 +236,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
             <Image src="/whoamisec-logo.jpg" alt="WHOAMISec AI" width={42} height={42} className="rounded-lg" />
             <div>
               <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">WHOAMISec AI</h1>
-              <p className="text-[10px] text-slate-500">Hermes Bot Agent v4.0 · QuantumSwarm Intelligence</p>
+              <p className="text-[10px] text-slate-500">WHOAMISec AI · QuantumSwarm Intelligence</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -263,7 +263,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
               <span className="text-slate-200">cu 19+ Modele</span>
             </h2>
             <p className="text-slate-400 text-base mb-8 leading-relaxed max-w-lg">
-              Hermes Bot Agent v4.0 — platformă AI completă cu coding agentic, analiză securitate, Loop Coder în 13 limbaje,
+              WHOAMISec AI — platformă AI completă cu coding agentic, analiză securitate, Loop Coder în 13 limbaje,
               Red Team testing, QuantumSwarm training și acces la cele mai avansate modele AI din lume.
             </p>
             <div className="flex flex-wrap gap-3 mb-8">
@@ -290,7 +290,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
                   <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
                   <div className="w-3 h-3 rounded-full bg-green-500/70" />
                 </div>
-                <span className="text-xs text-slate-500 ml-2">{slide.icon} {slide.lang} — Hermes Agent</span>
+                <span className="text-xs text-slate-500 ml-2">{slide.icon} {slide.lang} — WHOAMISec Agent</span>
                 <div className="ml-auto flex gap-1">
                   {CODE_DEMO_SLIDES.map((_, i) => (
                     <button key={i} onClick={() => setCurrentSlide(i)} className={`w-2 h-2 rounded-full transition-all ${i === currentSlide ? 'bg-indigo-400 w-6' : 'bg-slate-600 hover:bg-slate-500'}`} />
@@ -396,7 +396,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
         <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-xs text-slate-600">
             <Image src="/whoamisec-logo.jpg" alt="" width={20} height={20} className="rounded" />
-            WHOAMISec AI · Hermes v4.0
+            WHOAMISec AI · v4.0
           </div>
           <div className="flex items-center gap-4 text-xs text-slate-600">
             <a href="https://t.me/whoamisecai" target="_blank" className="hover:text-slate-400">Canal</a>
@@ -525,7 +525,7 @@ function AdminLoginModal({ onSuccess, onClose }: { onSuccess: () => void; onClos
               </Button>
             </div>
           </form>
-          <p className="text-center text-slate-600 text-xs mt-6">Hermes Bot v4.0 · Expert Edition · 24/7 Online</p>
+          <p className="text-center text-slate-600 text-xs mt-6">WHOAMISec AI · Expert Edition · 24/7 Online</p>
         </CardContent>
       </Card>
     </div>
@@ -586,7 +586,7 @@ export default function HermesPage() {
       <div className="min-h-screen bg-[#0a0e1a] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-10 w-10 text-blue-500 animate-spin mx-auto mb-4" />
-          <p className="text-slate-400 text-sm">Se încarcă Hermes...</p>
+          <p className="text-slate-400 text-sm">Se încarcă WHOAMISec AI...</p>
         </div>
       </div>
     );
@@ -925,7 +925,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       {/* Sidebar */}
       <aside className={`fixed left-0 top-0 h-full w-60 bg-[#111827] border-r border-slate-700/50 flex flex-col z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
         <div className="p-5 border-b border-slate-700/50">
-          <h2 className="text-xl font-bold text-blue-400">🤖 Hermes</h2>
+          <h2 className="text-xl font-bold text-blue-400">🛡️ WHOAMISec AI</h2>
           <span className="text-[10px] bg-[#1a1f35] text-slate-500 px-2 py-0.5 rounded">v4.0 Expert</span>
         </div>
         <nav className="flex-1 py-3">
@@ -1111,7 +1111,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         {botActive ? '🟢' : '🔴'}
                       </div>
                       <div>
-                        <h3 className="font-bold text-lg">Hermes Bot Agent</h3>
+                        <h3 className="font-bold text-lg">WHOAMISec AI — Bot Agent</h3>
                         <p className="text-xs text-slate-500">
                           {botActive ? `Polling activ · ${pollCount} update(s) procesate` : 'Bot oprit · Click Start pentru activare'}
                         </p>
