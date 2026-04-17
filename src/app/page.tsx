@@ -2018,13 +2018,14 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     setTimeout(refreshMessages, 2000);
   };
 
-  // ─── GLM Chat ───
+  // ─── GLM Chat — BUILDER THINKING REALTIME ───
   const thinkingStages = [
-    { label: 'DeepMind: Initializing cognitive pathways...', duration: 600 },
-    { label: 'QuantumSwarm: Analyzing quantum context...', duration: 900 },
-    { label: 'Agentic: Processing neural reasoning...', duration: 1200 },
+    { label: 'BUILDER THINKING: Initializing Quantum Swarm nodes...', duration: 500 },
+    { label: 'DeepMind: Loading cognitive pathways...', duration: 600 },
+    { label: 'QuantumSwarm 999999999: Analyzing context...', duration: 900 },
+    { label: 'Agentic Coder: Processing neural reasoning...', duration: 1200 },
     { label: 'DeepMind: Synthesizing response...', duration: 800 },
-    { label: 'Omega: Finalizing output...', duration: 500 },
+    { label: 'Omega Intelligence: Finalizing output...', duration: 500 },
   ];
 
   const sendGLM = async () => {
@@ -2124,14 +2125,15 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     ]);
     addLog('info', `Co-Pilot [${copilotMode}]: ${msg.slice(0, 60)}`);
 
-    // Animated thinking progress with terminal output
+    // Animated thinking progress — BUILDER THINKING REALTIME
     const copilotStages = [
-      { label: 'DeepMind: Initializing cognitive pathways...', duration: 500, terminal: '[INIT] Loading WhoamisecDeepMind neural pathways...' },
-      { label: 'QuantumSwarm: Scanning quantum context...', duration: 700, terminal: '[QS] QuantumSwarm 999999999 nodes synchronizing...' },
+      { label: 'BUILDER THINKING: Initializing Quantum Swarm nodes...', duration: 500, terminal: '[BUILDER THINKING] Initializing Quantum Swarm nodes...' },
+      { label: 'DeepMind: Loading cognitive pathways...', duration: 500, terminal: '[INIT] Loading WhoamisecDeepMind neural pathways...' },
+      { label: 'QuantumSwarm 999999999: Scanning context...', duration: 700, terminal: '[QS] QuantumSwarm 999999999 nodes synchronizing...' },
       { label: `Co-Pilot: ${copilotMode === 'terminal_execute' ? 'Preparing terminal execution...' : copilotMode === 'agentic_searcher' ? 'Agentic Searcher scanning web...' : 'Deep thinking engaged...'}`, duration: 900, terminal: copilotMode === 'terminal_execute' ? '[EXEC] Initializing terminal environment...' : copilotMode === 'agentic_searcher' ? '[SEARCH] Agentic Searcher activated — scanning...' : '[THINK] DeepMind cognitive evolution in progress...' },
-      { label: 'Agentic: Processing neural reasoning...', duration: 800, terminal: '[REASON] Neural reasoning across all training domains...' },
+      { label: 'Agentic Coder: Processing neural reasoning...', duration: 800, terminal: '[REASON] Neural reasoning across all training domains...' },
       { label: 'DeepMind: Synthesizing response...', duration: 600, terminal: `[${copilotMode.toUpperCase()}] Cross-referencing QuantumSwarm training lineage...` },
-      { label: 'Omega: Finalizing output...', duration: 400, terminal: '[OMEGA] Omega Intelligence finalizing...' },
+      { label: 'Omega Intelligence: Finalizing output...', duration: 400, terminal: '[OMEGA] Omega Intelligence finalizing...' },
     ];
 
     let totalDuration = copilotStages.reduce((s, t) => s + t.duration, 0);
@@ -2837,6 +2839,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         {terminalLines.map((line, i) => (
                           <div key={i} className={
                             line.startsWith('$') ? 'text-green-400' :
+                            line.startsWith('[BUILDER THINKING]') ? 'text-red-400 font-bold' :
                             line.startsWith('[INIT]') || line.startsWith('[QS]') ? 'text-cyan-400' :
                             line.startsWith('[SEARCH]') || line.startsWith('[SRC]') ? 'text-blue-400' :
                             line.startsWith('[EXEC]') || line.startsWith('[OMEGA]') ? 'text-yellow-400' :
@@ -2875,38 +2878,53 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         </div>
                       )
                     ))}
-                    {/* THINKING STATE — progress bar + stages */}
+                    {/* THINKING STATE — BUILDER THINKING – REALTIME */}
                     {glmThinking && (
                       <div className="flex justify-start">
-                        <div className="w-full max-w-[80%] px-5 py-4 rounded-2xl rounded-tl-sm bg-[#2a1010] border border-red-500/20 space-y-3">
-                          {/* Animated dots */}
-                          <div className="flex items-center gap-2">
-                            <div className="flex gap-1.5">
-                              <span className="w-2 h-2 rounded-full bg-red-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                              <span className="w-2 h-2 rounded-full bg-orange-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                              <span className="w-2 h-2 rounded-full bg-yellow-500 animate-bounce" style={{ animationDelay: '300ms' }} />
-                            </div>
-                            <span className="text-red-400 text-xs font-medium ml-1">
-                              {thinkingStages[thinkingStage]?.label || 'Thinking...'}
-                            </span>
-                          </div>
-                          {/* Colored progress bar */}
-                          <div className="w-full h-1.5 rounded-full bg-[#1a0505] overflow-hidden">
-                            <div
-                              className="h-full rounded-full transition-all duration-200 ease-out"
-                              style={{
-                                width: `${thinkingProgress}%`,
-                                background: `linear-gradient(90deg, #dc2626 0%, #f97316 ${Math.min(50, thinkingProgress)}%, #eab308 ${Math.min(75, thinkingProgress)}%, #22c55e ${Math.min(100, thinkingProgress)}%)`,
-                              }}
-                            />
-                          </div>
-                          {/* Stage labels */}
-                          <div className="flex gap-3 flex-wrap">
-                            {thinkingStages.map((stage, si) => (
-                              <span key={si} className={`text-[10px] transition-all duration-300 ${si < thinkingStage ? 'text-emerald-400' : si === thinkingStage ? 'text-yellow-400 font-semibold' : 'text-red-900'}`}>
-                                {si <= thinkingStage ? '✓ ' : '○ '}{stage.label.replace('...', '')}
+                        <div className="w-full max-w-[80%] rounded-2xl rounded-tl-sm bg-[#2a1010] border border-red-500/20 overflow-hidden">
+                          {/* BUILDER THINKING – REALTIME Header */}
+                          <div className="bg-gradient-to-r from-red-900/60 via-red-800/40 to-purple-900/60 px-5 py-3 border-b border-red-500/20">
+                            <div className="flex items-center gap-2.5">
+                              <span className="text-red-400 text-sm font-black animate-pulse">★</span>
+                              <span className="text-red-400 text-xs font-black tracking-wider uppercase">BUILDER THINKING — REALTIME</span>
+                              <span className="ml-auto flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
+                                <span className="text-[10px] text-slate-400 font-mono">{copilotMode === 'terminal_execute' ? '⚡ EXEC' : copilotMode === 'agentic_searcher' ? '🔍 SEARCH' : copilotMode === 'deep_thinking' ? '🧬 DEEP' : '🤖 COPILOT'}</span>
                               </span>
-                            ))}
+                            </div>
+                            <div className="flex items-center gap-2 mt-1.5">
+                              <span className="text-[10px] text-slate-400">{thinkingStages[thinkingStage]?.label || 'Initializing...'}</span>
+                            </div>
+                          </div>
+                          {/* Progress bar */}
+                          <div className="px-5 py-2.5">
+                            <div className="w-full h-2 rounded-full bg-[#1a0505] overflow-hidden">
+                              <div
+                                className="h-full rounded-full transition-all duration-200 ease-out"
+                                style={{
+                                  width: `${thinkingProgress}%`,
+                                  background: `linear-gradient(90deg, #dc2626 0%, #f97316 ${Math.min(50, thinkingProgress)}%, #eab308 ${Math.min(75, thinkingProgress)}%, #22c55e ${Math.min(100, thinkingProgress)}%)`,
+                                }}
+                              />
+                            </div>
+                            {/* Stage labels */}
+                            <div className="flex gap-2 flex-wrap mt-2.5">
+                              {thinkingStages.map((stage, si) => (
+                                <span key={si} className={`text-[9px] font-medium transition-all duration-300 ${si < thinkingStage ? 'text-emerald-400' : si === thinkingStage ? 'text-yellow-400 font-bold' : 'text-red-900/60'}`}>
+                                  {si <= thinkingStage ? '✓ ' : '○ '}{stage.label.replace('...', '')}
+                                </span>
+                              ))}
+                            </div>
+                            {/* Animated processing indicator */}
+                            <div className="flex items-center gap-1.5 mt-2">
+                              <div className="flex gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                                <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                              </div>
+                              <span className="text-[10px] text-red-400/70 font-mono">Processing...</span>
+                              <span className="ml-auto text-[10px] text-purple-400/60 font-mono">QS:999999999</span>
+                            </div>
                           </div>
                         </div>
                       </div>
