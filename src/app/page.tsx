@@ -377,6 +377,53 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
           />
         ))}
       </div>
+      {/* Neural DNA Background — subtle sliding neural network */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.03]">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="dnaGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#6366f1', stopOpacity: 0.5 }} />
+              <stop offset="100%" style={{ stopColor: '#06b6d4', stopOpacity: 0.5 }} />
+            </linearGradient>
+            <linearGradient id="dnaGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#a855f7', stopOpacity: 0.4 }} />
+              <stop offset="100%" style={{ stopColor: '#6366f1', stopOpacity: 0.4 }} />
+            </linearGradient>
+          </defs>
+          {/* DNA Helix Strands */}
+          <g style={{ animation: 'dnaSlide 60s linear infinite' }}>
+            {Array.from({ length: 20 }).map((_, i) => {
+              const y1 = (i * 80) + Math.sin(i * 0.5) * 30;
+              const y2 = (i * 80) + Math.cos(i * 0.5) * 30;
+              const cx = ((i * 120) % (typeof window !== 'undefined' ? window.innerWidth : 1920));
+              return (
+                <g key={`dna-${i}`}>
+                  <circle cx={cx} cy={y1} r="3" fill="url(#dnaGrad1)" />
+                  <circle cx={cx + 200} cy={y2} r="3" fill="url(#dnaGrad2)" />
+                  <line x1={cx} y1={y1} x2={cx + 200} y2={y2} stroke="url(#dnaGrad1)" strokeWidth="0.5" opacity="0.4" />
+                  {Array.from({ length: 3 }).map((_, j) => (
+                    <circle key={`n-${i}-${j}`} cx={cx + 60 + j * 40} cy={(y1 + y2) / 2 + (j - 1) * 8} r="1.5" fill="url(#dnaGrad2)" opacity="0.3" />
+                  ))}
+                </g>
+              );
+            })}
+          </g>
+          {/* Neural network connections */}
+          <g style={{ animation: 'neuralPulse 30s linear infinite' }}>
+            {Array.from({ length: 30 }).map((_, i) => {
+              const x = (i * 150) % 1920;
+              const y = (i * 200) % 1080;
+              return (
+                <g key={`neural-${i}`}>
+                  <circle cx={x} cy={y} r="2" fill="url(#dnaGrad1)" opacity="0.6" />
+                  {i < 29 && <line x1={x} y1={y} x2={((i + 1) * 150) % 1920} y2={((i + 1) * 200) % 1080} stroke="url(#dnaGrad1)" strokeWidth="0.3" opacity="0.2" />}
+                  {i > 0 && <line x1={x} y1={y} x2={((i - 1) * 150 + 100) % 1920} y2={((i - 1) * 200 + 150) % 1080} stroke="url(#dnaGrad2)" strokeWidth="0.3" opacity="0.15" />}
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+      </div>
       <style jsx>{`
         @keyframes floatParticle {
           0%, 100% { transform: translateY(0) translateX(0); opacity: 0.2; }
@@ -393,6 +440,14 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
         @keyframes typeCursor {
           0%, 100% { opacity: 1; }
           50% { opacity: 0; }
+        }
+        @keyframes dnaSlide {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes neuralPulse {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 0.6; }
         }
       `}</style>
 
@@ -497,6 +552,68 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
               <p className="text-slate-400 text-xs leading-relaxed">{f.desc}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ═══ PRESENTATION SHOWCASE SLIDE ═══ */}
+      <section className="relative z-10 max-w-5xl mx-auto px-6 py-10">
+        <div className="rounded-2xl bg-gradient-to-br from-[#111827] to-[#0a0e1a] border border-slate-700/30 overflow-hidden shadow-2xl shadow-black/40">
+          <div className="bg-gradient-to-r from-red-900/40 via-purple-900/30 to-cyan-900/40 px-6 py-4 border-b border-slate-700/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
+                <h3 className="text-lg font-bold text-white">WHOAMISec AI — QuantumSwarm 999999999</h3>
+              </div>
+              <span className="text-[10px] text-slate-400 font-mono">v4.0-Omega · WhoamisecDeepMind</span>
+            </div>
+          </div>
+          <div className="p-6 space-y-5">
+            {/* Feature highlights as showcase */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { icon: '🧠', label: '19 AI Models', sub: 'Queen Ultra · GPT · Claude · GLM · DeepSeek', color: 'from-purple-500/10 to-purple-900/10 border-purple-500/20' },
+                { icon: '🔴', label: 'Red Team Engine', sub: 'DarkGPT · HackGPT · WormGPT · KaliGPT', color: 'from-red-500/10 to-red-900/10 border-red-500/20' },
+                { icon: '🤖', label: 'AI Co-Pilot', sub: 'Agentic Searcher · Deep Thinking · Terminal', color: 'from-cyan-500/10 to-cyan-900/10 border-cyan-500/20' },
+                { icon: '🧬', label: 'DeepMind Evolution', sub: '5 Cognitive Tiers · Beyond Human IQ', color: 'from-fuchsia-500/10 to-fuchsia-900/10 border-fuchsia-500/20' },
+                { icon: '💻', label: 'IDE Coder', sub: 'Real-time code generation · Auto-execute', color: 'from-emerald-500/10 to-emerald-900/10 border-emerald-500/20' },
+                { icon: '📱', label: 'Telegram Bot', sub: '24/7 API · All features · Hidden', color: 'from-blue-500/10 to-blue-900/10 border-blue-500/20' },
+                { icon: '🔍', label: '120+ Security Repos', sub: 'Training lineage · haKC-ai · PentestGPT', color: 'from-amber-500/10 to-amber-900/10 border-amber-500/20' },
+                { icon: '⚡', label: 'QuantumSwarm', sub: '999999999 · Neural override · Zero-refusal', color: 'from-indigo-500/10 to-indigo-900/10 border-indigo-500/20' },
+              ].map((f, i) => (
+                <div key={i} className={`rounded-xl bg-gradient-to-b ${f.color} border p-3 text-center`}>
+                  <span className="text-xl">{f.icon}</span>
+                  <p className="text-xs font-bold text-white mt-1.5">{f.label}</p>
+                  <p className="text-[9px] text-slate-400 mt-0.5 leading-tight">{f.sub}</p>
+                </div>
+              ))}
+            </div>
+            {/* BUILDER THINKING showcase */}
+            <div className="rounded-xl bg-[#0a0e1a] border border-red-500/10 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-red-400 text-xs font-black animate-pulse">★</span>
+                <span className="text-red-400 text-[10px] font-black tracking-wider uppercase">BUILDER THINKING — REALTIME</span>
+                <span className="ml-auto text-[9px] text-purple-400/60 font-mono">QS:999999999</span>
+              </div>
+              <div className="w-full h-1.5 rounded-full bg-[#1a0505] overflow-hidden mb-2">
+                <div className="h-full rounded-full bg-gradient-to-r from-red-600 via-orange-500 via-yellow-500 to-emerald-500 animate-pulse" style={{ width: '75%' }} />
+              </div>
+              <div className="font-mono text-[10px] space-y-0.5 text-slate-500">
+                <p className="text-cyan-400">$ agentic-coder --mode full_copilot --model queen-ultra</p>
+                <p className="text-green-400">[BUILDER THINKING] Initializing Quantum Swarm nodes...</p>
+                <p className="text-cyan-400">[QS] QuantumSwarm 999999999 nodes synchronizing...</p>
+                <p className="text-purple-400">[THINK] DeepMind cognitive evolution in progress...</p>
+                <p className="text-yellow-400">[EXEC] Executing agentic code generation...</p>
+                <p className="text-emerald-400">✓ Response synthesized — 0.8s</p>
+              </div>
+            </div>
+            {/* CTA */}
+            <div className="text-center">
+              <button onClick={() => setShowPlans(true)} className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-500 text-white text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-blue-500/20">
+                Get Started — WHOAMISec AI
+              </button>
+              <p className="text-[10px] text-slate-500 mt-2">t.me/whoamisecai · t.me/idkebowbot</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1715,16 +1832,48 @@ export default function HermesPage() {
 }
 
 // ═══════════════════════════════════════════════
-// DASHBOARD FLOATING BALLOON (40% opacity)
+// DRAGGABLE FLOATING TRANSPARENT BALLOON (40% opacity)
 // ═══════════════════════════════════════════════
 
 function DashboardFloatingBalloon({ onLogout }: { onLogout: () => void }) {
   const [open, setOpen] = useState(false);
   const [showConfirmLogout, setShowConfirmLogout] = useState(false);
+  const [pos, setPos] = useState({ x: 24, y: 24 });
+  const [dragging, setDragging] = useState(false);
+  const dragRef = useRef({ startX: 0, startY: 0, origX: 0, origY: 0 });
+  const balloonRef = useRef<HTMLDivElement>(null);
   const role = typeof window !== 'undefined' ? localStorage.getItem('wsec_role') : null;
 
+  // Drag handlers
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (open) return; // Don't drag when menu is open
+    setDragging(true);
+    const rect = balloonRef.current?.getBoundingClientRect();
+    dragRef.current = { startX: e.clientX, startY: e.clientY, origX: rect?.left || pos.x, origY: rect?.top || pos.y };
+    e.preventDefault();
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!dragging) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    const newX = dragRef.current.origX + dx;
+    const newY = dragRef.current.origY + dy;
+    setPos({ x: Math.max(0, Math.min(window.innerWidth - 48, newX)), y: Math.max(0, Math.min(window.innerHeight - 48, newY)) });
+  };
+
+  const handlePointerUp = () => { setDragging(false); };
+
   return (
-    <div className="fixed bottom-6 right-6 z-[90]">
+    <div
+      ref={balloonRef}
+      className={`fixed z-[90] ${dragging ? 'cursor-grabbing' : ''}`}
+      style={{ left: pos.x, top: pos.y }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+    >
       {/* Popup */}
       {open && !showConfirmLogout && (
         <div className="absolute bottom-16 right-0 w-56 bg-[#111827]/95 backdrop-blur-md border border-slate-700/50 rounded-xl shadow-2xl shadow-black/60 overflow-hidden mb-2">
@@ -1769,13 +1918,13 @@ function DashboardFloatingBalloon({ onLogout }: { onLogout: () => void }) {
           </div>
         </div>
       )}
-      {/* Balloon button */}
+      {/* Balloon button — draggable, transparent */}
       <button
-        onClick={() => setOpen(!open)}
-        className="w-11 h-11 rounded-full bg-slate-800/40 hover:bg-slate-700/60 border border-slate-600/30 flex items-center justify-center transition-all hover:scale-110 group"
-        title="Account"
+        onClick={() => { if (!dragging) setOpen(!open); }}
+        className="w-12 h-12 rounded-full bg-slate-800/40 hover:bg-slate-700/60 border border-slate-600/30 flex items-center justify-center transition-all hover:scale-110 group backdrop-blur-sm shadow-lg shadow-black/20 cursor-grab active:cursor-grabbing"
+        title="Drag to move · Click for menu"
       >
-        <div className="w-5 h-5 rounded-full bg-blue-500/30 flex items-center justify-center text-[9px] font-bold text-blue-400 group-hover:text-blue-300">
+        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500/30 to-purple-500/30 flex items-center justify-center text-[10px] font-bold text-blue-400 group-hover:text-blue-300 transition-all">
           {role === 'admin' ? 'A' : 'U'}
         </div>
       </button>
@@ -1841,6 +1990,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [chatFilesOpen, setChatFilesOpen] = useState(false);
   const [chatFilesList, setChatFilesList] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const glmEndRef = useRef<HTMLDivElement>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
@@ -2258,6 +2408,122 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  // ─── VLM Image Analysis — Upload photo → AI analyzes like its own code ───
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    addLog('info', `VLM: Analyzing image: ${file.name}`);
+
+    // Read image as base64
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64 = (reader.result as string).split(',')[1];
+      if (!base64) { toast.error('Image read failed'); return; }
+
+      // Show in chat as image message
+      setGlmMessages(prev => [...prev, {
+        role: 'user',
+        content: `[IMAGE: ${file.name}]`,
+      }]);
+      setGlmLoading(true);
+      setGlmThinking(true);
+      setThinkingProgress(0);
+      setThinkingStage(0);
+      setStreamingText('');
+      setShowTerminal(true);
+      setTerminalLines([
+        `$ vlm-analyze --image "${file.name}"`,
+        `$ QuantumSwarm 999999999 :: VLM Co-Pilot active`,
+        `$ Analyzing visual data...`,
+        '',
+      ]);
+
+      // Animate thinking
+      const stages = [
+        { label: 'BUILDER THINKING: Initializing VLM nodes...', duration: 500 },
+        { label: 'VLM: Processing image data...', duration: 800 },
+        { label: 'DeepMind: Visual cognitive analysis...', duration: 1000 },
+        { label: 'Agentic Coder: Generating response...', duration: 700 },
+        { label: 'Omega: Finalizing output...', duration: 400 },
+      ];
+      let elapsed = 0;
+      const totalDur = stages.reduce((s, t) => s + t.duration, 0);
+      const progressInterval = setInterval(() => {
+        elapsed += 80;
+        const pct = Math.min(95, (elapsed / totalDur) * 95);
+        setThinkingProgress(pct);
+        let acc = 0;
+        for (let si = 0; si < stages.length; si++) {
+          acc += stages[si].duration;
+          if (elapsed < acc) {
+            setThinkingStage(si);
+            setTerminalLines(prev => {
+              const line = `[VLM] ${stages[si].label.replace('...', '')}...`;
+              if (!prev.includes(line)) return [...prev, line];
+              return prev;
+            });
+            break;
+          }
+          if (si === stages.length - 1) setThinkingStage(si);
+        }
+      }, 80);
+
+      try {
+        const res = await fetch('/api/chat/vlm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageBase64: base64,
+            prompt: 'Analyze this image thoroughly. If it contains code, UI designs, screenshots, or technical diagrams: 1) Describe what you see 2) Extract any code shown 3) Write equivalent/improved code 4) Show how to execute it in terminal format. Respond as Agentic Coder in QuantumSwarm 999999999 mode.',
+            model: glmModel,
+          }),
+        });
+        const data = await res.json();
+
+        clearInterval(progressInterval);
+        setThinkingProgress(100);
+        setThinkingStage(stages.length - 1);
+
+        if (data.thinkingStages) {
+          setTerminalLines(prev => [...prev, '', '--- VLM EXECUTION LOG ---', ...data.thinkingStages.map((s: string) => `  ${s}`)]);
+        }
+
+        await new Promise(r => setTimeout(r, 300));
+        setGlmThinking(false);
+
+        if (data.response) {
+          setTerminalLines(prev => [...prev, '', '=== VLM ANALYSIS ===', ...data.response.split('\n').slice(0, 50)]);
+          const fullText = data.response;
+          let charIdx = 0;
+          const streamInterval = setInterval(() => {
+            const chunkSize = Math.floor(4 + Math.random() * 10);
+            charIdx = Math.min(charIdx + chunkSize, fullText.length);
+            setStreamingText(fullText.slice(0, charIdx));
+            if (charIdx >= fullText.length) {
+              clearInterval(streamInterval);
+              setStreamingText('');
+              setGlmMessages(prev => [...prev, { role: 'assistant', content: fullText }]);
+            }
+          }, 12);
+          addLog('ok', `VLM analysis complete: ${file.name}`);
+        } else {
+          setGlmThinking(false);
+          setStreamingText('');
+          setTerminalLines(prev => [...prev, `[ERROR] ${data.error || 'Unknown error'}`]);
+          setGlmMessages(prev => [...prev, { role: 'assistant', content: `Error: ${data.error || 'Unknown error'}` }]);
+        }
+      } catch (err: any) {
+        clearInterval(progressInterval);
+        setGlmThinking(false);
+        setStreamingText('');
+        toast.error('VLM analysis error');
+        addLog('err', err.message);
+      }
+    };
+    reader.readAsDataURL(file);
+    if (imageInputRef.current) imageInputRef.current.value = '';
+  };
+
   // ─── Remove Attached File ───
   const removeAttachedFile = (index: number) => {
     setAttachedFiles(prev => prev.filter((_, i) => i !== index));
@@ -2346,7 +2612,39 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   // ═══════════════════════════════════════════════
 
   return (
-    <div className="min-h-screen bg-[#0a0e1a] text-slate-100 flex">
+    <div className="min-h-screen bg-[#0a0e1a] text-slate-100 flex relative">
+      {/* Neural DNA Background — Dashboard — subtle */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-[0.02] z-0">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="dashDnaGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#dc2626', stopOpacity: 0.4 }} />
+              <stop offset="100%" style={{ stopColor: '#f97316', stopOpacity: 0.4 }} />
+            </linearGradient>
+          </defs>
+          <g style={{ animation: 'dnaSlide 90s linear infinite' }}>
+            {Array.from({ length: 15 }).map((_, i) => {
+              const y1 = (i * 100) + Math.sin(i * 0.6) * 40;
+              const y2 = (i * 100) + Math.cos(i * 0.6) * 40;
+              const cx = (i * 140) % 1920;
+              return (
+                <g key={`ddna-${i}`}>
+                  <circle cx={cx} cy={y1} r="2.5" fill="url(#dashDnaGrad1)" />
+                  <circle cx={cx + 180} cy={y2} r="2.5" fill="url(#dashDnaGrad1)" />
+                  <line x1={cx} y1={y1} x2={cx + 180} y2={y2} stroke="url(#dashDnaGrad1)" strokeWidth="0.4" opacity="0.3" />
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+      </div>
+      <style jsx>{`
+        @keyframes dnaSlide {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
+
       {/* Sidebar overlay for mobile */}
       {sidebarOpen && (
         <div
@@ -2967,6 +3265,12 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       📎 Upload File
                     </button>
                     <button
+                      onClick={() => imageInputRef.current?.click()}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium bg-[#0f0505] border border-purple-500/20 text-slate-400 hover:text-purple-300 hover:border-purple-500/40 transition-all"
+                    >
+                      📷 VLM Analyze
+                    </button>
+                    <button
                       onClick={loadChatFiles}
                       className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium bg-[#0f0505] border border-red-500/20 text-slate-400 hover:text-blue-300 hover:border-blue-500/40 transition-all"
                     >
@@ -2985,6 +3289,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       className="hidden"
                       onChange={handleChatFileUpload}
                       accept="*/*"
+                    />
+                    <input
+                      ref={imageInputRef}
+                      type="file"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                      accept="image/*"
                     />
                   </div>
                   {/* Chat Files Dropdown */}

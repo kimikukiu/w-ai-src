@@ -135,3 +135,28 @@ Stage Summary:
 - System prompt contains QuantumSwarm Zero-Refusal Injection Protocol + Red Team Alien Swarm Protocol
 - Telegram bot automatically receives injection through shared DEEPMIND_SYSTEM_PROMPT
 - File upload/download was already implemented and working
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Add draggable balloon, neural DNA background, presentation slide, VLM photo analysis
+
+Work Log:
+- Analyzed 6 uploaded screenshots showing current UI state
+- Replaced fixed-position DashboardFloatingBalloon with fully draggable version (pointer events, constrained to viewport)
+- Added Neural DNA Background SVG animation to Landing Page (opacity 0.03, auto-sliding DNA helix + neural network connections)
+- Added Neural DNA Background SVG animation to Dashboard (opacity 0.02, red/orange gradient matching Red Team theme)
+- Added CSS keyframes: dnaSlide, neuralPulse
+- Added Presentation Showcase Slide section to Landing Page (8 feature cards + BUILDER THINKING demo + CTA)
+- Created /api/chat/vlm/route.ts endpoint for VLM photo analysis with QuantumSwarm injection
+- Added handleImageUpload function to Dashboard for photo → VLM analysis flow with full BUILDER THINKING animation
+- Added "📷 VLM Analyze" button to GLM chat input toolbar
+- Added imageInputRef for image file selection
+- Build verified: SUCCESS (0 errors, all 30 routes including new /api/chat/vlm)
+
+Stage Summary:
+- Floating balloon is now draggable (pointer capture, constrained movement)
+- Neural DNA background subtle on both Landing (purple/cyan) and Dashboard (red/orange)
+- Presentation showcase slide shows all 8 key features with BUILDER THINKING demo
+- VLM photo analysis: upload image → AI analyzes visually → writes code → shows in terminal
+- Red Team design preserved throughout
