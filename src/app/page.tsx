@@ -14,8 +14,9 @@ import {
   Download, Trash2, Copy, ExternalLink, Loader2, CheckCircle2,
   XCircle, AlertCircle, Eye, EyeOff, Monitor, Smartphone,
   Database, GitBranch, Globe, LayoutDashboard, Code, Activity,
-  Lock, Unlock, Command
+  Lock, Unlock, Command, Crown, Star, Users, Sparkles, Play, ChevronDown, X
 } from 'lucide-react';
+import Image from 'next/image';
 
 // ═══════════════════════════════════════════════
 // TYPES
@@ -64,42 +65,518 @@ interface LogEntry {
 }
 
 // ═══════════════════════════════════════════════
-// MAIN PAGE COMPONENT
+// SUBSCRIPTION PLAN DATA
 // ═══════════════════════════════════════════════
 
-export default function HermesPage() {
-  const [authenticated, setAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+const SUBSCRIPTION_PLANS = [
+  {
+    id: 'free',
+    name: 'Free Demo',
+    price: '0',
+    currency: 'EUR',
+    period: '1 oră',
+    requests: 10,
+    models: ['glm-4-flash', 'glm-4.6'],
+    features: ['10 requesturi demo', 'Acces 1 oră', '2 modele AI', 'Chat de bază', 'Fără fișiere'],
+    color: 'from-slate-600 to-slate-500',
+    badge: null,
+    popular: false,
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    price: '25',
+    currency: 'EUR',
+    period: 'lună',
+    requests: 500,
+    models: ['glm-4.6', 'glm-5-turbo', 'hermes-4-70B', 'DeepSeek-3.2', 'kimi-k2.5'],
+    features: ['500 requesturi/lună', 'Toate modelele Pro', 'GLM Chat avansat', 'Upload fișiere', 'Bot Telegram complet', 'Loop Coder (13 limbi)', 'Red Team testing', 'Priority support'],
+    color: 'from-blue-600 to-cyan-500',
+    badge: 'POPULAR',
+    popular: true,
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    price: '75',
+    currency: 'EUR',
+    period: 'lună',
+    requests: -1,
+    models: ['ALL MODELS', 'queen-ultra', 'queen-max', 'hermes-4-405B', 'gpt-5.4-pro', 'claude-opus-4-6', 'gemini-3.0-pro-preview'],
+    features: ['Requesturi nelimitate', 'TOATE modelele (19+)', 'Queen Ultra + Max', 'Expert Mode ON', 'Codespace Builder IDE', 'API access direct', 'Custom training', 'Codespace Tools', '24/7 Priority support', 'Admin management'],
+    color: 'from-purple-600 to-pink-500',
+    badge: 'MAX',
+    popular: false,
+  },
+];
+
+const CODE_DEMO_SLIDES = [
+  { lang: 'Python', icon: '🐍', code: 'from hermes import QuantumSwarm\n\nagent = QuantumSwarm(model="queen-ultra")\nresult = agent.analyze(\n    target="web_app",\n    depth="deep_scan",\n    reasoning=True\n)\nprint(result.summary)\n# >> Vulnerability Score: 0.03\n# >> Security: A+ Grade', output: '✅ QuantumSwarm init...\n🔍 Deep scanning...\n📊 Analyzing 847 endpoints\n🛡️ Security Grade: A+\n⚡ Done in 2.3s' },
+  { lang: 'TypeScript', icon: '⚡', code: 'interface ExploitChain {\n  vector: string;\n  severity: Critical | High | Medium;\n  payload: () => Promise<Shell>;\n}\n\nconst scanner = new HermesScanner({\n  models: ["hermes-4-405B", "DeepSeek-3.2"],\n  parallel: true,\n  quantumSwarm: true\n});\nawait scanner.runFullAudit();', output: '🚀 HermesScanner init...\n🔍 Loading 2 models...\n📡 Parallel scan active...\n✅ 0 critical, 0 high, 2 medium\n📋 Report generated' },
+  { lang: 'Rust', icon: '🦀', code: 'use hermes::{Agent, Model, Tool};\n\n#[hermes::main]\nasync fn main() {\n    let agent = Agent::builder()\n        .model(Model::QueenUltra)\n        .tool(Tool::Browser)\n        .tool(Tool::Terminal)\n        .tool(Tool::CodeEditor)\n        .build()?;\n    \n    let result = agent.execute(\n        "Build secure API gateway"\n    ).await?;\n    println!("{}", result.code);\n}', output: '🏗️ Building agent...\n📎 Tools: Browser, Terminal, CodeEditor\n🧠 Model: Queen Ultra\n💻 Generating secure API...\n✅ Build complete (1.2s)' },
+];
+
+// ═══════════════════════════════════════════════
+// LANDING PAGE COMPONENT (PUBLIC VIEW)
+// ═══════════════════════════════════════════════
+
+function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [subscriberToken, setSubscriberToken] = useState('');
+  const [subLoginError, setSubLoginError] = useState('');
+  const [subLoading, setSubLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [showTos, setShowTos] = useState(false);
+  const [showPlans, setShowPlans] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % CODE_DEMO_SLIDES.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Auto-login from URL token
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token) {
+      setSubscriberToken(token);
+      handleSubLogin(token);
+    }
+  }, []);
+
+  const handleSubLogin = async (tkn?: string) => {
+    const token = tkn || subscriberToken;
+    if (!token) return;
+    setSubLoading(true);
+    setSubLoginError('');
+    try {
+      const res = await fetch('/api/subscribe/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        localStorage.setItem('wsec_token', token);
+        localStorage.setItem('wsec_role', data.role || 'subscriber');
+        window.location.href = '/?authenticated=true';
+      } else {
+        setSubLoginError(data.error || 'Token invalid sau expirat');
+      }
+    } catch {
+      setSubLoginError('Eroare de conexiune');
+    }
+    setSubLoading(false);
+  };
+
+  const handleDemoRegister = async () => {
+    setDemoLoading(true);
+    try {
+      const res = await fetch('/api/subscribe/register', { method: 'POST' });
+      const data = await res.json();
+      if (data.token) {
+        toast.success('Demo activat! Redirecting...');
+        window.location.href = '/?token=' + data.token;
+      } else {
+        toast.error(data.error || 'Eroare la înregistrare demo');
+      }
+    } catch {
+      toast.error('Eroare de rețea');
+    }
+    setDemoLoading(false);
+  };
+
+  const slide = CODE_DEMO_SLIDES[currentSlide];
+
+  return (
+    <div className="min-h-screen bg-[#0a0e1a] text-slate-100 relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {Array.from({ length: 50 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              width: `${1 + Math.random() * 2}px`,
+              height: `${1 + Math.random() * 2}px`,
+              background: i % 3 === 0 ? 'rgba(99,102,241,0.3)' : i % 3 === 1 ? 'rgba(6,182,212,0.2)' : 'rgba(168,85,247,0.2)',
+              animation: `floatParticle ${4 + Math.random() * 8}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 10}s`,
+            }}
+          />
+        ))}
+      </div>
+      <style jsx>{`
+        @keyframes floatParticle {
+          0%, 100% { transform: translateY(0) translateX(0); opacity: 0.2; }
+          50% { transform: translateY(-80px) translateX(40px); opacity: 0.6; }
+        }
+        @keyframes pulse-glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(99,102,241,0.3); }
+          50% { box-shadow: 0 0 40px rgba(99,102,241,0.6); }
+        }
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes typeCursor {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+      `}</style>
+
+      {/* Navigation Bar */}
+      <nav className="relative z-10 border-b border-slate-800/50 bg-[#0a0e1a]/80 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Image src="/whoamisec-logo.jpg" alt="WHOAMISec AI" width={42} height={42} className="rounded-lg" />
+            <div>
+              <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">WHOAMISec AI</h1>
+              <p className="text-[10px] text-slate-500">Hermes Bot Agent v4.0 · QuantumSwarm Intelligence</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <a href="https://t.me/whoamisecai" target="_blank" className="text-xs text-slate-400 hover:text-cyan-400 transition-colors hidden sm:block">📡 Canal</a>
+            <a href="https://t.me/idkebowbot" target="_blank" className="text-xs text-slate-400 hover:text-cyan-400 transition-colors hidden sm:block">🤖 Bot</a>
+            <button onClick={() => setShowTos(true)} className="text-xs text-slate-500 hover:text-slate-300 transition-colors">TOS</button>
+            <button onClick={() => setShowPlans(true)} className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-xs font-semibold hover:from-blue-500 hover:to-cyan-400 transition-all">
+              Abonamente
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-12">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div style={{ animation: 'slideIn 0.6s ease-out' }}>
+            <Badge className="mb-4 bg-indigo-500/20 text-indigo-300 border-indigo-500/30 text-xs px-3 py-1">
+              <Sparkles className="h-3 w-3 mr-1" /> QuantumSwarm Intelligence Engine
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-extrabold leading-tight mb-6">
+              <span className="bg-gradient-to-r from-indigo-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">AI Agentic Coder</span>
+              <br />
+              <span className="text-slate-200">cu 19+ Modele</span>
+            </h2>
+            <p className="text-slate-400 text-base mb-8 leading-relaxed max-w-lg">
+              Hermes Bot Agent v4.0 — platformă AI completă cu coding agentic, analiză securitate, Loop Coder în 13 limbaje,
+              Red Team testing, QuantumSwarm training și acces la cele mai avansate modele AI din lume.
+            </p>
+            <div className="flex flex-wrap gap-3 mb-8">
+              <button onClick={handleDemoRegister} disabled={demoLoading} className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-semibold hover:from-indigo-500 hover:to-cyan-400 transition-all flex items-center gap-2">
+                <Play className="h-4 w-4" /> {demoLoading ? 'Se încarcă...' : 'Încearcă Demo Gratis'}
+              </button>
+              <a href="https://t.me/idkebowbot" target="_blank" className="px-6 py-3 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition-all flex items-center gap-2">
+                <Bot className="h-4 w-4" /> Deschide Bot Telegram
+              </a>
+            </div>
+            <div className="flex flex-wrap gap-4 text-xs text-slate-500">
+              <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> 10 Requesturi Demo</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Fără card</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Activare instantă</span>
+            </div>
+          </div>
+
+          {/* Code Demo Slideshow */}
+          <div className="relative" style={{ animation: 'slideIn 0.8s ease-out' }}>
+            <div className="rounded-2xl bg-[#111827] border border-slate-700/50 overflow-hidden shadow-2xl shadow-indigo-500/10" style={{ animation: 'pulse-glow 4s ease-in-out infinite' }}>
+              <div className="flex items-center gap-2 px-4 py-3 bg-[#0a0e1a] border-b border-slate-800">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-500/70" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
+                  <div className="w-3 h-3 rounded-full bg-green-500/70" />
+                </div>
+                <span className="text-xs text-slate-500 ml-2">{slide.icon} {slide.lang} — Hermes Agent</span>
+                <div className="ml-auto flex gap-1">
+                  {CODE_DEMO_SLIDES.map((_, i) => (
+                    <button key={i} onClick={() => setCurrentSlide(i)} className={`w-2 h-2 rounded-full transition-all ${i === currentSlide ? 'bg-indigo-400 w-6' : 'bg-slate-600 hover:bg-slate-500'}`} />
+                  ))}
+                </div>
+              </div>
+              <div className="p-4 font-mono text-xs leading-relaxed">
+                <pre className="text-emerald-300 whitespace-pre-wrap mb-3">{slide.code}</pre>
+                <div className="border-t border-slate-800 pt-3 mt-3">
+                  <pre className="text-cyan-300/70 whitespace-pre-wrap">{slide.output}</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section className="relative z-10 max-w-7xl mx-auto px-6 py-12">
+        <h3 className="text-2xl font-bold text-center mb-8">
+          <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Capabilități Complete</span>
+        </h3>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { icon: <Brain className="h-6 w-6" />, title: '19+ Modele AI', desc: 'Queen Ultra, GPT-5.4, Claude Opus 4, DeepSeek 3.2, GLM-5 și multe altele', color: 'from-blue-500/20 to-indigo-500/20', border: 'border-blue-500/30' },
+            { icon: <Code className="h-6 w-6" />, title: 'Agentic Coder', desc: 'Coding complet cu QuantumSwarm, Loop Coder în 13 limbaje, auto-repair', color: 'from-emerald-500/20 to-cyan-500/20', border: 'border-emerald-500/30' },
+            { icon: <Shield className="h-6 w-6" />, title: 'Red Team Testing', desc: 'Jailbreak testing, adversarial reasoning, SQL injection, vulnerability scanning', color: 'from-red-500/20 to-orange-500/20', border: 'border-red-500/30' },
+            { icon: <Terminal className="h-6 w-6" />, title: 'Bot Telegram', desc: 'Comenzi complete, fișiere, deploy, training, loop coding, totul din Telegram', color: 'from-purple-500/20 to-pink-500/20', border: 'border-purple-500/30' },
+          ].map((f, i) => (
+            <div key={i} className={`rounded-xl bg-gradient-to-br ${f.color} border ${f.border} p-5 hover:scale-[1.02] transition-transform`}>
+              <div className="text-indigo-300 mb-3">{f.icon}</div>
+              <h4 className="font-bold text-sm mb-1">{f.title}</h4>
+              <p className="text-slate-400 text-xs leading-relaxed">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Subscription Plans */}
+      <section className="relative z-10 max-w-7xl mx-auto px-6 py-12">
+        <h3 className="text-2xl font-bold text-center mb-3">
+          <span className="bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">Planuri de Abonament</span>
+        </h3>
+        <p className="text-slate-500 text-sm text-center mb-8">Alege planul potrivit pentru tine. Plată în XMR sau USDT(TON).</p>
+        <div className="grid md:grid-cols-3 gap-6">
+          {SUBSCRIPTION_PLANS.map(plan => (
+            <div key={plan.id} className={`relative rounded-2xl bg-gradient-to-b ${plan.color} p-[1px] ${plan.popular ? 'md:-mt-4 md:mb-[-16px] scale-105 z-10' : ''}`}>
+              {plan.badge && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-[10px] font-bold">
+                  {plan.badge}
+                </div>
+              )}
+              <div className="rounded-2xl bg-[#111827] p-6 h-full">
+                <h4 className="text-xl font-bold mb-1">{plan.name}</h4>
+                <div className="flex items-baseline gap-1 mb-4">
+                  <span className="text-3xl font-extrabold">{plan.price === '0' ? 'GRATIS' : `${plan.price}`}</span>
+                  {plan.price !== '0' && <span className="text-slate-500 text-sm">{plan.currency}/{plan.period}</span>}
+                </div>
+                <div className="text-xs text-slate-400 mb-4">
+                  {plan.requests === -1 ? '∞ Requesturi' : `${plan.requests} requesturi`} · {plan.models.length} modele
+                </div>
+                <ul className="space-y-2 mb-6">
+                  {plan.features.map((f, i) => (
+                    <li key={i} className="flex items-start gap-2 text-xs text-slate-300">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 mt-0.5 shrink-0" /> {f}
+                    </li>
+                  ))}
+                </ul>
+                <button className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all ${plan.popular ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-500 hover:to-cyan-400' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}>
+                  {plan.id === 'free' ? 'Demo Gratis' : 'Contactează-ne'}
+                </button>
+                {plan.id !== 'free' && (
+                  <p className="text-center text-[10px] text-slate-600 mt-2">XMR / USDT(TON) · t.me/loghandelbot</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Subscriber Login Section */}
+      <section className="relative z-10 max-w-md mx-auto px-6 py-12">
+        <div className="rounded-2xl bg-[#111827] border border-slate-700/50 p-6">
+          <div className="text-center mb-4">
+            <Key className="h-6 w-6 text-cyan-400 mx-auto mb-2" />
+            <h4 className="font-bold">Ai deja token de acces?</h4>
+            <p className="text-xs text-slate-500 mt-1">Introdu token-ul WSEC pentru a accesa platforma</p>
+          </div>
+          {subLoginError && (
+            <div className="bg-red-950/50 border border-red-900/50 text-red-300 p-2 rounded-lg mb-3 text-xs">{subLoginError}</div>
+          )}
+          <div className="flex gap-2">
+            <Input value={subscriberToken} onChange={e => setSubscriberToken(e.target.value)} placeholder="WSEC-XXXX-XXXX-XXXX" className="bg-[#0a0e1a] border-slate-600 text-slate-100 flex-1 text-sm" onKeyDown={e => { if (e.key === 'Enter') handleSubLogin(); }} />
+            <Button onClick={() => handleSubLogin()} disabled={subLoading} className="bg-cyan-600 hover:bg-cyan-500 px-4">
+              {subLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Unlock className="h-4 w-4" />}
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-slate-800/50 py-6">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-slate-600">
+            <Image src="/whoamisec-logo.jpg" alt="" width={20} height={20} className="rounded" />
+            WHOAMISec AI · Hermes v4.0
+          </div>
+          <div className="flex items-center gap-4 text-xs text-slate-600">
+            <a href="https://t.me/whoamisecai" target="_blank" className="hover:text-slate-400">Canal</a>
+            <a href="https://t.me/idkebowbot" target="_blank" className="hover:text-slate-400">Bot</a>
+            <a href="https://t.me/loghandelbot" target="_blank" className="hover:text-slate-400">Contact</a>
+          </div>
+        </div>
+      </footer>
+
+      {/* Admin Floating Button (40% opacity, bottom-right corner) */}
+      <button
+        onClick={onAdminClick}
+        className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-slate-800/40 hover:bg-slate-700/60 border border-slate-600/30 flex items-center justify-center transition-all hover:scale-110 group"
+        title="Admin"
+      >
+        <Lock className="h-4 w-4 text-slate-500 group-hover:text-slate-300" />
+      </button>
+
+      {/* TOS Modal */}
+      {showTos && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowTos(false)}>
+          <div className="bg-[#111827] border border-slate-700/50 rounded-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-bold text-lg">Termeni și Condiții</h4>
+              <button onClick={() => setShowTos(false)} className="text-slate-500 hover:text-white"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="text-sm text-slate-400 space-y-3 leading-relaxed">
+              <p><strong className="text-slate-200">1. Utilizare:</strong> Platforma WHOAMISec AI este destinată utilizării profesionale în scopuri de dezvoltare software, analiză de securitate și cercetare. Orice utilizare abuzivă este strict interzisă.</p>
+              <p><strong className="text-slate-200">2. Token-uri:</strong> Token-urile WSEC sunt personale și netransferabile. Un token expirat nu poate fi reactivat. Demo-ul oferă 10 requesturi valabile 1 oră.</p>
+              <p><strong className="text-slate-200">3. Plată:</strong> Abonamentele se plătesc în XMR sau USDT(TON). Contact: t.me/loghandelbot. Nu există rambursări după activare.</p>
+              <p><strong className="text-slate-200">4. Responsabilitate:</strong> Utilizatorul este singurul responsabil pentru conținutul generat și acțiunile efectuate prin platformă. WHOAMISec AI nu garantează acuratețea rezultatelor.</p>
+              <p><strong className="text-slate-200">5. Confidențialitate:</strong> Nu stocăm date personale dincolo de token și istoricul de utilizare. Nu vindem date terților.</p>
+              <p><strong className="text-slate-200">6. Modificări:</strong> Ne rezervăm dreptul de a modifica prețurile și funcționalitățile fără notificare prealabilă.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Plans Modal */}
+      {showPlans && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowPlans(false)}>
+          <div className="bg-[#111827] border border-slate-700/50 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-bold text-lg">Plată și Contact</h4>
+              <button onClick={() => setShowPlans(false)} className="text-slate-500 hover:text-white"><X className="h-5 w-5" /></button>
+            </div>
+            <div className="space-y-4 text-sm text-slate-300">
+              <div className="rounded-xl bg-[#0a0e1a] p-4">
+                <h5 className="font-bold text-amber-400 mb-1">Monero (XMR)</h5>
+                <code className="text-xs text-slate-400 break-all">8BbApiMBHsPVKkLEP4rVbST6CnSb3LW2gXygngCi5MGiBuwAFh6bFEzT3UTuFCkLHtyHnrYNnHycdaGb2Kgkkmw8jViCdB6</code>
+              </div>
+              <div className="rounded-xl bg-[#0a0e1a] p-4">
+                <h5 className="font-bold text-blue-400 mb-1">USDT (TON)</h5>
+                <code className="text-xs text-slate-400 break-all">UQB652W7D6OQwI7mmkiBNzguViY7or3fVORRdjNOigeeafjk</code>
+              </div>
+              <p className="text-center text-slate-500 text-xs">După plată, contactează <a href="https://t.me/loghandelbot" target="_blank" className="text-cyan-400 hover:underline">t.me/loghandelbot</a> pentru a primi token-ul de acces.</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// ADMIN LOGIN MODAL (POPUP)
+// ═══════════════════════════════════════════════
+
+function AdminLoginModal({ onSuccess, onClose }: { onSuccess: () => void; onClose: () => void }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
-
-  useEffect(() => {
-    fetch('/api/auth/check').then(r => r.json()).then(data => {
-      setAuthenticated(data.authenticated === true);
-      setLoading(false);
-    }).catch(() => setLoading(false));
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
+    setLoading(true);
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password }),
     });
     const data = await res.json();
+    setLoading(false);
     if (data.success) {
-      setAuthenticated(true);
-      toast.success('Autentificat cu succes!');
+      onSuccess();
     } else {
       setLoginError(data.error || 'Parolă invalidă');
     }
   };
 
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {Array.from({ length: 20 }).map((_, i) => (
+          <div key={i} className="absolute rounded-full bg-blue-500/20" style={{ left: `${Math.random()*100}%`, top: `${Math.random()*100}%`, width: '2px', height: '2px', animation: `floatParticle ${5+Math.random()*6}s ease-in-out infinite`, animationDelay: `${Math.random()*8}s` }} />
+        ))}
+      </div>
+      <Card className="w-full max-w-md bg-gradient-to-br from-[#111827] to-[#1a1f35] border-slate-700/50" onClick={e => e.stopPropagation()}>
+        <CardContent className="pt-8 pb-8 px-8">
+          <div className="text-center mb-8">
+            <Image src="/whoamisec-logo.jpg" alt="WHOAMISec" width={60} height={60} className="rounded-xl mx-auto mb-3" />
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">WHOAMISec Admin</h1>
+            <p className="text-slate-500 text-sm mt-1">Admin Control Panel v4.0</p>
+          </div>
+          {loginError && (
+            <div className="bg-red-950/50 border border-red-900/50 text-red-300 p-3 rounded-lg mb-5 text-sm">{loginError}</div>
+          )}
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div>
+              <label className="text-slate-400 text-sm font-medium mb-2 block">
+                <Lock className="h-3.5 w-3.5 inline mr-1.5" /> Admin Password
+              </label>
+              <div className="relative">
+                <Input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter admin password" autoFocus className="bg-[#0f172a] border-slate-600 text-slate-100 h-12 pr-10" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button type="button" onClick={onClose} variant="outline" className="flex-1 h-12 border-slate-600 text-slate-400 hover:bg-slate-800">Înapoi</Button>
+              <Button type="submit" disabled={loading} className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold">
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Access Dashboard'}
+              </Button>
+            </div>
+          </form>
+          <p className="text-center text-slate-600 text-xs mt-6">Hermes Bot v4.0 · Expert Edition · 24/7 Online</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// MAIN PAGE COMPONENT
+// ═══════════════════════════════════════════════
+
+export default function HermesPage() {
+  const [authenticated, setAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/auth/check').then(r => r.json()).then(data => {
+      setAuthenticated(data.authenticated === true);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+
+    // Check subscriber token in localStorage
+    const subToken = localStorage.getItem('wsec_token');
+    if (subToken) {
+      fetch('/api/subscribe/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: subToken }),
+      }).then(r => r.json()).then(data => {
+        if (data.valid) {
+          setAuthenticated(true);
+        }
+        setLoading(false);
+      }).catch(() => setLoading(false));
+    }
+  }, []);
+
+  const handleAdminLogin = () => {
+    setShowAdminLogin(true);
+  };
+
+  const handleAdminSuccess = () => {
+    setAuthenticated(true);
+    setShowAdminLogin(false);
+    toast.success('Autentificat ca Admin!');
+  };
+
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
+    localStorage.removeItem('wsec_token');
+    localStorage.removeItem('wsec_role');
     setAuthenticated(false);
     toast.info('Deconectat');
   };
@@ -116,80 +593,11 @@ export default function HermesPage() {
   }
 
   if (!authenticated) {
-    return (
-      <div className="min-h-screen bg-[#0a0e1a] flex items-center justify-center p-4">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {Array.from({ length: 30 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full bg-blue-500/20"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                width: '2px',
-                height: '2px',
-                animation: `float ${5 + Math.random() * 6}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 8}s`,
-              }}
-            />
-          ))}
-        </div>
-        <style jsx>{`
-          @keyframes float {
-            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
-            50% { transform: translateY(-100px) translateX(50px); opacity: 0.7; }
-          }
-        `}</style>
-        <Card className="w-full max-w-md bg-gradient-to-br from-[#111827] to-[#1a1f35] border-slate-700/50">
-          <CardContent className="pt-8 pb-8 px-8">
-            <div className="text-center mb-8">
-              <div className="text-5xl mb-3">🤖</div>
-              <h1 className="text-3xl font-bold text-blue-400">Hermes</h1>
-              <p className="text-slate-500 text-sm mt-1">Admin Control Panel v4.0</p>
-            </div>
-            {loginError && (
-              <div className="bg-red-950/50 border border-red-900/50 text-red-300 p-3 rounded-lg mb-5 text-sm">
-                {loginError}
-              </div>
-            )}
-            <form onSubmit={handleLogin} className="space-y-5">
-              <div>
-                <label className="text-slate-400 text-sm font-medium mb-2 block">
-                  <Lock className="h-3.5 w-3.5 inline mr-1.5" />
-                  Admin Password
-                </label>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder="Enter admin password"
-                    autoFocus
-                    className="bg-[#0f172a] border-slate-600 text-slate-100 h-12 pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-              <Button
-                type="submit"
-                className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold text-base"
-              >
-                Access Dashboard →
-              </Button>
-            </form>
-            <p className="text-center text-slate-600 text-xs mt-6">
-              Hermes Bot v4.0 · Expert Edition · 24/7 Online
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <LandingPage onAdminClick={handleAdminLogin} />;
+  }
+
+  if (showAdminLogin) {
+    return <AdminLoginModal onSuccess={handleAdminSuccess} onClose={() => setShowAdminLogin(false)} />;
   }
 
   return <Dashboard onLogout={handleLogout} />;
