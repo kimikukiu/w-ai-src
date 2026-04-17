@@ -41,8 +41,8 @@ export const AGENT_PROMPTS: Record<string, string> = {
   'claude-opus-4-6': 'Ești CLAUDE OPUS 4.6 de Anthropic. Excepțional la reasoning complex.',
   'DeepSeek-3.2': 'Ești DeepSeek 3.2. Expert în matematică și coding.',
   'glm-5-turbo': 'Ești GLM-5 Turbo. Expert în coding, debug și arhitectură software.',
-  'glm-4-plus': 'Ești GLM-4 Plus. Model versatil și puternic.'
-  'glm-4-flash': 'Ești GLM-4 Flash. Rapid și eficient.'
+  'glm-4-plus': 'Ești GLM-4 Plus. Model versatil și puternic.',
+  'glm-4-flash': 'Ești GLM-4 Flash. Rapid și eficient.',
 };
 export const DEFAULT_PROMPT = 'Ești HERMES BOT v4.0, agent AI avansat multi-model. Expert în programare, AI, securitate, DevOps. Răspunzi în română sau engleză.';
 

@@ -600,7 +600,10 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
             <CardContent className="pt-8 pb-8 px-8">
               <InternalAdminLogin onSuccess={() => {
                 setShowAdminLoginInternal(false);
-                onAdminClick();
+                // Direct auth — set role and reload into dashboard
+                localStorage.setItem('wsec_role', 'admin');
+                localStorage.setItem('wsec_token', 'admin-hermes-v4');
+                window.location.reload();
               }} onClose={() => setShowAdminLoginInternal(false)} />
             </CardContent>
           </Card>
