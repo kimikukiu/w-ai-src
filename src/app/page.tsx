@@ -127,7 +127,8 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
   const [subLoading, setSubLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [showTos, setShowTos] = useState(false);
-  const [showPlans, setShowPlans] = useState(false);
+  const [showPlans, setShowPlans] = useState(true); // AUTO popup on load
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -177,8 +178,12 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
       const res = await fetch('/api/subscribe/register', { method: 'POST' });
       const data = await res.json();
       if (data.token) {
-        toast.success('Demo activat! Redirecting...');
-        window.location.href = '/?token=' + data.token;
+        // Auto-login instant — set token and authenticate immediately
+        localStorage.setItem('wsec_token', data.token);
+        localStorage.setItem('wsec_role', 'subscriber');
+        toast.success('Demo activat! Bine ai venit!');
+        // Direct auth without page reload
+        setTimeout(() => window.location.reload(), 500);
       } else {
         toast.error(data.error || 'Eroare la înregistrare demo');
       }
@@ -406,14 +411,63 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
         </div>
       </footer>
 
-      {/* Admin Floating Button (40% opacity, bottom-right corner) */}
-      <button
-        onClick={onAdminClick}
-        className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-slate-800/40 hover:bg-slate-700/60 border border-slate-600/30 flex items-center justify-center transition-all hover:scale-110 group"
-        title="Admin"
-      >
-        <Lock className="h-4 w-4 text-slate-500 group-hover:text-slate-300" />
-      </button>
+      {/* Floating Transparent Balloon — Login/Logout (40% opacity) */}
+      <div className="fixed bottom-6 right-6 z-50">
+        {/* Popup on click */}
+        {showLoginPopup && (
+          <div className="absolute bottom-16 right-0 w-64 bg-[#111827] border border-slate-700/50 rounded-xl shadow-2xl shadow-black/50 overflow-hidden mb-2 animate-in fade-in slide-in-from-bottom-4 duration-200">
+            <div className="p-4 border-b border-slate-700/30">
+              <div className="flex items-center gap-2 mb-3">
+                <Image src="/whoamisec-logo.jpg" alt="" width={28} height={28} className="rounded-lg" />
+                <div>
+                  <p className="text-xs font-bold text-white">WHOAMISec AI</p>
+                  <p className="text-[10px] text-slate-500">v4.0 Expert</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-3 space-y-1">
+              <button
+                onClick={() => { setShowLoginPopup(false); onAdminClick(); }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-slate-300 hover:bg-slate-700/50 transition-colors"
+              >
+                <Lock className="h-3.5 w-3.5 text-blue-400" />
+                <span>Admin Login</span>
+              </button>
+              <button
+                onClick={() => { setShowLoginPopup(false); setShowPlans(true); }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-slate-300 hover:bg-slate-700/50 transition-colors"
+              >
+                <Star className="h-3.5 w-3.5 text-amber-400" />
+                <span>Abonamente</span>
+              </button>
+              <button
+                onClick={() => { setShowLoginPopup(false); handleDemoRegister(); }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-slate-300 hover:bg-slate-700/50 transition-colors"
+                disabled={demoLoading}
+              >
+                <Play className="h-3.5 w-3.5 text-emerald-400" />
+                <span>{demoLoading ? 'Se încarcă...' : 'Demo Gratis'}</span>
+              </button>
+              <div className="border-t border-slate-800 my-1" />
+              <button
+                onClick={() => { setShowLoginPopup(false); setShowTos(true); }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-slate-500 hover:bg-slate-700/50 transition-colors"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                <span>Termeni și Condiții</span>
+              </button>
+            </div>
+          </div>
+        )}
+        {/* The balloon button */}
+        <button
+          onClick={() => setShowLoginPopup(!showLoginPopup)}
+          className="w-12 h-12 rounded-full bg-slate-800/40 hover:bg-slate-700/60 border border-slate-600/30 flex items-center justify-center transition-all hover:scale-110 group"
+          title="Login"
+        >
+          <Lock className="h-4 w-4 text-slate-500 group-hover:text-slate-300" />
+        </button>
+      </div>
 
       {/* TOS Modal */}
       {showTos && (
@@ -1265,6 +1319,75 @@ export default function HermesPage() {
   }
 
   return <Dashboard onLogout={handleLogout} />;
+}
+
+// ═══════════════════════════════════════════════
+// DASHBOARD FLOATING BALLOON (40% opacity)
+// ═══════════════════════════════════════════════
+
+function DashboardFloatingBalloon({ onLogout }: { onLogout: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [showConfirmLogout, setShowConfirmLogout] = useState(false);
+  const role = typeof window !== 'undefined' ? localStorage.getItem('wsec_role') : null;
+
+  return (
+    <div className="fixed bottom-6 right-6 z-[90]">
+      {/* Popup */}
+      {open && !showConfirmLogout && (
+        <div className="absolute bottom-16 right-0 w-56 bg-[#111827]/95 backdrop-blur-md border border-slate-700/50 rounded-xl shadow-2xl shadow-black/60 overflow-hidden mb-2">
+          <div className="p-3 border-b border-slate-800/50">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-blue-500/20 flex items-center justify-center text-[10px] font-bold text-blue-400">
+                {role === 'admin' ? 'A' : 'U'}
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-white">{role === 'admin' ? 'Admin' : 'Subscriber'}</p>
+                <p className="text-[10px] text-slate-500">WHOAMISec AI v4.0</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-2 space-y-0.5">
+            <button
+              onClick={() => { setShowConfirmLogout(true); }}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition-colors"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
+      )}
+      {open && showConfirmLogout && (
+        <div className="absolute bottom-16 right-0 w-56 bg-[#111827]/95 backdrop-blur-md border border-red-500/30 rounded-xl shadow-2xl shadow-red-500/10 overflow-hidden mb-2 p-4">
+          <p className="text-xs text-slate-300 mb-3">Sigur vrei să te deconectezi?</p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setOpen(false); setShowConfirmLogout(false); }}
+              className="flex-1 px-3 py-1.5 rounded-lg text-xs bg-slate-700/50 text-slate-300 hover:bg-slate-600/50 transition-colors"
+            >
+              Anulează
+            </button>
+            <button
+              onClick={() => { setOpen(false); setShowConfirmLogout(false); onLogout(); }}
+              className="flex-1 px-3 py-1.5 rounded-lg text-xs bg-red-600 text-white hover:bg-red-500 transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      )}
+      {/* Balloon button */}
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-11 h-11 rounded-full bg-slate-800/40 hover:bg-slate-700/60 border border-slate-600/30 flex items-center justify-center transition-all hover:scale-110 group"
+        title="Account"
+      >
+        <div className="w-5 h-5 rounded-full bg-blue-500/30 flex items-center justify-center text-[9px] font-bold text-blue-400 group-hover:text-blue-300">
+          {role === 'admin' ? 'A' : 'U'}
+        </div>
+      </button>
+    </div>
+  );
 }
 
 // ═══════════════════════════════════════════════
@@ -2998,6 +3121,9 @@ docker compose up -d --build`,
           )}
         </div>
       </main>
+
+      {/* ═══ FLOATING TRANSPARENT BALLOON — Dashboard (40% opacity) ═══ */}
+      <DashboardFloatingBalloon onLogout={onLogout} />
     </div>
   );
 }
