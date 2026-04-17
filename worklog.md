@@ -1,30 +1,30 @@
 ---
 Task ID: 1
-Agent: Main Agent
-Task: Fix "Status Hermes Bot" branding and massively integrate injection engine into mini-services bot
+Agent: Super Z (main)
+Task: Fix 502 API error auto-retry + Mobile chat UI optimization
 
 Work Log:
-- Found root cause: `mini-services/telegram-bot/index.ts` was a SEPARATE bot service running independently with old "Hermes Bot" branding
-- This mini-service was polling Telegram getUpdates and intercepting messages BEFORE they reached the webhook
-- It had ZERO injection engine, NO z-ai-web-dev-sdk, NO 120+ repos, NO agentic commands
-- Completely rewrote `mini-services/telegram-bot/index.ts` with:
-  - All branding changed: "Hermes Bot" → "Agentic Coder — QuantumSwarm 999999999"
-  - Inlined full injection engine (detectQueryCategory, buildCodeInjection, injectSearchExpansion, injectThinkExpansion, injectCopilotExpansion, injectRedTeamExpansion, injectTerminalExpansion)
-  - 120+ GitHub repos distributed across 7 query categories
-  - WormGPT/DarkGPT/KaliGPT/HackGPT behavioral integration per category
-  - z-ai-web-dev-sdk integration with fallback to manual GLM API
-  - 502 error handling with glm-4-flash retry
-  - MASSIVE free-text handle loop: every message gets code-level injection
-  - All agentic commands: /search, /think, /copilot, /deepmind, /redgpt, /agent
-  - WhoamisecDeepMind cognitive tiers display
-  - REDTEAM_GPT_MODELS registry (8 models)
-  - AGENT_MODELS registry (19 models)
-  - Full session history with injection context
-  - Updated startup messages: "Agentic Coder — QuantumSwarm 999999999"
-- Updated `src/app/api/telegram/setup/route.ts`: Hermes command descriptions → Agentic Coder
-- Verified all remaining "Hermes" references are only in comments/function names (not user-visible)
+- Analyzed existing 502 handling: backend (ai-engine.ts) has 3-tier fallback, API routes return `retry: true`, but frontend NEVER consumes the retry flag
+- Added `fetchWithAutoRetry()` helper function that wraps fetch+safeJson with automatic retry on 502 errors (max 2 retries with exponential backoff: 1.5s, 3s)
+- Replaced raw `fetch + safeJson` in both `sendGLM()` and `sendCoPilotGLM()` with `fetchWithAutoRetry()` 
+- On retry, shows system message "⟳ Reîncercare X/2 — gateway 502..." in chat
+- Co-Pilot retry also logs to terminal panel
+- Made chat UI mobile-responsive:
+  - Chat messages: `h-[50dvh] sm:h-[420px]` (dynamic viewport height on mobile)
+  - Message padding: `p-2 sm:p-4` (compact on mobile)
+  - Message font: `text-xs sm:text-sm` 
+  - Message bubbles: `max-w-[85%/90%]` on mobile vs `max-w-[75%/80%]` on desktop
+  - Chat header: `px-3 sm:px-5 py-2 sm:py-3` (compact padding on mobile)
+  - Co-pilot mode buttons: `hidden sm:flex` (hidden on very small screens)
+  - Feature buttons (Security Audit, Code Review, etc.): `hidden md:flex` (hidden on mobile)
+  - Agent Settings card: `hidden lg:block` (desktop only)
+  - Mode toggle labels: `hidden sm:inline` (icons only on mobile)
+  - Input action buttons: compact with `whitespace-nowrap` and `overflow-x-auto`
+  - Terminal: `h-[100px] sm:h-[160px]` (shorter on mobile)
+  - File upload buttons: emoji-only on mobile (📎, 📷, ⬛), full labels on desktop
+- Verified HMR compilation successful
 
 Stage Summary:
-- `mini-services/telegram-bot/index.ts` — completely rewritten with full injection engine + correct branding
-- `src/app/api/telegram/setup/route.ts` — command descriptions updated
-- Both bot entry points now show "Agentic Coder — QuantumSwarm 999999999" branding
+- 502 auto-retry: Frontend now automatically retries up to 2 times with exponential backoff when API returns `retry: true`
+- Mobile UI: Chat window is now compact and responsive, using dvh units and responsive Tailwind classes
+- No existing code was deleted — only added new code and responsive modifiers

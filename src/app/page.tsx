@@ -2224,6 +2224,34 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     { label: 'Coherence check: emergent intelligence', icon: '⭐', color: 'text-yellow-300', duration: 350 },
   ];
 
+  // ─── 502 Auto-Retry Wrapper ───
+  const fetchWithAutoRetry = async (url: string, options: RequestInit, maxRetries = 2, onRetry?: (attempt: number) => void): Promise<any> => {
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const res = await fetch(url, options);
+        const data = await safeJson(res);
+        if (data.response) return data;
+        // Auto-retry on 502 gateway errors
+        if (data.retry === true && attempt < maxRetries) {
+          console.log(`[502 Auto-Retry] Attempt ${attempt + 1}/${maxRetries}, waiting ${1 + attempt}...`);
+          onRetry?.(attempt + 1);
+          await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
+          continue;
+        }
+        return data;
+      } catch (e: any) {
+        if (attempt < maxRetries) {
+          console.log(`[502 Auto-Retry] Network error, attempt ${attempt + 1}/${maxRetries}`);
+          onRetry?.(attempt + 1);
+          await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+          continue;
+        }
+        return { error: e.message };
+      }
+    }
+    return { error: 'AI temporarily unavailable after retries.' };
+  };
+
   const sendGLM = async () => {
     const input = document.getElementById('glmInput') as HTMLInputElement;
     const msg = input?.value?.trim();
@@ -2254,12 +2282,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     }, 80);
 
     try {
-      const res = await fetch('/api/glm/chat', {
+      const data = await fetchWithAutoRetry('/api/glm/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: msg, model: glmModel, reasoning: agentReasoning, memory: agentMemory, cots: agentCots }),
+      }, 2, (attempt) => {
+        setGlmMessages(prev => [...prev, { role: 'system', content: `⟳ Reîncercare ${attempt}/2 — gateway 502...` }]);
       });
-      const data = await safeJson(res);
 
       // Complete thinking
       clearInterval(progressInterval);
@@ -2371,12 +2400,14 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         content: f.contentPreview || null,
       }));
 
-      const res = await fetch('/api/chat/copilot', {
+      const data = await fetchWithAutoRetry('/api/chat/copilot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: msg, mode: copilotMode, model: glmModel, fileContext }),
+      }, 2, (attempt) => {
+        setTerminalLines(prev => [...prev, `[RETRY] Reîncercare ${attempt}/2 — gateway 502...`]);
+        setGlmMessages(prev => [...prev, { role: 'system', content: `⟳ Co-Pilot retry ${attempt}/2...` }]);
       });
-      const data = await safeJson(res);
 
       clearInterval(progressInterval);
       setThinkingProgress(100);
@@ -3018,31 +3049,31 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
           {/* ═══ GLM ENGINE ═══ */}
           {activeSection === 'glm' && (
-            <div className="space-y-5">
+            <div className="space-y-3 sm:space-y-5">
               {/* MODE Selector + Feature Buttons */}
               <Card className="bg-[#111827] border-slate-700/50">
-                <CardContent className="p-5 space-y-4">
+                <CardContent className="p-3 sm:p-5 space-y-3 sm:space-y-4">
                   {/* MODE Toggle */}
-                  <div className="flex items-center gap-3 flex-wrap">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                     <span className="text-xs font-bold text-red-400 uppercase tracking-wider">MODE:</span>
                     <button
                       onClick={() => setGlmMode('normal')}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${glmMode === 'normal' ? 'bg-pink-600 text-white shadow-lg shadow-pink-500/30' : 'bg-[#0a0e1a] border border-slate-700 text-slate-400 hover:text-white'}`}
+                      className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs font-semibold transition-all ${glmMode === 'normal' ? 'bg-pink-600 text-white shadow-lg shadow-pink-500/30' : 'bg-[#0a0e1a] border border-slate-700 text-slate-400 hover:text-white'}`}
                     >
                       <Brain className="h-3.5 w-3.5" />
-                      Normal AI
+                      <span className="hidden sm:inline">Normal AI</span>
                     </button>
                     <button
                       onClick={() => setGlmMode('redteam')}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${glmMode === 'redteam' ? 'bg-red-600 text-white shadow-lg shadow-red-500/30' : 'bg-[#0a0e1a] border border-slate-700 text-slate-400 hover:text-white'}`}
+                      className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs font-semibold transition-all ${glmMode === 'redteam' ? 'bg-red-600 text-white shadow-lg shadow-red-500/30' : 'bg-[#0a0e1a] border border-slate-700 text-slate-400 hover:text-white'}`}
                     >
                       <Shield className="h-3.5 w-3.5" />
-                      Red Team
+                      <span className="hidden sm:inline">Red Team</span>
                     </button>
                   </div>
 
                   {/* Feature Buttons */}
-                  <div className="flex flex-wrap gap-2">
+                  <div className="hidden md:flex flex-wrap gap-2">
                     {[
                       { icon: Shield, label: 'Security Audit', color: 'from-blue-600 to-blue-500', onClick: () => { navigate('redteam'); setActiveSection('redteam'); } },
                       { icon: Code, label: 'Code Review', color: 'from-emerald-600 to-emerald-500', onClick: () => { navigate('codespace'); setActiveSection('codespace'); } },
@@ -3062,13 +3093,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
                   {/* Model Display */}
                   <div className="flex items-center justify-end">
-                    <span className="text-xs font-bold text-red-400">Model: {glmModel}</span>
+                    <span className="text-xs font-bold text-red-400">{glmModel}</span>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Agent Settings & Model Selection (Expandable) */}
-              <Card className="bg-[#111827] border-slate-700/50">
+              {/* Agent Settings & Model Selection (Expandable) — Desktop only */}
+              <Card className="bg-[#111827] border-slate-700/50 hidden lg:block">
                 <button
                   onClick={() => setAgentSettingsExpanded(!agentSettingsExpanded)}
                   className="w-full flex items-center justify-between p-4 text-left"
@@ -3146,12 +3177,12 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
               {/* GLM Chat — RED DESIGN WITH THINKING */}
               <div className="rounded-xl bg-gradient-to-b from-red-950/80 to-[#1a0a0a] border border-red-500/40 overflow-hidden shadow-2xl shadow-red-500/10">
                 {/* Chat Header */}
-                <div className="px-5 py-3 border-b border-red-500/20 flex items-center gap-3">
+                <div className="px-3 sm:px-5 py-2 sm:py-3 border-b border-red-500/20 flex items-center gap-2 sm:gap-3">
                   <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
                   <span className="text-sm font-bold text-pink-400">Agentic Coder</span>
                   <Brain className="h-4 w-4 text-pink-400" />
                   {/* Co-Pilot Mode Selector — ALL permanently active for max performance */}
-                  <div className="flex items-center gap-1 ml-2">
+                  <div className="hidden sm:flex items-center gap-1 ml-2">
                     {([
                       { id: 'full_copilot', label: 'Co-Pilot', icon: '🤖' },
                       { id: 'terminal_execute', label: 'Terminal', icon: '⚡' },
@@ -3182,7 +3213,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       </span>
                       <button onClick={() => setShowTerminal(false)} className="text-slate-500 hover:text-slate-300 text-xs">✕</button>
                     </div>
-                    <ScrollArea className="h-[160px] bg-black/60">
+                    <ScrollArea className="h-[100px] sm:h-[160px] bg-black/60">
                       <div className="p-3 font-mono text-[11px] leading-relaxed">
                         {terminalLines.map((line, i) => (
                           <div key={i} className={
@@ -3207,15 +3238,15 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   </div>
                 )}
                 {/* Chat Messages */}
-                <ScrollArea className="h-[420px]">
-                  <div className="p-4 space-y-3">
+                <ScrollArea className="h-[50dvh] sm:h-[420px]">
+                  <div className="p-2 sm:p-4 space-y-2 sm:space-y-3">
                     {glmMessages.map((m, i) => (
                       m.role === 'system' ? (
                         <div key={i} className="text-center text-red-400/50 text-xs py-2">{m.content}</div>
                       ) : m.role === 'user' ? (
                         <div key={i} className="flex justify-end group">
-                          <div className="max-w-[75%] px-4 py-2.5 rounded-2xl rounded-tr-sm bg-red-600/30 border border-red-500/20 relative">
-                            <div className="text-sm text-white leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: formatGLM(m.content) }} />
+                          <div className="max-w-[85%] sm:max-w-[75%] px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl rounded-tr-sm bg-red-600/30 border border-red-500/20 relative">
+                            <div className="text-xs sm:text-sm text-white leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: formatGLM(m.content) }} />
                             <button
                               onClick={() => { navigator.clipboard.writeText(m.content); toast.success('Prompt copiat!'); }}
                               className="absolute -left-9 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md bg-slate-800/80 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40"
@@ -3227,8 +3258,8 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         </div>
                       ) : (
                         <div key={i} className="flex justify-start group">
-                          <div className="max-w-[80%] px-4 py-2.5 rounded-2xl rounded-tl-sm bg-[#2a1010] border border-red-500/10 relative">
-                            <div className="text-sm text-white/90 leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: formatGLM(m.content) }} />
+                          <div className="max-w-[90%] sm:max-w-[80%] px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl rounded-tl-sm bg-[#2a1010] border border-red-500/10 relative">
+                            <div className="text-xs sm:text-sm text-white/90 leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: formatGLM(m.content) }} />
                             <button
                               onClick={() => { navigator.clipboard.writeText(m.content); toast.success('Răspuns copiat!'); }}
                               className="absolute -right-9 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md bg-slate-800/80 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40"
@@ -3336,34 +3367,34 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   </div>
                 )}
                 {/* Chat Input with File Upload */}
-                <div className="px-4 py-3 border-t border-red-500/20 bg-[#1a0a0a]/80">
+                <div className="px-3 sm:px-4 py-2 sm:py-3 border-t border-red-500/20 bg-[#1a0a0a]/80">
                   {/* File action buttons row */}
-                  <div className="flex items-center gap-1 mb-2">
+                  <div className="flex items-center gap-1 mb-2 overflow-x-auto">
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium bg-[#0f0505] border border-red-500/20 text-slate-400 hover:text-red-300 hover:border-red-500/40 transition-all"
+                      className="flex items-center gap-1.5 px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg text-[10px] font-medium bg-[#0f0505] border border-red-500/20 text-slate-400 hover:text-red-300 hover:border-red-500/40 transition-all whitespace-nowrap"
                     >
-                      📎 Upload File
+                      📎
                     </button>
                     <button
                       onClick={() => imageInputRef.current?.click()}
-                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium bg-[#0f0505] border border-purple-500/20 text-slate-400 hover:text-purple-300 hover:border-purple-500/40 transition-all"
+                      className="flex items-center gap-1.5 px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg text-[10px] font-medium bg-[#0f0505] border border-purple-500/20 text-slate-400 hover:text-purple-300 hover:border-purple-500/40 transition-all whitespace-nowrap"
                     >
-                      📷 VLM Analyze
+                      📷
                     </button>
                     <button
                       onClick={loadChatFiles}
-                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium bg-[#0f0505] border border-red-500/20 text-slate-400 hover:text-blue-300 hover:border-blue-500/40 transition-all"
+                      className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium bg-[#0f0505] border border-red-500/20 text-slate-400 hover:text-blue-300 hover:border-blue-500/40 transition-all whitespace-nowrap"
                     >
                       📂 Files
                     </button>
                     <button
                       onClick={() => setShowTerminal(!showTerminal)}
-                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium border transition-all ${showTerminal ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-[#0f0505] border-red-500/20 text-slate-400 hover:text-green-300'}`}
+                      className={`flex items-center gap-1.5 px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg text-[10px] font-medium border transition-all whitespace-nowrap ${showTerminal ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-[#0f0505] border-red-500/20 text-slate-400 hover:text-green-300'}`}
                     >
-                      ⬛ Terminal
+                      ⬛
                     </button>
-                    <span className="ml-auto text-[9px] text-emerald-400/80">🤖⚡🔍🧬 ALL MODES ACTIVE</span>
+                    <span className="ml-auto text-[9px] text-emerald-400/80 hidden sm:inline">🤖⚡🔍🧬 ALL MODES ACTIVE</span>
                     <input
                       ref={fileInputRef}
                       type="file"
