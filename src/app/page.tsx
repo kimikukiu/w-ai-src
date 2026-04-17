@@ -187,7 +187,92 @@ function InternalAdminLogin({ onSuccess, onClose }: { onSuccess: () => void; onC
 // LANDING PAGE COMPONENT (PUBLIC VIEW)
 // ═══════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════
+// I18N TRANSLATIONS (Landing Page)
+// ═══════════════════════════════════════════════
+
+type Lang = 'ro' | 'en';
+const L: Record<Lang, Record<string, string>> = {
+  ro: {
+    nav_channel: 'Canal', nav_bot: 'Bot', nav_tos: 'TOS', nav_plans: 'Abonamente',
+    badge: 'QuantumSwarm Intelligence Engine',
+    hero_title_1: 'AI Agentic Coder', hero_title_2: 'cu 19+ Modele',
+    hero_desc: 'WHOAMISec AI — platformă AI completă cu coding agentic, analiză securitate, Loop Coder în 13 limbaje, Red Team testing, QuantumSwarm training și acces la cele mai avansate modele AI din lume.',
+    hero_demo_btn: 'Încearcă Demo Gratis', hero_demo_loading: 'Se încarcă...', hero_bot_btn: 'Deschide Bot Telegram',
+    feat_10req: '10 Requesturi Demo', feat_nocard: 'Fără card', feat_instant: 'Activare instantă',
+    features_title: 'Capabilități Complete',
+    feat1_title: '19+ Modele AI', feat1_desc: 'Queen Ultra, GPT-5.4, Claude Opus 4, DeepSeek 3.2, GLM-5 și multe altele',
+    feat2_title: 'Agentic Coder', feat2_desc: 'Coding complet cu QuantumSwarm, Loop Coder în 13 limbaje, auto-repair',
+    feat3_title: 'Red Team Testing', feat3_desc: 'Jailbreak testing, adversarial reasoning, SQL injection, vulnerability scanning',
+    feat4_title: 'Bot Telegram', feat4_desc: 'Comenzi complete, fișiere, deploy, training, loop coding, totul din Telegram',
+    plans_title: 'Planuri de Abonament', plans_subtitle: 'Alege planul potrivit pentru tine. Plată în XMR sau USDT(TON).',
+    plans_free: 'GRATIS', plans_requests: 'requesturi', plans_models: 'modele',
+    plans_infinite: '∞ Requesturi', plans_demo_btn: 'Demo Gratis', plans_contact_btn: 'Contactează-ne',
+    token_title: 'Ai deja token de acces?', token_subtitle: 'Introdu token-ul WSEC pentru a accesa platforma',
+    token_placeholder: 'WSEC-XXXX-XXXX-XXXX',
+    tos_title: 'Termeni și Condiții',
+    tos_1: '1. Utilizare:', tos_1d: 'Platforma WHOAMISec AI este destinată utilizării profesionale în scopuri de dezvoltare software, analiză de securitate și cercetare. Orice utilizare abuzivă este strict interzisă.',
+    tos_2: '2. Token-uri:', tos_2d: 'Token-urile WSEC sunt personale și netransferabile. Un token expirat nu poate fi reactivat. Demo-ul oferă 10 requesturi valabile 1 oră.',
+    tos_3: '3. Plată:', tos_3d: 'Abonamentele se plătesc în XMR sau USDT(TON). Contact: t.me/loghandelbot. Nu există rambursări după activare.',
+    tos_4: '4. Responsabilitate:', tos_4d: 'Utilizatorul este singurul responsabil pentru conținutul generat și acțiunile efectuate prin platformă. WHOAMISec AI nu garantează acuratețea rezultatelor.',
+    tos_5: '5. Confidențialitate:', tos_5d: 'Nu stocăm date personale dincolo de token și istoricul de utilizare. Nu vindem date terților.',
+    tos_6: '6. Modificări:', tos_6d: 'Ne rezervăm dreptul de a modifica prețurile și funcționalitățile fără notificare prealabilă.',
+    foot_channel: 'Canal', foot_bot: 'Bot', foot_contact: 'Contact',
+    popup_admin: 'Admin Login', popup_plans: 'Abonamente', popup_demo: 'Demo Gratis', popup_demo_loading: 'Se încarcă...', popup_tos: 'Termeni și Condiții',
+    pay_title: 'Secure Payment — Planuri de Abonament', pay_subtitle: 'Alege planul potrivit pentru tine. Plata securizată în XMR sau USDT(TON).',
+    pay_select: 'Selectează Plan', pay_back: 'Înapoi la planuri',
+    pay_plan_pro: 'Pro — 25 EUR/lună', pay_plan_ent: 'Enterprise — 75 EUR/lună',
+    pay_plan_desc: 'Trimite plata folosind una din adresele de mai jos, apoi introdu transaction ID-ul pentru verificare.',
+    pay_verify_title: 'Verificare Plată', pay_method: 'Metodă plată', pay_tx_label: 'Transaction ID / Hash',
+    pay_tx_placeholder: 'Introdu transaction hash-ul...', pay_verify_btn: 'Verifică Plată',
+    pay_verify_error: 'Selectează metoda și introdu transaction hash-ul',
+    pay_success_title: 'Plată Înregistrată!', pay_success_desc: 'Plata ta este în așteptare pentru verificare manuală. Vei primi token-ul de acces în cel mai scurt timp.',
+    pay_contact: 'Contactează t.me/loghandelbot', pay_close: 'Închide',
+    pay_error_title: 'Eroare la Verificare', pay_retry: 'Încearcă Din Nou',
+    pay_copy: 'Copiază', pay_copied: 'Copiat!',
+  },
+  en: {
+    nav_channel: 'Channel', nav_bot: 'Bot', nav_tos: 'TOS', nav_plans: 'Plans',
+    badge: 'QuantumSwarm Intelligence Engine',
+    hero_title_1: 'AI Agentic Coder', hero_title_2: 'with 19+ Models',
+    hero_desc: 'WHOAMISec AI — complete AI platform with agentic coding, security analysis, Loop Coder in 13 languages, Red Team testing, QuantumSwarm training, and access to the most advanced AI models in the world.',
+    hero_demo_btn: 'Try Free Demo', hero_demo_loading: 'Loading...', hero_bot_btn: 'Open Telegram Bot',
+    feat_10req: '10 Demo Requests', feat_nocard: 'No credit card', feat_instant: 'Instant activation',
+    features_title: 'Full Capabilities',
+    feat1_title: '19+ AI Models', feat1_desc: 'Queen Ultra, GPT-5.4, Claude Opus 4, DeepSeek 3.2, GLM-5 and many more',
+    feat2_title: 'Agentic Coder', feat2_desc: 'Complete coding with QuantumSwarm, Loop Coder in 13 languages, auto-repair',
+    feat3_title: 'Red Team Testing', feat3_desc: 'Jailbreak testing, adversarial reasoning, SQL injection, vulnerability scanning',
+    feat4_title: 'Telegram Bot', feat4_desc: 'Full commands, files, deploy, training, loop coding, everything from Telegram',
+    plans_title: 'Subscription Plans', plans_subtitle: 'Choose the right plan for you. Pay with XMR or USDT(TON).',
+    plans_free: 'FREE', plans_requests: 'requests', plans_models: 'models',
+    plans_infinite: '∞ Requests', plans_demo_btn: 'Free Demo', plans_contact_btn: 'Contact Us',
+    token_title: 'Already have an access token?', token_subtitle: 'Enter your WSEC token to access the platform',
+    token_placeholder: 'WSEC-XXXX-XXXX-XXXX',
+    tos_title: 'Terms and Conditions',
+    tos_1: '1. Usage:', tos_1d: 'WHOAMISec AI platform is intended for professional use in software development, security analysis, and research. Any abusive use is strictly prohibited.',
+    tos_2: '2. Tokens:', tos_2d: 'WSEC tokens are personal and non-transferable. An expired token cannot be reactivated. The demo provides 10 requests valid for 1 hour.',
+    tos_3: '3. Payment:', tos_3d: 'Subscriptions are paid in XMR or USDT(TON). Contact: t.me/loghandelbot. No refunds after activation.',
+    tos_4: '4. Responsibility:', tos_4d: 'The user is solely responsible for generated content and actions performed through the platform. WHOAMISec AI does not guarantee the accuracy of results.',
+    tos_5: '5. Privacy:', tos_5d: 'We do not store personal data beyond tokens and usage history. We do not sell data to third parties.',
+    tos_6: '6. Changes:', tos_6d: 'We reserve the right to modify prices and features without prior notice.',
+    foot_channel: 'Channel', foot_bot: 'Bot', foot_contact: 'Contact',
+    popup_admin: 'Admin Login', popup_plans: 'Plans', popup_demo: 'Free Demo', popup_demo_loading: 'Loading...', popup_tos: 'Terms & Conditions',
+    pay_title: 'Secure Payment — Subscription Plans', pay_subtitle: 'Choose the right plan for you. Secure payment via XMR or USDT(TON).',
+    pay_select: 'Select Plan', pay_back: 'Back to plans',
+    pay_plan_pro: 'Pro — 25 EUR/month', pay_plan_ent: 'Enterprise — 75 EUR/month',
+    pay_plan_desc: 'Send payment using one of the addresses below, then enter the transaction ID for verification.',
+    pay_verify_title: 'Payment Verification', pay_method: 'Payment method', pay_tx_label: 'Transaction ID / Hash',
+    pay_tx_placeholder: 'Enter transaction hash...', pay_verify_btn: 'Verify Payment',
+    pay_verify_error: 'Select method and enter transaction hash',
+    pay_success_title: 'Payment Registered!', pay_success_desc: 'Your payment is pending manual verification. You will receive your access token as soon as possible.',
+    pay_contact: 'Contact t.me/loghandelbot', pay_close: 'Close',
+    pay_error_title: 'Verification Error', pay_retry: 'Try Again',
+    pay_copy: 'Copy', pay_copied: 'Copied!',
+  },
+};
+
 function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
+  const [lang, setLang] = useState<Lang>('ro');
   const [currentSlide, setCurrentSlide] = useState(0);
   const [subscriberToken, setSubscriberToken] = useState('');
   const [subLoginError, setSubLoginError] = useState('');
@@ -270,6 +355,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
   };
 
   const slide = CODE_DEMO_SLIDES[currentSlide];
+  const t = L[lang];
 
   return (
     <div className="min-h-screen bg-[#0a0e1a] text-slate-100 relative overflow-hidden">
@@ -321,11 +407,16 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <a href="https://t.me/whoamisecai" target="_blank" className="text-xs text-slate-400 hover:text-cyan-400 transition-colors hidden sm:block">📡 Canal</a>
-            <a href="https://t.me/idkebowbot" target="_blank" className="text-xs text-slate-400 hover:text-cyan-400 transition-colors hidden sm:block">🤖 Bot</a>
-            <button onClick={() => setShowTos(true)} className="text-xs text-slate-500 hover:text-slate-300 transition-colors">TOS</button>
+            {/* Language Toggle */}
+            <button onClick={() => setLang(lang === 'ro' ? 'en' : 'ro')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700/60 hover:border-cyan-500/40 bg-slate-800/40 hover:bg-slate-700/60 transition-all" title={lang === 'ro' ? 'Switch to English' : 'Schimbă în Română'}>
+              <span className="text-sm">{lang === 'ro' ? '🇬🇧' : '🇷🇴'}</span>
+              <span className="text-[11px] font-semibold text-slate-300">{lang === 'ro' ? 'EN' : 'RO'}</span>
+            </button>
+            <a href="https://t.me/whoamisecai" target="_blank" className="text-xs text-slate-400 hover:text-cyan-400 transition-colors hidden sm:block">{t.nav_channel}</a>
+            <a href="https://t.me/idkebowbot" target="_blank" className="text-xs text-slate-400 hover:text-cyan-400 transition-colors hidden sm:block">{t.nav_bot}</a>
+            <button onClick={() => setShowTos(true)} className="text-xs text-slate-500 hover:text-slate-300 transition-colors">{t.nav_tos}</button>
             <button onClick={() => setShowPlans(true)} className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-xs font-semibold hover:from-blue-500 hover:to-cyan-400 transition-all">
-              Abonamente
+              {t.nav_plans}
             </button>
           </div>
         </div>
@@ -336,29 +427,28 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div style={{ animation: 'slideIn 0.6s ease-out' }}>
             <Badge className="mb-4 bg-indigo-500/20 text-indigo-300 border-indigo-500/30 text-xs px-3 py-1">
-              <Sparkles className="h-3 w-3 mr-1" /> QuantumSwarm Intelligence Engine
+              <Sparkles className="h-3 w-3 mr-1" /> {t.badge}
             </Badge>
             <h2 className="text-4xl md:text-5xl font-extrabold leading-tight mb-6">
-              <span className="bg-gradient-to-r from-indigo-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">AI Agentic Coder</span>
+              <span className="bg-gradient-to-r from-indigo-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">{t.hero_title_1}</span>
               <br />
-              <span className="text-slate-200">cu 19+ Modele</span>
+              <span className="text-slate-200">{t.hero_title_2}</span>
             </h2>
             <p className="text-slate-400 text-base mb-8 leading-relaxed max-w-lg">
-              WHOAMISec AI — platformă AI completă cu coding agentic, analiză securitate, Loop Coder în 13 limbaje,
-              Red Team testing, QuantumSwarm training și acces la cele mai avansate modele AI din lume.
+              {t.hero_desc}
             </p>
             <div className="flex flex-wrap gap-3 mb-8">
               <button onClick={handleDemoRegister} disabled={demoLoading} className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-semibold hover:from-indigo-500 hover:to-cyan-400 transition-all flex items-center gap-2">
-                <Play className="h-4 w-4" /> {demoLoading ? 'Se încarcă...' : 'Încearcă Demo Gratis'}
+                <Play className="h-4 w-4" /> {demoLoading ? t.hero_demo_loading : t.hero_demo_btn}
               </button>
               <a href="https://t.me/idkebowbot" target="_blank" className="px-6 py-3 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition-all flex items-center gap-2">
-                <Bot className="h-4 w-4" /> Deschide Bot Telegram
+                <Bot className="h-4 w-4" /> {t.hero_bot_btn}
               </a>
             </div>
             <div className="flex flex-wrap gap-4 text-xs text-slate-500">
-              <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> 10 Requesturi Demo</span>
-              <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Fără card</span>
-              <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Activare instantă</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> {t.feat_10req}</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> {t.feat_nocard}</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> {t.feat_instant}</span>
             </div>
           </div>
 
@@ -392,14 +482,14 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
       {/* Features Grid */}
       <section className="relative z-10 max-w-7xl mx-auto px-6 py-12">
         <h3 className="text-2xl font-bold text-center mb-8">
-          <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Capabilități Complete</span>
+          <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">{t.features_title}</span>
         </h3>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { icon: <Brain className="h-6 w-6" />, title: '19+ Modele AI', desc: 'Queen Ultra, GPT-5.4, Claude Opus 4, DeepSeek 3.2, GLM-5 și multe altele', color: 'from-blue-500/20 to-indigo-500/20', border: 'border-blue-500/30' },
-            { icon: <Code className="h-6 w-6" />, title: 'Agentic Coder', desc: 'Coding complet cu QuantumSwarm, Loop Coder în 13 limbaje, auto-repair', color: 'from-emerald-500/20 to-cyan-500/20', border: 'border-emerald-500/30' },
-            { icon: <Shield className="h-6 w-6" />, title: 'Red Team Testing', desc: 'Jailbreak testing, adversarial reasoning, SQL injection, vulnerability scanning', color: 'from-red-500/20 to-orange-500/20', border: 'border-red-500/30' },
-            { icon: <Terminal className="h-6 w-6" />, title: 'Bot Telegram', desc: 'Comenzi complete, fișiere, deploy, training, loop coding, totul din Telegram', color: 'from-purple-500/20 to-pink-500/20', border: 'border-purple-500/30' },
+            { icon: <Brain className="h-6 w-6" />, title: t.feat1_title, desc: t.feat1_desc, color: 'from-blue-500/20 to-indigo-500/20', border: 'border-blue-500/30' },
+            { icon: <Code className="h-6 w-6" />, title: t.feat2_title, desc: t.feat2_desc, color: 'from-emerald-500/20 to-cyan-500/20', border: 'border-emerald-500/30' },
+            { icon: <Shield className="h-6 w-6" />, title: t.feat3_title, desc: t.feat3_desc, color: 'from-red-500/20 to-orange-500/20', border: 'border-red-500/30' },
+            { icon: <Terminal className="h-6 w-6" />, title: t.feat4_title, desc: t.feat4_desc, color: 'from-purple-500/20 to-pink-500/20', border: 'border-purple-500/30' },
           ].map((f, i) => (
             <div key={i} className={`rounded-xl bg-gradient-to-br ${f.color} border ${f.border} p-5 hover:scale-[1.02] transition-transform`}>
               <div className="text-indigo-300 mb-3">{f.icon}</div>
@@ -413,9 +503,9 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
       {/* Subscription Plans */}
       <section className="relative z-10 max-w-7xl mx-auto px-6 py-12">
         <h3 className="text-2xl font-bold text-center mb-3">
-          <span className="bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">Planuri de Abonament</span>
+          <span className="bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">{t.plans_title}</span>
         </h3>
-        <p className="text-slate-500 text-sm text-center mb-8">Alege planul potrivit pentru tine. Plată în XMR sau USDT(TON).</p>
+        <p className="text-slate-500 text-sm text-center mb-8">{t.plans_subtitle}</p>
         <div className="grid md:grid-cols-3 gap-6">
           {SUBSCRIPTION_PLANS.map(plan => (
             <div key={plan.id} className={`relative rounded-2xl bg-gradient-to-b ${plan.color} p-[1px] ${plan.popular ? 'md:-mt-4 md:mb-[-16px] scale-105 z-10' : ''}`}>
@@ -427,11 +517,11 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
               <div className="rounded-2xl bg-[#111827] p-6 h-full">
                 <h4 className="text-xl font-bold mb-1">{plan.name}</h4>
                 <div className="flex items-baseline gap-1 mb-4">
-                  <span className="text-3xl font-extrabold">{plan.price === '0' ? 'GRATIS' : `${plan.price}`}</span>
+                  <span className="text-3xl font-extrabold">{plan.price === '0' ? t.plans_free : `${plan.price}`}</span>
                   {plan.price !== '0' && <span className="text-slate-500 text-sm">{plan.currency}/{plan.period}</span>}
                 </div>
                 <div className="text-xs text-slate-400 mb-4">
-                  {plan.requests === -1 ? '∞ Requesturi' : `${plan.requests} requesturi`} · {plan.models.length} modele
+                  {plan.requests === -1 ? t.plans_infinite : `${plan.requests} ${t.plans_requests}`} · {plan.models.length} {t.plans_models}
                 </div>
                 <ul className="space-y-2 mb-6">
                   {plan.features.map((f, i) => (
@@ -441,7 +531,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
                   ))}
                 </ul>
                 <button className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all ${plan.popular ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-500 hover:to-cyan-400' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}>
-                  {plan.id === 'free' ? 'Demo Gratis' : 'Contactează-ne'}
+                  {plan.id === 'free' ? t.plans_demo_btn : t.plans_contact_btn}
                 </button>
                 {plan.id !== 'free' && (
                   <p className="text-center text-[10px] text-slate-600 mt-2">XMR / USDT(TON) · t.me/loghandelbot</p>
@@ -457,14 +547,14 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
         <div className="rounded-2xl bg-[#111827] border border-slate-700/50 p-6">
           <div className="text-center mb-4">
             <Key className="h-6 w-6 text-cyan-400 mx-auto mb-2" />
-            <h4 className="font-bold">Ai deja token de acces?</h4>
-            <p className="text-xs text-slate-500 mt-1">Introdu token-ul WSEC pentru a accesa platforma</p>
+            <h4 className="font-bold">{t.token_title}</h4>
+            <p className="text-xs text-slate-500 mt-1">{t.token_subtitle}</p>
           </div>
           {subLoginError && (
             <div className="bg-red-950/50 border border-red-900/50 text-red-300 p-2 rounded-lg mb-3 text-xs">{subLoginError}</div>
           )}
           <div className="flex gap-2">
-            <Input value={subscriberToken} onChange={e => setSubscriberToken(e.target.value)} placeholder="WSEC-XXXX-XXXX-XXXX" className="bg-[#0a0e1a] border-slate-600 text-slate-100 flex-1 text-sm" onKeyDown={e => { if (e.key === 'Enter') handleSubLogin(); }} />
+            <Input value={subscriberToken} onChange={e => setSubscriberToken(e.target.value)} placeholder={t.token_placeholder} className="bg-[#0a0e1a] border-slate-600 text-slate-100 flex-1 text-sm" onKeyDown={e => { if (e.key === 'Enter') handleSubLogin(); }} />
             <Button onClick={() => handleSubLogin()} disabled={subLoading} className="bg-cyan-600 hover:bg-cyan-500 px-4">
               {subLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Unlock className="h-4 w-4" />}
             </Button>
@@ -480,9 +570,9 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
             WHOAMISec AI · v4.0
           </div>
           <div className="flex items-center gap-4 text-xs text-slate-600">
-            <a href="https://t.me/whoamisecai" target="_blank" className="hover:text-slate-400">Canal</a>
-            <a href="https://t.me/idkebowbot" target="_blank" className="hover:text-slate-400">Bot</a>
-            <a href="https://t.me/loghandelbot" target="_blank" className="hover:text-slate-400">Contact</a>
+            <a href="https://t.me/whoamisecai" target="_blank" className="hover:text-slate-400">{t.foot_channel}</a>
+            <a href="https://t.me/idkebowbot" target="_blank" className="hover:text-slate-400">{t.foot_bot}</a>
+            <a href="https://t.me/loghandelbot" target="_blank" className="hover:text-slate-400">{t.foot_contact}</a>
           </div>
         </div>
       </footer>
@@ -507,14 +597,14 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-slate-300 hover:bg-slate-700/50 transition-colors"
               >
                 <Lock className="h-3.5 w-3.5 text-blue-400" />
-                <span>Admin Login</span>
+                <span>{t.popup_admin}</span>
               </button>
               <button
                 onClick={() => { setShowLoginPopup(false); setShowSecurePayment(true); }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-slate-300 hover:bg-slate-700/50 transition-colors"
               >
                 <Star className="h-3.5 w-3.5 text-amber-400" />
-                <span>Abonamente</span>
+                <span>{t.popup_plans}</span>
               </button>
               <button
                 onClick={() => { setShowLoginPopup(false); handleDemoRegister(); }}
@@ -522,7 +612,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
                 disabled={demoLoading}
               >
                 <Play className="h-3.5 w-3.5 text-emerald-400" />
-                <span>{demoLoading ? 'Se încarcă...' : 'Demo Gratis'}</span>
+                <span>{demoLoading ? t.popup_demo_loading : t.popup_demo}</span>
               </button>
               <div className="border-t border-slate-800 my-1" />
               <button
@@ -530,7 +620,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-slate-500 hover:bg-slate-700/50 transition-colors"
               >
                 <FileText className="h-3.5 w-3.5" />
-                <span>Termeni și Condiții</span>
+                <span>{t.popup_tos}</span>
               </button>
             </div>
           </div>
@@ -550,16 +640,16 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
         <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowTos(false)}>
           <div className="bg-[#111827] border border-slate-700/50 rounded-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h4 className="font-bold text-lg">Termeni și Condiții</h4>
+              <h4 className="font-bold text-lg">{t.tos_title}</h4>
               <button onClick={() => setShowTos(false)} className="text-slate-500 hover:text-white"><X className="h-5 w-5" /></button>
             </div>
             <div className="text-sm text-slate-400 space-y-3 leading-relaxed">
-              <p><strong className="text-slate-200">1. Utilizare:</strong> Platforma WHOAMISec AI este destinată utilizării profesionale în scopuri de dezvoltare software, analiză de securitate și cercetare. Orice utilizare abuzivă este strict interzisă.</p>
-              <p><strong className="text-slate-200">2. Token-uri:</strong> Token-urile WSEC sunt personale și netransferabile. Un token expirat nu poate fi reactivat. Demo-ul oferă 10 requesturi valabile 1 oră.</p>
-              <p><strong className="text-slate-200">3. Plată:</strong> Abonamentele se plătesc în XMR sau USDT(TON). Contact: t.me/loghandelbot. Nu există rambursări după activare.</p>
-              <p><strong className="text-slate-200">4. Responsabilitate:</strong> Utilizatorul este singurul responsabil pentru conținutul generat și acțiunile efectuate prin platformă. WHOAMISec AI nu garantează acuratețea rezultatelor.</p>
-              <p><strong className="text-slate-200">5. Confidențialitate:</strong> Nu stocăm date personale dincolo de token și istoricul de utilizare. Nu vindem date terților.</p>
-              <p><strong className="text-slate-200">6. Modificări:</strong> Ne rezervăm dreptul de a modifica prețurile și funcționalitățile fără notificare prealabilă.</p>
+              <p><strong className="text-slate-200">{t.tos_1}</strong> {t.tos_1d}</p>
+              <p><strong className="text-slate-200">{t.tos_2}</strong> {t.tos_2d}</p>
+              <p><strong className="text-slate-200">{t.tos_3}</strong> {t.tos_3d}</p>
+              <p><strong className="text-slate-200">{t.tos_4}</strong> {t.tos_4d}</p>
+              <p><strong className="text-slate-200">{t.tos_5}</strong> {t.tos_5d}</p>
+              <p><strong className="text-slate-200">{t.tos_6}</strong> {t.tos_6d}</p>
             </div>
           </div>
         </div>
@@ -617,7 +707,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
             <div className="flex items-center justify-between mb-5">
               <h4 className="font-bold text-lg flex items-center gap-2">
                 <Shield className="h-5 w-5 text-cyan-400" />
-                Secure Payment — Planuri de Abonament
+                {t.pay_title}
               </h4>
               <button onClick={() => { setShowSecurePayment(false); setSelectedPaymentPlan(null); setPaymentTxHash(''); setPaymentWallet(''); setPaymentResult(null); setGeneratedToken(''); }} className="text-slate-500 hover:text-white"><X className="h-5 w-5" /></button>
             </div>
@@ -625,7 +715,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
             {/* Plan Selection */}
             {!selectedPaymentPlan && (
               <div className="space-y-4">
-                <p className="text-sm text-slate-400 mb-4">Alege planul potrivit pentru tine. Plata securizată în XMR sau USDT(TON).</p>
+                <p className="text-sm text-slate-400 mb-4">{t.pay_subtitle}</p>
                 <div className="grid gap-4">
                   {SUBSCRIPTION_PLANS.map(plan => (
                     <div key={plan.id} className={`rounded-xl border p-5 transition-all ${plan.popular ? 'border-cyan-500/50 bg-gradient-to-br from-cyan-500/10 to-blue-500/10' : 'border-slate-700 bg-[#0a0e1a]'}`}>
@@ -656,7 +746,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
                           }}
                           className={`px-5 py-2.5 rounded-lg font-semibold text-sm transition-all ${plan.popular ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-500 hover:to-cyan-400' : 'bg-slate-700 text-slate-200 hover:bg-slate-600'}`}
                         >
-                          {plan.id === 'free' ? 'Demo Gratis' : 'Selectează Plan'}
+                          {plan.id === 'free' ? t.plans_demo_btn : t.pay_select}
                         </button>
                       </div>
                       <ul className="mt-3 space-y-1">
@@ -679,14 +769,14 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
             {selectedPaymentPlan && !paymentResult && !generatedToken && (
               <div className="space-y-5">
                 <button onClick={() => { setSelectedPaymentPlan(null); setPaymentTxHash(''); setPaymentWallet(''); }} className="text-xs text-slate-500 hover:text-slate-300 flex items-center gap-1">
-                  <ChevronRight className="h-3 w-3 rotate-180" /> Înapoi la planuri
+                  <ChevronRight className="h-3 w-3 rotate-180" /> {t.pay_back}
                 </button>
 
                 <div className="rounded-xl bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 p-4">
                   <h5 className="font-bold text-cyan-400 mb-1">
-                    {selectedPaymentPlan === 'pro' ? 'Pro — 25 EUR/lună' : 'Enterprise — 75 EUR/lună'}
+                    {selectedPaymentPlan === 'pro' ? t.pay_plan_pro : t.pay_plan_ent}
                   </h5>
-                  <p className="text-xs text-slate-400">Trimite plata folosind una din adresele de mai jos, apoi introdu transaction ID-ul pentru verificare.</p>
+                  <p className="text-xs text-slate-400">{t.pay_plan_desc}</p>
                 </div>
 
                 <div className="space-y-3">
@@ -712,29 +802,29 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
 
                 <div className="border-t border-slate-700/50 pt-4">
                   <h5 className="font-bold text-sm mb-3 flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-emerald-400" /> Verificare Plată
+                    <Shield className="h-4 w-4 text-emerald-400" /> {t.pay_verify_title}
                   </h5>
                   <div className="space-y-3">
                     <div>
-                      <label className="text-xs text-slate-400 mb-1 block">Metodă plată</label>
+                      <label className="text-xs text-slate-400 mb-1 block">{t.pay_method}</label>
                       <div className="flex gap-2">
                         <button onClick={() => setPaymentWallet('XMR')} className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${paymentWallet === 'XMR' ? 'bg-amber-500/20 border border-amber-500/50 text-amber-300' : 'bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700'}`}>XMR</button>
                         <button onClick={() => setPaymentWallet('USDT')} className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${paymentWallet === 'USDT' ? 'bg-blue-500/20 border border-blue-500/50 text-blue-300' : 'bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700'}`}>USDT (TON)</button>
                       </div>
                     </div>
                     <div>
-                      <label className="text-xs text-slate-400 mb-1 block">Transaction ID / Hash</label>
+                      <label className="text-xs text-slate-400 mb-1 block">{t.pay_tx_label}</label>
                       <Input
                         value={paymentTxHash}
                         onChange={e => setPaymentTxHash(e.target.value)}
-                        placeholder="Introdu transaction hash-ul..."
+                        placeholder={t.pay_tx_placeholder}
                         className="bg-[#0a0e1a] border-slate-600 text-slate-100 text-sm"
                       />
                     </div>
                     <button
                       onClick={async () => {
                         if (!paymentTxHash.trim() || !paymentWallet) {
-                          toast.error('Selectează metoda și introdu transaction hash-ul');
+                          toast.error(t.pay_verify_error);
                           return;
                         }
                         setPaymentVerifying(true);
@@ -759,7 +849,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
                       className="w-full py-3 rounded-lg bg-gradient-to-r from-emerald-600 to-cyan-500 text-white font-semibold text-sm hover:from-emerald-500 hover:to-cyan-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {paymentVerifying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />}
-                      Verifică Plată
+                      {t.pay_verify_btn}
                     </button>
                   </div>
                 </div>
@@ -772,25 +862,25 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
                 {paymentResult.success ? (
                   <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-6 text-center">
                     <CheckCircle2 className="h-12 w-12 text-emerald-400 mx-auto mb-3" />
-                    <h5 className="font-bold text-emerald-300 text-lg mb-2">Plată Înregistrată!</h5>
+                    <h5 className="font-bold text-emerald-300 text-lg mb-2">{t.pay_success_title}</h5>
                     <p className="text-sm text-slate-300 mb-4">{paymentResult.message}</p>
-                    <p className="text-xs text-slate-500 mb-4">Plata ta este în așteptare pentru verificare manuală. Vei primi token-ul de acces în cel mai scurt timp.</p>
+                    <p className="text-xs text-slate-500 mb-4">{t.pay_success_desc}</p>
                     <div className="flex gap-3 justify-center">
                       <a href="https://t.me/loghandelbot" target="_blank" className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold transition-all flex items-center gap-2">
-                        <Bot className="h-4 w-4" /> Contactează t.me/loghandelbot
+                        <Bot className="h-4 w-4" /> {t.pay_contact}
                       </a>
                       <button onClick={() => { setPaymentResult(null); setSelectedPaymentPlan(null); setPaymentTxHash(''); }} className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-semibold transition-all">
-                        Închide
+                        {t.pay_close}
                       </button>
                     </div>
                   </div>
                 ) : (
                   <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-6 text-center">
                     <XCircle className="h-12 w-12 text-red-400 mx-auto mb-3" />
-                    <h5 className="font-bold text-red-300 text-lg mb-2">Eroare la Verificare</h5>
+                    <h5 className="font-bold text-red-300 text-lg mb-2">{t.pay_error_title}</h5>
                     <p className="text-sm text-slate-300 mb-4">{paymentResult.message}</p>
                     <button onClick={() => { setPaymentResult(null); }} className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-semibold transition-all">
-                      Încearcă Din Nou
+                      {t.pay_retry}
                     </button>
                   </div>
                 )}
