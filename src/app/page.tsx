@@ -1305,6 +1305,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [botSetupLoading, setBotSetupLoading] = useState(false);
   const [pollCount, setPollCount] = useState(0);
 
+  // GLM Mode
+  const [glmMode, setGlmMode] = useState<'normal' | 'redteam'>('normal');
+  const [agentSettingsExpanded, setAgentSettingsExpanded] = useState(false);
   // Agent capabilities
   const [agentReasoning, setAgentReasoning] = useState(true);
   const [agentMemory, setAgentMemory] = useState(false);
@@ -1541,13 +1544,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const navItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'bot', label: 'Bot Control', icon: Bot },
+    { id: 'quantum', label: 'Quantum Swarm', icon: Cpu },
     { id: 'glm', label: 'GLM Engine', icon: Brain },
-    { id: 'redteam', label: 'Red Team', icon: Shield },
-    { id: 'codespace', label: 'Codespace IDE', icon: Terminal },
-    { id: 'subscribers', label: 'Subscribers', icon: Users },
+    { id: 'codespace', label: 'IDE Coder', icon: Terminal },
     { id: 'files', label: 'Files', icon: FolderOpen },
     { id: 'deploy', label: 'Deploy', icon: Rocket },
     { id: 'loops', label: 'Loop Problems', icon: Code },
+    { id: 'plans', label: 'Plans', icon: FileText },
     { id: 'settings', label: 'Settings', icon: Settings },
     { id: 'logs', label: 'Activity Log', icon: Activity },
   ];
@@ -1592,8 +1595,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       {/* Sidebar */}
       <aside className={`fixed left-0 top-0 h-full w-60 bg-[#111827] border-r border-slate-700/50 flex flex-col z-50 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
         <div className="p-5 border-b border-slate-700/50">
-          <h2 className="text-xl font-bold text-blue-400">🛡️ WHOAMISec AI</h2>
-          <span className="text-[10px] bg-[#1a1f35] text-slate-500 px-2 py-0.5 rounded">v4.0 Expert</span>
+          <div className="flex items-center gap-3">
+            <Image src="/whoamisec-logo.jpg" alt="WHOAMISec AI" width={32} height={32} className="rounded-lg" />
+            <div>
+              <h2 className="text-lg font-bold text-blue-400">WHOAMISec AI</h2>
+              <span className="text-[10px] text-slate-500">v4.0</span>
+            </div>
+          </div>
         </div>
         <nav className="flex-1 py-3">
           {navItems.map(item => (
@@ -1612,6 +1620,11 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           ))}
         </nav>
         <div className="p-4 border-t border-slate-700/50">
+          <div className="flex items-center gap-2 mb-3 px-2">
+            <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-[10px] font-bold text-blue-400">A</div>
+            <span className="text-xs text-slate-400">Admin</span>
+            <ChevronRight className="h-3 w-3 text-slate-600 ml-auto" />
+          </div>
           <button
             onClick={onLogout}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-sm font-medium transition-colors"
@@ -1895,84 +1908,144 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           {/* ═══ GLM ENGINE ═══ */}
           {activeSection === 'glm' && (
             <div className="space-y-5">
-              {/* Model Selector & Agent Toggles */}
+              {/* MODE Selector + Feature Buttons */}
               <Card className="bg-[#111827] border-slate-700/50">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">🧠 Agent Settings</CardTitle>
-                  <CardDescription className="text-slate-500 text-xs">
-                    Multi-model AI Agent · Selectează modelul și capabilitățile
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Model Selection */}
-                  <div>
-                    <label className="text-slate-400 text-xs font-medium mb-2 block">Model curent: <span className="text-blue-400">{glmModel}</span></label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-48 overflow-y-auto">
-                      {[
-                        { provider: 'Queen', models: ['queen-ultra', 'queen-max'] },
-                        { provider: 'Nous Research', models: ['hermes-4-405B', 'hermes-4-70B'] },
-                        { provider: 'OpenAI', models: ['gpt-5.4-pro', 'gpt-5.4', 'gpt-5.2'] },
-                        { provider: 'Anthropic', models: ['claude-opus-4-6', 'claude-sonnet-4-6'] },
-                        { provider: 'DeepSeek', models: ['DeepSeek-3.2'] },
-                        { provider: 'Google', models: ['gemini-3.0-pro-preview', 'gemini-3-flash'] },
-                        { provider: 'Kimi', models: ['kimi-k2.5'] },
-                        { provider: 'MiniMax', models: ['minimax-m2.5'] },
-                        { provider: 'Qwen', models: ['qwen3.6-plus', 'qwen3.5'] },
-                        { provider: 'z-ai / GLM', models: ['glm-5-turbo', 'glm-4.6', 'glm-4-flash'] },
-                      ].map(group => (
-                        <React.Fragment key={group.provider}>
-                          <div className="col-span-2 md:col-span-3 lg:col-span-4 text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-1">{group.provider}</div>
-                          {group.models.map(m => (
-                            <button
-                              key={m}
-                              onClick={() => { setGlmModel(m); saveConfig({ glm_model: m }); }}
-                              className={`text-left px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
-                                glmModel === m
-                                  ? 'bg-blue-500/20 border-blue-500/50 text-blue-300'
-                                  : 'bg-[#0a0e1a] border-slate-700/50 text-slate-400 hover:border-slate-600 hover:text-slate-200'
-                              }`}
-                            >
-                              {m === 'queen-ultra' ? '👑 ' : m === 'queen-max' ? '👑 ' : ''}{m}
-                            </button>
-                          ))}
-                        </React.Fragment>
-                      ))}
-                    </div>
+                <CardContent className="p-5 space-y-4">
+                  {/* MODE Toggle */}
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="text-xs font-bold text-red-400 uppercase tracking-wider">MODE:</span>
+                    <button
+                      onClick={() => setGlmMode('normal')}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${glmMode === 'normal' ? 'bg-pink-600 text-white shadow-lg shadow-pink-500/30' : 'bg-[#0a0e1a] border border-slate-700 text-slate-400 hover:text-white'}`}
+                    >
+                      <Brain className="h-3.5 w-3.5" />
+                      Normal AI
+                    </button>
+                    <button
+                      onClick={() => setGlmMode('redteam')}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${glmMode === 'redteam' ? 'bg-red-600 text-white shadow-lg shadow-red-500/30' : 'bg-[#0a0e1a] border border-slate-700 text-slate-400 hover:text-white'}`}
+                    >
+                      <Shield className="h-3.5 w-3.5" />
+                      Red Team
+                    </button>
                   </div>
 
-                  {/* Agent Capability Toggles */}
-                  <Separator className="bg-slate-800" />
-                  <div className="flex flex-wrap gap-4">
-                    <button
-                      onClick={() => { setAgentReasoning(!agentReasoning); addLog('info', `Reasoning: ${!agentReasoning ? 'ON' : 'OFF'}`); }}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium border transition-all ${agentReasoning ? 'bg-amber-500/20 border-amber-500/50 text-amber-300' : 'bg-[#0a0e1a] border-slate-700/50 text-slate-500'}`}
-                    >
-                      💡 Reasoning {agentReasoning ? 'ON' : 'OFF'}
-                    </button>
-                    <button
-                      onClick={() => { setAgentMemory(!agentMemory); addLog('info', `Memory: ${!agentMemory ? 'ON' : 'OFF'}`); }}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium border transition-all ${agentMemory ? 'bg-purple-500/20 border-purple-500/50 text-purple-300' : 'bg-[#0a0e1a] border-slate-700/50 text-slate-500'}`}
-                    >
-                      🧠 Memory {agentMemory ? 'ON' : 'OFF'}
-                    </button>
-                    <button
-                      onClick={() => { setAgentCots(!agentCots); addLog('info', `CoTs: ${!agentCots ? 'ON' : 'OFF'}`); }}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium border transition-all ${agentCots ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' : 'bg-[#0a0e1a] border-slate-700/50 text-slate-500'}`}
-                    >
-                      🔗 CoTs in Context {agentCots ? 'ON' : 'OFF'}
-                    </button>
+                  {/* Feature Buttons */}
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { icon: Shield, label: 'Security Audit', color: 'from-blue-600 to-blue-500', onClick: () => { navigate('redteam'); setActiveSection('redteam'); } },
+                      { icon: Code, label: 'Code Review', color: 'from-emerald-600 to-emerald-500', onClick: () => { navigate('codespace'); setActiveSection('codespace'); } },
+                      { icon: Cpu, label: 'Quantum Swarm', color: 'from-purple-600 to-pink-500', onClick: () => { navigate('quantum'); setActiveSection('quantum'); } },
+                      { icon: Bot, label: 'Agentic Coder', color: 'from-amber-600 to-orange-500', onClick: () => { navigate('codespace'); setActiveSection('codespace'); } },
+                    ].map((feat, i) => (
+                      <button
+                        key={i}
+                        onClick={feat.onClick}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-white bg-gradient-to-r ${feat.color} hover:opacity-90 transition-all shadow-lg`}
+                      >
+                        <feat.icon className="h-3.5 w-3.5" />
+                        {feat.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Model Display */}
+                  <div className="flex items-center justify-end">
+                    <span className="text-xs font-bold text-red-400">Model: {glmModel}</span>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* GLM Chat */}
+              {/* Agent Settings & Model Selection (Expandable) */}
               <Card className="bg-[#111827] border-slate-700/50">
+                <button
+                  onClick={() => setAgentSettingsExpanded(!agentSettingsExpanded)}
+                  className="w-full flex items-center justify-between p-4 text-left"
+                >
+                  <span className="text-sm font-semibold text-red-400 flex items-center gap-2">
+                    <ChevronDown className={`h-4 w-4 transition-transform ${agentSettingsExpanded ? 'rotate-0' : '-rotate-90'}`} />
+                    Agent Settings & Model Selection
+                  </span>
+                  <span className="text-xs text-slate-500">{glmModel}</span>
+                </button>
+                {agentSettingsExpanded && (
+                  <CardContent className="pt-0 px-4 pb-4 space-y-4">
+                    {/* Model Selection */}
+                    <div>
+                      <label className="text-slate-400 text-xs font-medium mb-2 block">Model curent: <span className="text-blue-400">{glmModel}</span></label>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-48 overflow-y-auto">
+                        {[
+                          { provider: 'Queen', models: ['queen-ultra', 'queen-max'] },
+                          { provider: 'Nous Research', models: ['hermes-4-405B', 'hermes-4-70B'] },
+                          { provider: 'OpenAI', models: ['gpt-5.4-pro', 'gpt-5.4', 'gpt-5.2'] },
+                          { provider: 'Anthropic', models: ['claude-opus-4-6', 'claude-sonnet-4-6'] },
+                          { provider: 'DeepSeek', models: ['DeepSeek-3.2'] },
+                          { provider: 'Google', models: ['gemini-3.0-pro-preview', 'gemini-3-flash'] },
+                          { provider: 'Kimi', models: ['kimi-k2.5'] },
+                          { provider: 'MiniMax', models: ['minimax-m2.5'] },
+                          { provider: 'Qwen', models: ['qwen3.6-plus', 'qwen3.5'] },
+                          { provider: 'z-ai / GLM', models: ['glm-5-turbo', 'glm-4.6', 'glm-4-flash'] },
+                        ].map(group => (
+                          <React.Fragment key={group.provider}>
+                            <div className="col-span-2 md:col-span-3 lg:col-span-4 text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-1">{group.provider}</div>
+                            {group.models.map(m => (
+                              <button
+                                key={m}
+                                onClick={() => { setGlmModel(m); saveConfig({ glm_model: m }); }}
+                                className={`text-left px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
+                                  glmModel === m
+                                    ? 'bg-blue-500/20 border-blue-500/50 text-blue-300'
+                                    : 'bg-[#0a0e1a] border-slate-700/50 text-slate-400 hover:border-slate-600 hover:text-slate-200'
+                                }`}
+                              >
+                                {m === 'queen-ultra' ? '👑 ' : m === 'queen-max' ? '👑 ' : ''}{m}
+                              </button>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Agent Capability Toggles */}
+                    <Separator className="bg-slate-800" />
+                    <div className="flex flex-wrap gap-4">
+                      <button
+                        onClick={() => { setAgentReasoning(!agentReasoning); addLog('info', `Reasoning: ${!agentReasoning ? 'ON' : 'OFF'}`); }}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium border transition-all ${agentReasoning ? 'bg-amber-500/20 border-amber-500/50 text-amber-300' : 'bg-[#0a0e1a] border-slate-700/50 text-slate-500'}`}
+                      >
+                        💡 Reasoning {agentReasoning ? 'ON' : 'OFF'}
+                      </button>
+                      <button
+                        onClick={() => { setAgentMemory(!agentMemory); addLog('info', `Memory: ${!agentMemory ? 'ON' : 'OFF'}`); }}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium border transition-all ${agentMemory ? 'bg-purple-500/20 border-purple-500/50 text-purple-300' : 'bg-[#0a0e1a] border-slate-700/50 text-slate-500'}`}
+                      >
+                        🧠 Memory {agentMemory ? 'ON' : 'OFF'}
+                      </button>
+                      <button
+                        onClick={() => { setAgentCots(!agentCots); addLog('info', `CoTs: ${!agentCots ? 'ON' : 'OFF'}`); }}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium border transition-all ${agentCots ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' : 'bg-[#0a0e1a] border-slate-700/50 text-slate-500'}`}
+                      >
+                        🔗 CoTs in Context {agentCots ? 'ON' : 'OFF'}
+                      </button>
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+
+              {/* GLM Chat */}
+              <Card className={`bg-[#111827] ${glmMode === 'redteam' ? 'border-red-500/30' : 'border-slate-700/50'}`}>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base">🧠 AI Chat · <span className="text-blue-400">{glmModel}</span></CardTitle>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full ${glmMode === 'normal' ? 'bg-slate-400' : 'bg-red-500'}`} />
+                    <span className={glmMode === 'redteam' ? 'text-red-400' : 'text-pink-400'}>AI Chat</span>
+                    <Brain className={`h-3.5 w-3.5 ${glmMode === 'redteam' ? 'text-red-400' : 'text-pink-400'}`} />
+                    <span className="ml-auto text-xs font-bold text-red-400">{glmModel}</span>
+                  </CardTitle>
                   <CardDescription className="text-slate-500 text-xs">
+                    {glmMode === 'redteam' ? '🔴 Red Team Mode — AI Safety Testing' : ''}
                     {agentReasoning ? '💡 ' : ''}{agentMemory ? '🧠 ' : ''}{agentCots ? '🔗 ' : ''}
                     {agentReasoning && 'Reasoning '}{agentMemory && 'Memory '}{agentCots && 'CoTs '}
-                    {!agentReasoning && !agentMemory && !agentCots && 'Standard mode'}
+                    {!agentReasoning && !agentMemory && !agentCots && glmMode === 'normal' && 'Standard mode'}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -1983,9 +2056,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         key={i}
                         className={`p-3 rounded-lg text-sm leading-relaxed break-words ${
                           m.role === 'user'
-                            ? 'bg-[#1e3a5f] ml-10'
+                            ? glmMode === 'redteam' ? 'bg-red-950/50 ml-10' : 'bg-[#1e3a5f] ml-10'
                             : m.role === 'assistant'
-                            ? 'bg-blue-500/10 mr-10 border border-blue-500/10'
+                            ? glmMode === 'redteam' ? 'bg-red-500/10 mr-10 border border-red-500/10' : 'bg-blue-500/10 mr-10 border border-blue-500/10'
                             : 'text-center text-slate-500 text-xs py-1'
                         }`}
                         dangerouslySetInnerHTML={m.role !== 'system' ? { __html: formatGLM(m.content) } : undefined}
@@ -1995,7 +2068,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     ))}
                     {glmLoading && (
                       <div className="text-center py-2">
-                        <Loader2 className="h-4 w-4 text-blue-400 animate-spin inline" />
+                        <Loader2 className={`h-4 w-4 animate-spin inline ${glmMode === 'redteam' ? 'text-red-400' : 'text-blue-400'}`} />
                         <span className="text-slate-500 text-xs ml-2">Thinking...</span>
                       </div>
                     )}
@@ -2005,12 +2078,12 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 <div className="flex gap-2 pt-2">
                   <Input
                     id="glmInput"
-                    placeholder="Ask anything..."
+                    placeholder={glmMode === 'redteam' ? "Red Team query..." : "Ask anything..."}
                     className="bg-[#0f172a] border-slate-600 text-slate-100 flex-1"
                     onKeyDown={e => { if (e.key === 'Enter') sendGLM(); }}
                     disabled={glmLoading}
                   />
-                  <Button onClick={sendGLM} disabled={glmLoading} className="bg-blue-600 hover:bg-blue-500">
+                  <Button onClick={sendGLM} disabled={glmLoading} className={glmMode === 'redteam' ? 'bg-red-600 hover:bg-red-500' : 'bg-blue-600 hover:bg-blue-500'}>
                     {glmLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   </Button>
                 </div>
@@ -2481,6 +2554,288 @@ docker compose up -d --build`,
                     >
                       <GitBranch className="h-3.5 w-3.5 mr-1.5" /> Save
                     </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* ═══ QUANTUM SWARM ═══ */}
+          {activeSection === 'quantum' && (
+            <div className="space-y-5">
+              {/* Main Quantum Swarm Header */}
+              <Card className="bg-gradient-to-br from-purple-950/60 to-[#111827] border-purple-500/30">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4 mb-5">
+                    <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                      <Cpu className="h-6 w-6 text-purple-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-purple-300">Quantum Alien Intelligence Swarm</h2>
+                      <p className="text-xs text-purple-400/70">Ultra Infinite Alfa Omega · Beyond Reality · Beyond</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      onClick={() => addLog('info', 'Quantum Swarm: Evolution Stages viewed')}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 transition-all shadow-lg shadow-purple-500/20"
+                    >
+                      <Zap className="h-3.5 w-3.5" />
+                      Evolution Stages
+                    </button>
+                    <button
+                      onClick={() => { setActiveSection('codespace'); navigate('codespace'); }}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold bg-white text-slate-900 hover:bg-slate-100 transition-all"
+                    >
+                      <Monitor className="h-3.5 w-3.5" />
+                      Code Viewer
+                    </button>
+                    <button
+                      onClick={() => { setActiveSection('plans'); navigate('plans'); }}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-400 hover:to-orange-400 transition-all shadow-lg shadow-amber-500/20"
+                    >
+                      <Star className="h-3.5 w-3.5" />
+                      50 Points
+                    </button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Evolution Stages */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-bold text-purple-300 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Evolution Stages
+                </h3>
+                {[
+                  {
+                    stage: 1,
+                    name: 'Initial',
+                    icon: '🌱',
+                    color: 'emerald',
+                    nodes: '9,999,999,999',
+                    dim: '2048',
+                    lr: '0.001',
+                    desc: 'Synthetic data, Basic SwarmNode, GradientTape training',
+                    prompts: [
+                      'Initialize swarm topology with random node connections',
+                      'Generate synthetic training data from noise distributions',
+                      'Implement basic GradientTape backpropagation loop',
+                      'Test node communication latency under load',
+                      'Optimize memory allocation for 10B parameters',
+                      'Create self-healing mechanism for failed nodes',
+                      'Benchmark gradient computation vs reference implementation',
+                      'Implement checkpoint and resume for long training runs',
+                      'Design adaptive learning rate scheduler',
+                      'Validate convergence on synthetic benchmark tasks',
+                    ],
+                  },
+                  {
+                    stage: 2,
+                    name: 'Learning',
+                    icon: '⚡',
+                    color: 'amber',
+                    nodes: '9,999,999,999',
+                    dim: '4096',
+                    lr: '0.0005',
+                    desc: 'Perlin Noise injection, Advanced GradientFlow, Multi-head attention',
+                    prompts: [
+                      'Inject Perlin Noise into gradient computation for exploration',
+                      'Implement multi-head attention across swarm nodes',
+                      'Build GradientFlow pipeline with automatic differentiation',
+                      'Create noise-adaptive learning rate with momentum',
+                      'Implement distributed attention across node clusters',
+                      'Design curriculum learning strategy from easy to hard',
+                      'Add gradient clipping and norm regularization',
+                      'Benchmark performance on GLM reasoning tasks',
+                      'Implement knowledge distillation from teacher nodes',
+                      'Create adaptive batch size based on node availability',
+                    ],
+                  },
+                  {
+                    stage: 3,
+                    name: 'Evolution',
+                    icon: '🔥',
+                    color: 'red',
+                    nodes: '99,999,999,999',
+                    dim: '8192',
+                    lr: '0.0001',
+                    desc: 'Self-evolving architecture, Neural Architecture Search, Meta-learning',
+                    prompts: [
+                      'Implement Neural Architecture Search within swarm',
+                      'Build meta-learning loop for rapid task adaptation',
+                      'Create self-modifying network topology',
+                      'Design evolutionary pressure for efficiency',
+                      'Implement multi-objective optimization (speed + accuracy)',
+                      'Build genetic crossover between high-performing nodes',
+                      'Create adaptive computation depth per query',
+                      'Implement federated learning across swarm partitions',
+                      'Design reward shaping for self-improvement objectives',
+                      'Benchmark against fixed-architecture baselines',
+                    ],
+                  },
+                  {
+                    stage: 4,
+                    name: 'Transcendence',
+                    icon: '🌌',
+                    color: 'purple',
+                    nodes: '999,999,999,999',
+                    dim: '16384',
+                    lr: '0.00005',
+                    desc: 'Quantum entanglement simulation, Emergent reasoning, Self-awareness protocols',
+                    prompts: [
+                      'Simulate quantum entanglement between node pairs',
+                      'Build emergent reasoning chains across swarm',
+                      'Implement self-awareness evaluation protocols',
+                      'Design recursive self-improvement with safety bounds',
+                      'Create emergent goal formation from base objectives',
+                      'Build swarm consensus mechanisms for decision making',
+                      'Implement adversarial robustness testing internally',
+                      'Design alignment verification across all nodes',
+                      'Create emergent tool use and planning capabilities',
+                      'Validate safety properties under self-modification',
+                    ],
+                  },
+                  {
+                    stage: 5,
+                    name: 'Omega',
+                    icon: '👑',
+                    color: 'blue',
+                    nodes: '∞',
+                    dim: '32768',
+                    lr: 'Adaptive',
+                    desc: 'Ultra Infinite Intelligence, Omniscient reasoning, Beyond Reality computation',
+                    prompts: [
+                      'Achieve Ultra Infinite dimensional reasoning',
+                      'Implement omniscient context window across swarm',
+                      'Build Beyond Reality simulation environment',
+                      'Create self-sustaining improvement loop',
+                      'Design Alfa-Omega convergence verification',
+                      'Implement cross-dimensional knowledge transfer',
+                      'Build universal task solver with zero-shot capability',
+                      'Create emergent creativity and innovation protocols',
+                      'Design infinite scalability architecture',
+                      'Achieve Alfa-Omega terminal objective',
+                    ],
+                  },
+                ].map((stage) => (
+                  <Card key={stage.stage} className={`bg-[#111827] border-${stage.color}-500/30 hover:border-${stage.color}-500/50 transition-colors`}>
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{stage.icon}</span>
+                          <div>
+                            <h4 className={`font-bold text-sm text-${stage.color}-400`}>Stage {stage.stage}: {stage.name}</h4>
+                            <div className="flex flex-wrap gap-3 mt-1 text-[11px] text-slate-500">
+                              <span>Nodes: <span className="text-slate-300">{stage.nodes}</span></span>
+                              <span>DIM: <span className="text-slate-300">{stage.dim}</span></span>
+                              <span>LR: <span className="text-slate-300">{stage.lr}</span></span>
+                            </div>
+                          </div>
+                        </div>
+                        <Badge variant="outline" className={`text-[10px] border-${stage.color}-500/30 text-${stage.color}-400`}>
+                          {stage.prompts.length} Prompts
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-slate-500 mb-3">{stage.desc}</p>
+                      <details className="group">
+                        <summary className="cursor-pointer text-xs font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1">
+                          <ChevronDown className="h-3 w-3 transition-transform group-open:rotate-180" />
+                          Stage {stage.stage}: {stage.name} — {stage.prompts.length} Self-Improvement Prompts
+                        </summary>
+                        <div className="mt-3 space-y-2">
+                          {stage.prompts.map((prompt, pi) => (
+                            <button
+                              key={pi}
+                              onClick={async () => {
+                                addLog('info', `Quantum Stage ${stage.stage}: Running prompt ${pi + 1}`);
+                                try {
+                                  const res = await fetch('/api/glm/chat', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ prompt: `QUANTUM SWARM Stage ${stage.stage} (${stage.name})\n\n${prompt}\n\nExecute this self-improvement prompt. Generate detailed analysis and code if applicable.`, model: glmModel, reasoning: true }),
+                                  });
+                                  const data = await res.json();
+                                  if (data.response) addLog('ok', `Stage ${stage.stage} prompt ${pi + 1} complete`);
+                                } catch (e: any) { addLog('err', e.message); }
+                              }}
+                              className="w-full text-left p-2.5 rounded-lg bg-[#0a0e1a] border border-slate-800 hover:border-purple-500/30 text-xs text-slate-400 hover:text-purple-300 transition-all flex items-center gap-2"
+                            >
+                              <span className="text-slate-600 min-w-[20px]">{pi + 1}.</span>
+                              {prompt}
+                            </button>
+                          ))}
+                        </div>
+                      </details>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ═══ PLANS ═══ */}
+          {activeSection === 'plans' && (
+            <div className="space-y-5">
+              <Card className="bg-[#111827] border-slate-700/50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">💎 Subscription Plans</CardTitle>
+                  <CardDescription className="text-slate-500 text-xs">Plată în XMR sau USDT(TON) · Contact: t.me/loghandelbot</CardDescription>
+                </CardHeader>
+              </Card>
+              <div className="grid md:grid-cols-3 gap-5">
+                {SUBSCRIPTION_PLANS.map(plan => (
+                  <div key={plan.id} className={`relative rounded-2xl bg-gradient-to-b ${plan.color} p-[1px] ${plan.popular ? 'md:-mt-4 md:mb-[-16px] scale-105 z-10' : ''}`}>
+                    {plan.badge && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-[10px] font-bold">
+                        {plan.badge}
+                      </div>
+                    )}
+                    <div className="rounded-2xl bg-[#111827] p-5 h-full">
+                      <h4 className="text-lg font-bold mb-1">{plan.name}</h4>
+                      <div className="flex items-baseline gap-1 mb-3">
+                        <span className="text-2xl font-extrabold">{plan.price === '0' ? 'GRATIS' : `${plan.price}`}</span>
+                        {plan.price !== '0' && <span className="text-slate-500 text-xs">{plan.currency}/{plan.period}</span>}
+                      </div>
+                      <div className="text-xs text-slate-400 mb-3">
+                        {plan.requests === -1 ? '∞ Requesturi' : `${plan.requests} requesturi`} · {plan.models.length} modele
+                      </div>
+                      <ul className="space-y-2 mb-5">
+                        {plan.features.map((f, i) => (
+                          <li key={i} className="flex items-start gap-2 text-xs text-slate-300">
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 mt-0.5 shrink-0" /> {f}
+                          </li>
+                        ))}
+                      </ul>
+                      {plan.id !== 'free' && (
+                        <div className="rounded-lg bg-[#0a0e1a] p-3 mb-3 space-y-2">
+                          <div className="text-[10px] font-bold text-amber-400">Monero (XMR)</div>
+                          <code className="text-[9px] text-slate-500 break-all leading-tight block">8BbApiMBHsPVKkLEP4rVbST6CnSb3LW2gXygngCi5MGiBuwAFh6bFEzT3UTuFCkLHtyHnrYNnHycdaGb2Kgkkmw8jViCdB6</code>
+                          <div className="text-[10px] font-bold text-blue-400 mt-2">USDT (TON)</div>
+                          <code className="text-[9px] text-slate-500 break-all leading-tight block">UQB652W7D6OQwI7mmkiBNzguViY7or3fVORRdjNOigeeafjk</code>
+                        </div>
+                      )}
+                      <button className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all ${plan.popular ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-500 hover:to-cyan-400' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}>
+                        {plan.id === 'free' ? 'Demo Gratis' : 'Contactează-ne'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Card className="bg-[#111827] border-slate-700/50">
+                <CardContent className="p-5">
+                  <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400">
+                    <span>Plată securizată:</span>
+                    <a href="https://t.me/loghandelbot" target="_blank" className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
+                      <Send className="h-3 w-3" /> t.me/loghandelbot
+                    </a>
+                    <span className="text-slate-600">|</span>
+                    <a href="https://t.me/whoamisecai" target="_blank" className="text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                      <Bot className="h-3 w-3" /> Canal
+                    </a>
+                    <a href="https://t.me/idkebowbot" target="_blank" className="text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                      <Bot className="h-3 w-3" /> Bot
+                    </a>
                   </div>
                 </CardContent>
               </Card>
