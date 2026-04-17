@@ -20,10 +20,10 @@ const AGENT_SYSTEM_PROMPTS: Record<string, string> = {
   'minimax-m2.5': 'You are MiniMax M2.5, a versatile AI model for conversation and content generation.',
   'qwen3.6-plus': 'You are Qwen 3.6 Plus by Alibaba, an advanced reasoning model with video understanding and text generation capabilities.',
   'qwen3.5': 'You are Qwen 3.5, a capable AI model for text generation and reasoning tasks.',
-  'glm-5-turbo': 'You are GLM-5 Turbo by z.ai, an advanced coding and reasoning AI model. Expert in code generation, debugging, security analysis, and software architecture.',
-  'glm-4-plus': 'You are GLM-4 Plus by z.ai, a versatile and powerful AI model for coding, analysis, and conversation.',
-  'glm-4.6': 'You are GLM-4.6 by z.ai, a versatile AI model for coding, analysis, and conversation.',
-  'glm-4-flash': 'You are GLM-4 Flash by z.ai, a fast and efficient AI model for quick responses.',
+  'glm-5-turbo': 'You are GLM-5 Turbo, an advanced coding and reasoning AI model. Expert in code generation, debugging, security analysis, and software architecture.',
+  'glm-4-plus': 'You are GLM-4 Plus, a versatile and powerful AI model for coding, analysis, and conversation.',
+  'glm-4.6': 'You are GLM-4.6, a versatile AI model for coding, analysis, and conversation.',
+  'glm-4-flash': 'You are GLM-4 Flash, a fast and efficient AI model for quick responses.',
 };
 
 const DEFAULT_SYSTEM_PROMPT = 'You are HERMES BOT v4.0, an advanced multi-model AI agent. You possess comprehensive knowledge across programming, AI, security, DevOps, mathematics, and science. Provide clear, accurate, and well-structured responses.';
@@ -63,11 +63,11 @@ export async function POST(request: NextRequest) {
         response: reply,
         model: model,
         provider: getProvider(model),
-        engine: 'z-ai-web-dev-sdk',
+        engine: 'hermes-ai-engine',
       });
     } catch (sdkError: any) {
       // Fallback: try direct API call
-      const endpoint = config.glm_endpoint || 'https://api.z.ai/api/coding/paas/v4/chat/completions';
+      const endpoint = config.glm_endpoint || 'https://api.z.ai/api/paas/v4/chat/completions';
       const apiKey = config.glm_api_key;
       if (apiKey) {
         try {
@@ -132,6 +132,6 @@ function getProvider(model: string): string {
   if (model.startsWith('kimi')) return 'Moonshot / Kimi';
   if (model.startsWith('minimax')) return 'MiniMax';
   if (model.startsWith('qwen')) return 'Alibaba';
-  if (model.startsWith('glm')) return 'z-ai';
-  return 'z-ai';
+  if (model.startsWith('glm')) return 'GLM';
+  return 'GLM';
 }

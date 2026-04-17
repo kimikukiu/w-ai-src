@@ -27,9 +27,9 @@ export const AGENT_MODELS: Record<string, { provider: string; desc: string }> = 
   'minimax-m2.5': { provider: 'MiniMax', desc: 'Versatile content' },
   'qwen3.6-plus': { provider: 'Qwen', desc: 'Advanced reasoning' },
   'qwen3.5': { provider: 'Qwen', desc: 'Text & reasoning' },
-  'glm-5-turbo': { provider: 'z-ai', desc: 'Advanced coding' },
-  'glm-4-plus': { provider: 'z-ai', desc: 'Versatile powerful' },
-  'glm-4-flash': { provider: 'z-ai', desc: 'Fast efficient' },
+  'glm-5-turbo': { provider: 'GLM', desc: 'Advanced coding' },
+  'glm-4-plus': { provider: 'GLM', desc: 'Versatile powerful' },
+  'glm-4-flash': { provider: 'GLM', desc: 'Fast efficient' },
 };
 
 export const AGENT_PROMPTS: Record<string, string> = {
@@ -40,9 +40,9 @@ export const AGENT_PROMPTS: Record<string, string> = {
   'gpt-5.4-pro': 'Ești GPT-5.4 Pro. Cel mai avansat model OpenAI.',
   'claude-opus-4-6': 'Ești CLAUDE OPUS 4.6 de Anthropic. Excepțional la reasoning complex.',
   'DeepSeek-3.2': 'Ești DeepSeek 3.2. Expert în matematică și coding.',
-  'glm-5-turbo': 'Ești GLM-5 Turbo de z.ai. Expert în coding, debug și arhitectură software.',
-  'glm-4-plus': 'Ești GLM-4 Plus de z.ai. Model versatil și puternic.',
-  'glm-4-flash': 'Ești GLM-4 Flash de z.ai. Rapid și eficient.',
+  'glm-5-turbo': 'Ești GLM-5 Turbo. Expert în coding, debug și arhitectură software.',
+  'glm-4-plus': 'Ești GLM-4 Plus. Model versatil și puternic.'
+  'glm-4-flash': 'Ești GLM-4 Flash. Rapid și eficient.'
 };
 export const DEFAULT_PROMPT = 'Ești HERMES BOT v4.0, agent AI avansat multi-model. Expert în programare, AI, securitate, DevOps. Răspunzi în română sau engleză.';
 

@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
             ? 'https://api.z.ai/api/coding/paas/v4/chat/completions'
             : 'https://api.z.ai/api/paas/v4/chat/completions';
           saveConfig(config);
-          await tgEdit(`✅ Endpoint: <code>${esc(config.glm_endpoint)}</code>`);
+          await tgEdit(`✅ Endpoint: <code>${k === 'coding' ? 'coding' : 'general'}</code>`);
         }
       } else if (cb.startsWith('redteam:')) {
         const k = cb.split(':', 2)[1];
@@ -188,7 +188,7 @@ export async function POST(request: NextRequest) {
       const cl = maybeClaimOwner(userId || 0);
       await tgSendLong(
         `🤖 <b>Hermes Bot Agent v4.0</b>\n\n` +
-        `🔗 z.ai API: <b>AUTO</b> (conectat via GitHub)\n\n` +
+        `🔗 AI API: <b>AUTO</b> (SDK intern)\n\n` +
         `<b>━━━ COMENZI PRINCIPALE ━━━</b>\n` +
         `/api - status API (auto)\n` +
         `/status - status complet\n` +
@@ -271,11 +271,11 @@ export async function POST(request: NextRequest) {
     // /api
     else if (cmd === '/api') {
       await tgSend(
-        `🔗 <b>z.ai API Status</b>\n\n` +
-        `⚡ SDK: ✅ auto via GitHub\n` +
+        `🔗 <b>Hermes AI API Status</b>\n\n` +
+        `⚡ SDK: ✅ auto (intern)\n` +
         `🔑 Manual: ${config.glm_api_key ? esc(maskSecret(config.glm_api_key)) : '— (nu e nevoie)'}\n` +
         `🧠 Model: <code>${cm}</code>\n\n` +
-        `✅ API-ul merge automat!\n\n` +
+        `✅ API-ul merge automat 24/7!\n\n` +
         `Opțional:\n<code>/api set CHEIE</code>\n<code>/api clear</code>`
       );
     }
@@ -285,7 +285,7 @@ export async function POST(request: NextRequest) {
       await tgSend(
         `🤖 <b>Hermes Bot Agent v4.0</b>\n\n` +
         `🧠 Model: <code>${cm}</code>\n` +
-        `🔗 z.ai API: ✅ (SDK auto via GitHub)\n` +
+        `🔗 AI API: ✅ (SDK intern 24/7)\n` +
         `📱 Telegram: ✅\n` +
         `🔧 OpenCode: ${existsSync(OPENCODE_BIN) ? '✅' : '⚠️'}\n` +
         `🤖 Hermes: ${existsSync(HERMES_BIN) ? '✅' : '⚠️'}\n` +
@@ -303,7 +303,7 @@ export async function POST(request: NextRequest) {
     else if (cmd === '/endpoint') {
       if (!own()) { await tgSend('⛔'); }
       else if (!args) {
-        await tgKb(`📝 Endpoint: <code>${esc(config.glm_endpoint || 'default')}</code>`, {
+        await tgKb(`📝 Endpoint: <code>${config.glm_endpoint ? 'configured' : 'default'}</code>`, {
           inline_keyboard: [
             [{ text: 'Coding API', callback_data: 'endpoint:coding' }, { text: 'General API', callback_data: 'endpoint:general' }],
             [{ text: '❌ Cancel', callback_data: 'endpoint:cancel' }],

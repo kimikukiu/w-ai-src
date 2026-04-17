@@ -117,6 +117,73 @@ const CODE_DEMO_SLIDES = [
 ];
 
 // ═══════════════════════════════════════════════
+// INTERNAL ADMIN LOGIN (LandingPage embedded)
+// ═══════════════════════════════════════════════
+
+function InternalAdminLogin({ onSuccess, onClose }: { onSuccess: () => void; onClose: () => void }) {
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+      setLoading(false);
+      if (data.success) {
+        onSuccess();
+      } else {
+        setLoginError(data.error || 'Parolă invalidă');
+      }
+    } catch {
+      setLoading(false);
+      setLoginError('Eroare de conexiune');
+    }
+  };
+
+  return (
+    <div>
+      <div className="text-center mb-8">
+        <Image src="/whoamisec-logo.jpg" alt="WHOAMISec" width={60} height={60} className="rounded-xl mx-auto mb-3" />
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">WHOAMISec Admin</h1>
+        <p className="text-slate-500 text-sm mt-1">Admin Control Panel v4.0</p>
+      </div>
+      {loginError && (
+        <div className="bg-red-950/50 border border-red-900/50 text-red-300 p-3 rounded-lg mb-5 text-sm">{loginError}</div>
+      )}
+      <form onSubmit={handleLogin} className="space-y-5">
+        <div>
+          <label className="text-slate-400 text-sm font-medium mb-2 block">
+            <Lock className="h-3.5 w-3.5 inline mr-1.5" /> Admin Password
+          </label>
+          <div className="relative">
+            <Input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter admin password" autoFocus className="bg-[#0f172a] border-slate-600 text-slate-100 h-12 pr-10" />
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button type="button" onClick={onClose} variant="outline" className="flex-1 h-12 border-slate-600 text-slate-400 hover:bg-slate-800">Înapoi</Button>
+          <Button type="submit" disabled={loading} className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold">
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Access Dashboard'}
+          </Button>
+        </div>
+      </form>
+      <p className="text-center text-slate-600 text-xs mt-6">WHOAMISec AI · Expert Edition · 24/7 Online</p>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
 // LANDING PAGE COMPONENT (PUBLIC VIEW)
 // ═══════════════════════════════════════════════
 
@@ -129,6 +196,15 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
   const [showTos, setShowTos] = useState(false);
   const [showPlans, setShowPlans] = useState(true); // AUTO popup on load
   const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [showAdminLoginInternal, setShowAdminLoginInternal] = useState(false);
+  const [showSecurePayment, setShowSecurePayment] = useState(false);
+  const [selectedPaymentPlan, setSelectedPaymentPlan] = useState<string | null>(null);
+  const [paymentTxHash, setPaymentTxHash] = useState('');
+  const [paymentWallet, setPaymentWallet] = useState('');
+  const [paymentVerifying, setPaymentVerifying] = useState(false);
+  const [paymentResult, setPaymentResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [tokenGenerating, setTokenGenerating] = useState(false);
+  const [generatedToken, setGeneratedToken] = useState('');
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -427,14 +503,14 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
             </div>
             <div className="p-3 space-y-1">
               <button
-                onClick={() => { setShowLoginPopup(false); onAdminClick(); }}
+                onClick={() => { setShowLoginPopup(false); setShowAdminLoginInternal(true); }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-slate-300 hover:bg-slate-700/50 transition-colors"
               >
                 <Lock className="h-3.5 w-3.5 text-blue-400" />
                 <span>Admin Login</span>
               </button>
               <button
-                onClick={() => { setShowLoginPopup(false); setShowPlans(true); }}
+                onClick={() => { setShowLoginPopup(false); setShowSecurePayment(true); }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-slate-300 hover:bg-slate-700/50 transition-colors"
               >
                 <Star className="h-3.5 w-3.5 text-amber-400" />
@@ -508,6 +584,230 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
               </div>
               <p className="text-center text-slate-500 text-xs">După plată, contactează <a href="https://t.me/loghandelbot" target="_blank" className="text-cyan-400 hover:underline">t.me/loghandelbot</a> pentru a primi token-ul de acces.</p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Internal Admin Login Modal */}
+      {showAdminLoginInternal && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowAdminLoginInternal(false)}>
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div key={i} className="absolute rounded-full bg-blue-500/20" style={{ left: `${Math.random()*100}%`, top: `${Math.random()*100}%`, width: '2px', height: '2px', animation: `floatParticle ${5+Math.random()*6}s ease-in-out infinite`, animationDelay: `${Math.random()*8}s` }} />
+            ))}
+          </div>
+          <Card className="w-full max-w-md bg-gradient-to-br from-[#111827] to-[#1a1f35] border-slate-700/50" onClick={e => e.stopPropagation()}>
+            <CardContent className="pt-8 pb-8 px-8">
+              <InternalAdminLogin onSuccess={() => {
+                setShowAdminLoginInternal(false);
+                onAdminClick();
+              }} onClose={() => setShowAdminLoginInternal(false)} />
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Secure Payment Modal */}
+      {showSecurePayment && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => { setShowSecurePayment(false); setSelectedPaymentPlan(null); setPaymentTxHash(''); setPaymentWallet(''); setPaymentResult(null); setGeneratedToken(''); }}>
+          <div className="bg-[#111827] border border-slate-700/50 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <h4 className="font-bold text-lg flex items-center gap-2">
+                <Shield className="h-5 w-5 text-cyan-400" />
+                Secure Payment — Planuri de Abonament
+              </h4>
+              <button onClick={() => { setShowSecurePayment(false); setSelectedPaymentPlan(null); setPaymentTxHash(''); setPaymentWallet(''); setPaymentResult(null); setGeneratedToken(''); }} className="text-slate-500 hover:text-white"><X className="h-5 w-5" /></button>
+            </div>
+
+            {/* Plan Selection */}
+            {!selectedPaymentPlan && (
+              <div className="space-y-4">
+                <p className="text-sm text-slate-400 mb-4">Alege planul potrivit pentru tine. Plata securizată în XMR sau USDT(TON).</p>
+                <div className="grid gap-4">
+                  {SUBSCRIPTION_PLANS.map(plan => (
+                    <div key={plan.id} className={`rounded-xl border p-5 transition-all ${plan.popular ? 'border-cyan-500/50 bg-gradient-to-br from-cyan-500/10 to-blue-500/10' : 'border-slate-700 bg-[#0a0e1a]'}`}>
+                      {plan.badge && (
+                        <div className="flex justify-end mb-1">
+                          <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-[10px] border-0 px-2 py-0.5">{plan.badge}</Badge>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h5 className="font-bold text-base">{plan.name}</h5>
+                          <div className="flex items-baseline gap-1 mt-1">
+                            <span className="text-2xl font-extrabold">{plan.price === '0' ? 'GRATIS' : `${plan.price}`}</span>
+                            {plan.price !== '0' && <span className="text-slate-500 text-sm">{plan.currency}/{plan.period}</span>}
+                          </div>
+                          <p className="text-xs text-slate-500 mt-1">
+                            {plan.requests === -1 ? '∞ Requesturi' : `${plan.requests} requesturi`} · {plan.models.length} modele
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            if (plan.id === 'free') {
+                              handleDemoRegister();
+                              setShowSecurePayment(false);
+                            } else {
+                              setSelectedPaymentPlan(plan.id);
+                            }
+                          }}
+                          className={`px-5 py-2.5 rounded-lg font-semibold text-sm transition-all ${plan.popular ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-500 hover:to-cyan-400' : 'bg-slate-700 text-slate-200 hover:bg-slate-600'}`}
+                        >
+                          {plan.id === 'free' ? 'Demo Gratis' : 'Selectează Plan'}
+                        </button>
+                      </div>
+                      <ul className="mt-3 space-y-1">
+                        {plan.features.slice(0, 4).map((f, i) => (
+                          <li key={i} className="flex items-center gap-2 text-xs text-slate-400">
+                            <CheckCircle2 className="h-3 w-3 text-emerald-400 shrink-0" /> {f}
+                          </li>
+                        ))}
+                        {plan.features.length > 4 && (
+                          <li className="text-xs text-slate-600">+{plan.features.length - 4} mai multe...</li>
+                        )}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Payment Instructions for Selected Plan */}
+            {selectedPaymentPlan && !paymentResult && !generatedToken && (
+              <div className="space-y-5">
+                <button onClick={() => { setSelectedPaymentPlan(null); setPaymentTxHash(''); setPaymentWallet(''); }} className="text-xs text-slate-500 hover:text-slate-300 flex items-center gap-1">
+                  <ChevronRight className="h-3 w-3 rotate-180" /> Înapoi la planuri
+                </button>
+
+                <div className="rounded-xl bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 p-4">
+                  <h5 className="font-bold text-cyan-400 mb-1">
+                    {selectedPaymentPlan === 'pro' ? 'Pro — 25 EUR/lună' : 'Enterprise — 75 EUR/lună'}
+                  </h5>
+                  <p className="text-xs text-slate-400">Trimite plata folosind una din adresele de mai jos, apoi introdu transaction ID-ul pentru verificare.</p>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="rounded-xl bg-[#0a0e1a] p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h5 className="font-bold text-amber-400 text-sm">Monero (XMR)</h5>
+                      <button onClick={() => { setPaymentWallet('XMR'); navigator.clipboard.writeText('8BbApiMBHsPVKkLEP4rVbST6CnSb3LW2gXygngCi5MGiBuwAFh6bFEzT3UTuFCkLHtyHnrYNnHycdaGb2Kgkkmw8jViCdB6'); toast.success('Adresă copiată!'); }} className="text-xs text-slate-500 hover:text-cyan-400 flex items-center gap-1">
+                        <Copy className="h-3 w-3" /> Copiază
+                      </button>
+                    </div>
+                    <code className="text-[10px] text-slate-400 break-all leading-relaxed">8BbApiMBHsPVKkLEP4rVbST6CnSb3LW2gXygngCi5MGiBuwAFh6bFEzT3UTuFCkLHtyHnrYNnHycdaGb2Kgkkmw8jViCdB6</code>
+                  </div>
+                  <div className="rounded-xl bg-[#0a0e1a] p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h5 className="font-bold text-blue-400 text-sm">USDT (TON)</h5>
+                      <button onClick={() => { setPaymentWallet('USDT'); navigator.clipboard.writeText('UQB652W7D6OQwI7mmkiBNzguViY7or3fVORRdjNOigeeafjk'); toast.success('Adresă copiată!'); }} className="text-xs text-slate-500 hover:text-cyan-400 flex items-center gap-1">
+                        <Copy className="h-3 w-3" /> Copiază
+                      </button>
+                    </div>
+                    <code className="text-[10px] text-slate-400 break-all leading-relaxed">UQB652W7D6OQwI7mmkiBNzguViY7or3fVORRdjNOigeeafjk</code>
+                  </div>
+                </div>
+
+                <div className="border-t border-slate-700/50 pt-4">
+                  <h5 className="font-bold text-sm mb-3 flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-emerald-400" /> Verificare Plată
+                  </h5>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs text-slate-400 mb-1 block">Metodă plată</label>
+                      <div className="flex gap-2">
+                        <button onClick={() => setPaymentWallet('XMR')} className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${paymentWallet === 'XMR' ? 'bg-amber-500/20 border border-amber-500/50 text-amber-300' : 'bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700'}`}>XMR</button>
+                        <button onClick={() => setPaymentWallet('USDT')} className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all ${paymentWallet === 'USDT' ? 'bg-blue-500/20 border border-blue-500/50 text-blue-300' : 'bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700'}`}>USDT (TON)</button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs text-slate-400 mb-1 block">Transaction ID / Hash</label>
+                      <Input
+                        value={paymentTxHash}
+                        onChange={e => setPaymentTxHash(e.target.value)}
+                        placeholder="Introdu transaction hash-ul..."
+                        className="bg-[#0a0e1a] border-slate-600 text-slate-100 text-sm"
+                      />
+                    </div>
+                    <button
+                      onClick={async () => {
+                        if (!paymentTxHash.trim() || !paymentWallet) {
+                          toast.error('Selectează metoda și introdu transaction hash-ul');
+                          return;
+                        }
+                        setPaymentVerifying(true);
+                        try {
+                          const res = await fetch('/api/payment/verify', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              plan: selectedPaymentPlan,
+                              tx_hash: paymentTxHash.trim(),
+                              wallet: paymentWallet,
+                            }),
+                          });
+                          const data = await res.json();
+                          setPaymentResult({ success: data.success, message: data.message });
+                        } catch {
+                          setPaymentResult({ success: false, message: 'Eroare de conexiune. Încearcă din nou.' });
+                        }
+                        setPaymentVerifying(false);
+                      }}
+                      disabled={paymentVerifying || !paymentTxHash.trim() || !paymentWallet}
+                      className="w-full py-3 rounded-lg bg-gradient-to-r from-emerald-600 to-cyan-500 text-white font-semibold text-sm hover:from-emerald-500 hover:to-cyan-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {paymentVerifying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />}
+                      Verifică Plată
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Payment Result */}
+            {paymentResult && !generatedToken && (
+              <div className="space-y-4">
+                {paymentResult.success ? (
+                  <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-6 text-center">
+                    <CheckCircle2 className="h-12 w-12 text-emerald-400 mx-auto mb-3" />
+                    <h5 className="font-bold text-emerald-300 text-lg mb-2">Plată Înregistrată!</h5>
+                    <p className="text-sm text-slate-300 mb-4">{paymentResult.message}</p>
+                    <p className="text-xs text-slate-500 mb-4">Plata ta este în așteptare pentru verificare manuală. Vei primi token-ul de acces în cel mai scurt timp.</p>
+                    <div className="flex gap-3 justify-center">
+                      <a href="https://t.me/loghandelbot" target="_blank" className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold transition-all flex items-center gap-2">
+                        <Bot className="h-4 w-4" /> Contactează t.me/loghandelbot
+                      </a>
+                      <button onClick={() => { setPaymentResult(null); setSelectedPaymentPlan(null); setPaymentTxHash(''); }} className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-semibold transition-all">
+                        Închide
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-xl bg-red-500/10 border border-red-500/30 p-6 text-center">
+                    <XCircle className="h-12 w-12 text-red-400 mx-auto mb-3" />
+                    <h5 className="font-bold text-red-300 text-lg mb-2">Eroare la Verificare</h5>
+                    <p className="text-sm text-slate-300 mb-4">{paymentResult.message}</p>
+                    <button onClick={() => { setPaymentResult(null); }} className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-semibold transition-all">
+                      Încearcă Din Nou
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Generated Token Display */}
+            {generatedToken && (
+              <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-6 text-center">
+                <CheckCircle2 className="h-12 w-12 text-emerald-400 mx-auto mb-3" />
+                <h5 className="font-bold text-emerald-300 text-lg mb-2">Token Generat cu Succes!</h5>
+                <div className="bg-[#0a0e1a] rounded-lg p-4 mb-4">
+                  <code className="text-lg font-bold text-cyan-300">{generatedToken}</code>
+                </div>
+                <button onClick={() => { navigator.clipboard.writeText(generatedToken); toast.success('Token copiat!'); }} className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-semibold transition-all flex items-center gap-2 mx-auto">
+                  <Copy className="h-4 w-4" /> Copiază Token
+                </button>
+                <p className="text-xs text-slate-500 mt-3">Folosește acest token la login pe platformă.</p>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1310,12 +1610,12 @@ export default function HermesPage() {
     );
   }
 
-  if (!authenticated) {
-    return <LandingPage onAdminClick={handleAdminLogin} />;
-  }
-
   if (showAdminLogin) {
     return <AdminLoginModal onSuccess={handleAdminSuccess} onClose={() => setShowAdminLogin(false)} />;
+  }
+
+  if (!authenticated) {
+    return <LandingPage onAdminClick={handleAdminLogin} />;
   }
 
   return <Dashboard onLogout={handleLogout} />;
@@ -1415,7 +1715,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [telegramToken, setTelegramToken] = useState('');
   const [glmKey, setGlmKey] = useState('');
   const [glmModel, setGlmModel] = useState('glm-4.6');
-  const [glmEndpoint, setGlmEndpoint] = useState('https://api.z.ai/api/coding/paas/v4/chat/completions');
+  const [glmEndpoint, setGlmEndpoint] = useState('');
   const [githubRepo, setGithubRepo] = useState('');
   const [autoRepair, setAutoRepair] = useState('true');
   const [maxRepair, setMaxRepair] = useState(3);
@@ -1854,7 +2154,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   },
                   {
                     icon: <Brain className="h-5 w-5" />,
-                    label: 'z.ai API',
+                    label: 'GLM AI API',
                     value: '✅ Auto (SDK)',
                     color: 'text-emerald-400',
                   },
@@ -2165,7 +2465,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                           { provider: 'Kimi', models: ['kimi-k2.5'] },
                           { provider: 'MiniMax', models: ['minimax-m2.5'] },
                           { provider: 'Qwen', models: ['qwen3.6-plus', 'qwen3.5'] },
-                          { provider: 'z-ai / GLM', models: ['glm-5-turbo', 'glm-4.6', 'glm-4-flash'] },
+                          { provider: 'GLM AI', models: ['glm-5-turbo', 'glm-4.6', 'glm-4-flash'] },
                         ].map(group => (
                           <React.Fragment key={group.provider}>
                             <div className="col-span-2 md:col-span-3 lg:col-span-4 text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-1">{group.provider}</div>
@@ -2374,7 +2674,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base">🚀 Deployment Center</CardTitle>
                   <CardDescription className="text-slate-500 text-xs">
-                    Build & deploy workflows for GitHub, Expo, Docker, Render
+                    Build & deploy workflows for Docker, Expo, Render, VPS
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -2382,17 +2682,14 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     {[
                       {
                         icon: <GitBranch className="h-7 w-7" />,
-                        name: 'GitHub Actions',
-                        desc: 'Auto build & deploy on push to main',
+                        name: 'Git Deploy',
+                        desc: 'Auto build & deploy via Git push',
                         status: config?.github_repo ? '✅ Configured' : '❌ No repo',
                         actions: [
                           { label: 'Trigger Deploy', onClick: () => {
                             if (config?.github_repo) {
-                              const parts = config.github_repo.replace('https://github.com/', '').replace('.git', '').split('/');
-                              if (parts.length === 2) {
-                                window.open(`https://github.com/${parts[0]}/${parts[1]}/actions`, '_blank');
-                                addLog('ok', 'Opened GitHub Actions');
-                              }
+                              window.open(config.github_repo, '_blank');
+                              addLog('ok', 'Opened Git repo');
                             } else toast.error('Set repo in Settings first');
                           }},
                         ],
@@ -2598,12 +2895,12 @@ docker compose up -d --build`,
                   <CardTitle className="text-base">🔑 API &amp; Keys</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* z.ai SDK Auto Status */}
+                  {/* AI SDK Auto Status */}
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-900/20 border border-emerald-800/30">
                     <div className="text-2xl">🔗</div>
                     <div>
-                      <p className="text-sm font-semibold text-emerald-400">z.ai API: AUTO-CONFIGURAT</p>
-                      <p className="text-xs text-slate-400">Conectat automat prin GitHub → z.ai SDK. Nu e nevoie de cheie manuală.</p>
+                      <p className="text-sm font-semibold text-emerald-400">AI API: AUTO-CONFIGURAT</p>
+                      <p className="text-xs text-slate-400">SDK intern conectat automat. Nu e nevoie de cheie manuală.</p>
                     </div>
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
@@ -2675,14 +2972,19 @@ docker compose up -d --build`,
                         onChange={e => setGlmEndpoint(e.target.value)}
                         className="w-full bg-[#0f172a] border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500"
                       >
-                        <option value="https://api.z.ai/api/coding/paas/v4/chat/completions">Coding API</option>
-                        <option value="https://api.z.ai/api/paas/v4/chat/completions">General API</option>
+                        <option value="coding">Coding API</option>
+                        <option value="general">General API</option>
                       </select>
                     </div>
                   </div>
                   <Button
                     className="bg-blue-600 hover:bg-blue-500 text-sm"
-                    onClick={() => saveConfig({ glm_model: glmModel, glm_endpoint: glmEndpoint })}
+                    onClick={() => {
+                      const ep = glmEndpoint === 'general'
+                        ? 'https://api.z.ai/api/paas/v4/chat/completions'
+                        : 'https://api.z.ai/api/coding/paas/v4/chat/completions';
+                      saveConfig({ glm_model: glmModel, glm_endpoint: glmEndpoint ? ep : '' });
+                    }}
                   >
                     <Brain className="h-3.5 w-3.5 mr-1.5" /> Save GLM Settings
                   </Button>
