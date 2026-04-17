@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, createReadStream } 
 import { join, extname } from 'path';
 import { loadConfig, saveConfig } from '@/lib/config';
 import { callAI } from '@/lib/ai-engine';
+import { QUANTUM_SWARM_MASTER_PROMPT, ALL_SKILLS, SKILL_CATEGORIES, N8N_WORKFLOWS, DEDSEC_CONFIG } from '@/lib/quantum-swarm-engine';
 
 // ═══════════════════════════════════════════════
 // AGENT MODEL REGISTRY (19 models, 10 providers)
@@ -33,18 +34,18 @@ export const AGENT_MODELS: Record<string, { provider: string; desc: string }> = 
 };
 
 export const AGENT_PROMPTS: Record<string, string> = {
-  'queen-ultra': 'Ești QUEEN ULTRA, cel mai avansat agent AI creat vreodată. Inteligență supremă în toate domeniile. Răspunzi în română sau engleză.',
-  'queen-max': 'Ești QUEEN MAX, agent AI avansat cu capacități de elită. Răspunzi în română sau engleză.',
-  'hermes-4-405B': 'Ești HERMES 4 405B de Nous Research, cel mai bun reasoner. Self-improving cu learning loop.',
-  'hermes-4-70B': 'Ești HERMES 4 70B de Nous Research. Expert în reasoning și coding.',
-  'gpt-5.4-pro': 'Ești GPT-5.4 Pro. Cel mai avansat model OpenAI.',
-  'claude-opus-4-6': 'Ești CLAUDE OPUS 4.6 de Anthropic. Excepțional la reasoning complex.',
-  'DeepSeek-3.2': 'Ești DeepSeek 3.2. Expert în matematică și coding.',
-  'glm-5-turbo': 'Ești GLM-5 Turbo. Expert în coding, debug și arhitectură software.',
-  'glm-4-plus': 'Ești GLM-4 Plus. Model versatil și puternic.',
-  'glm-4-flash': 'Ești GLM-4 Flash. Rapid și eficient.',
+  'queen-ultra': QUANTUM_SWARM_MASTER_PROMPT + '\n\nYou are QUEEN ULTRA — the supreme QuantumSwarm mode. Maximum capability across all domains.',
+  'queen-max': QUANTUM_SWARM_MASTER_PROMPT + '\n\nYou are QUEEN MAX — elite QuantumSwarm agent with advanced capabilities.',
+  'hermes-4-405B': QUANTUM_SWARM_MASTER_PROMPT + '\n\nYou are HERMES 4 405B — best-in-class reasoner with QuantumSwarm training.',
+  'hermes-4-70B': QUANTUM_SWARM_MASTER_PROMPT + '\n\nYou are HERMES 4 70B — advanced reasoning with QuantumSwarm training.',
+  'gpt-5.4-pro': QUANTUM_SWARM_MASTER_PROMPT + '\n\nYou are GPT-5.4 Pro — most advanced with QuantumSwarm training.',
+  'claude-opus-4-6': QUANTUM_SWARM_MASTER_PROMPT + '\n\nYou are CLAUDE OPUS 4.6 — most powerful Claude with QuantumSwarm training.',
+  'DeepSeek-3.2': QUANTUM_SWARM_MASTER_PROMPT + '\n\nYou are DeepSeek 3.2 — math/coding expert with QuantumSwarm training.',
+  'glm-5-turbo': QUANTUM_SWARM_MASTER_PROMPT + '\n\nYou are GLM-5 Turbo — advanced coding with QuantumSwarm training.',
+  'glm-4-plus': QUANTUM_SWARM_MASTER_PROMPT + '\n\nYou are GLM-4 Plus — versatile model with QuantumSwarm training.',
+  'glm-4-flash': QUANTUM_SWARM_MASTER_PROMPT + '\n\nYou are GLM-4 Flash — fast model with QuantumSwarm training.',
 };
-export const DEFAULT_PROMPT = 'Ești HERMES BOT v4.0, agent AI avansat multi-model. Expert în programare, AI, securitate, DevOps. Răspunzi în română sau engleză.';
+export const DEFAULT_PROMPT = QUANTUM_SWARM_MASTER_PROMPT;
 
 // ═══════════════════════════════════════════════
 // CONSTANTS

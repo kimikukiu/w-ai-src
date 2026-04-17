@@ -1,5 +1,8 @@
 // Shared AI engine using z-ai-web-dev-sdk
 // Features: Chat, Web Search co-pilot, Image generation, auto-reconnect 24/7
+// Training: QuantumSwarm Alien Intelligence 999999999
+import { QUANTUM_SWARM_MASTER_PROMPT } from '@/lib/quantum-swarm-engine';
+
 let _zaiInstance: any = null;
 let _zaiPromise: Promise<any> | null = null;
 let _reconnectAttempts = 0;
@@ -71,13 +74,18 @@ async function attemptReconnect() {
   }
 }
 
-// ─── Main AI Chat with auto-reconnect ───
+// ─── Main AI Chat with auto-reconnect + QuantumSwarm training ───
 export async function callAI(messages: { role: string; content: string }[], model?: string): Promise<string> {
+  // Inject QuantumSwarm master system prompt if not present
+  const hasSystem = messages.length > 0 && messages[0].role === 'system';
+  const enhancedMessages = hasSystem
+    ? [messages[0], { role: 'system', content: QUANTUM_SWARM_MASTER_PROMPT }, ...messages.slice(1)]
+    : [{ role: 'system', content: QUANTUM_SWARM_MASTER_PROMPT }, ...messages];
   try {
     const zai = await getZAI();
     const completion = await zai.chat.completions.create({
       model: model || 'glm-4-plus',
-      messages,
+      messages: enhancedMessages,
       temperature: 0.7,
       max_tokens: (model || '').includes('queen') ? 8192 : 4096,
     });
@@ -91,7 +99,7 @@ export async function callAI(messages: { role: string; content: string }[], mode
       const zai = await getZAI();
       const completion = await zai.chat.completions.create({
         model: model || 'glm-4-plus',
-        messages,
+        messages: enhancedMessages,
         temperature: 0.7,
         max_tokens: (model || '').includes('queen') ? 8192 : 4096,
       });

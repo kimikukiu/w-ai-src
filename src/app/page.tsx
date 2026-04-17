@@ -2123,6 +2123,8 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     { id: 'codespace', label: 'IDE Coder', icon: Terminal },
     { id: 'files', label: 'Files', icon: FolderOpen },
     { id: 'deploy', label: 'Deploy', icon: Rocket },
+    { id: 'skills', label: 'Skills', icon: Zap },
+    { id: 'n8n', label: 'n8n Auto', icon: Sparkles },
     { id: 'loops', label: 'Loop Problems', icon: Code },
     { id: 'plans', label: 'Plans', icon: FileText },
     { id: 'settings', label: 'Settings', icon: Settings },
@@ -2974,6 +2976,120 @@ docker compose up -d --build`,
                       </Button>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* ═══ SKILLS REGISTRY ═══ */}
+          {activeSection === 'skills' && (
+            <div className="space-y-5">
+              <Card className="bg-[#111827] border-slate-700/50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">⚡ QuantumSwarm Skills Registry</CardTitle>
+                  <CardDescription className="text-slate-500 text-xs">
+                    All trained tools and capabilities — {100}+ skills from QuantumSwarm training
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" id="skills-grid">
+                    {[
+                      { cat: 'RedTeam', icon: '🔴', color: 'text-red-400', items: ['CL4R1T4S', 'UltraBr3aks', 'BruteForceAI', 'Rust RedOps', 'L1B3RT4S', 'PentestGPT', 'CVE Exploits', 'StrideGPT', 'Hacking Guide'] },
+                      { cat: 'DarkGPT / WormGPT', icon: '🧠', color: 'text-purple-400', items: ['DarkGPT (3x)', 'XGPT-WormGPT', 'FraudGPT', 'Onion Search', 'GPT-onion', 'Botasaurus', 'KugaGT'] },
+                      { cat: 'KaliGPT / HackGPT', icon: '⚡', color: 'text-amber-400', items: ['KaliGPT (4x)', 'HackGPT (3x)', 'Kali-GPT Custom', 'CL4R1T4S'] },
+                      { cat: 'Agentic Coder', icon: '💻', color: 'text-emerald-400', items: ['MetaGPT', 'agenticSeek', 'DeepSeek Coder', 'Qwen2.5 Coder', 'Claude Transpile', 'SQLand', 'letta-code', 'Brain33', 'code2prompt', 'Refact', 'KiloCode', 'gpt4free', 'tgpt'] },
+                      { cat: 'AI Models / LLM', icon: '🤖', color: 'text-blue-400', items: ['ggml', 'nanoGPT', 'gpt-neox', 'RWKV-LM', 'x-transformers', 'minimind', 'LLMs Scratch', 'DeepCam', 'GPT-SoVITS', 'VideoLingo', 'VAR'] },
+                      { cat: 'TOR / VPN / Ghost', icon: '👻', color: 'text-slate-300', items: ['DEDSEC TOR-GHOST', 'DEDSEC STOR', 'DEDSEC VSDOOR', 'norecognition', 'gitcloakd'] },
+                      { cat: 'Crypto / Wallet', icon: '💎', color: 'text-yellow-400', items: ['WalletBruteForce', 'Rich Address', 'HuntBTC', 'KeyHunt', 'BTCBreaker', 'ETH Cracking', 'Mnemonic BF', 'BTC DB', 'TXID DB', 'SHA256 Elip'] },
+                      { cat: 'n8n Automation', icon: '⚡', color: 'text-orange-400', items: ['Telegram AI Bot', 'Security Scanner', 'Code Generator', 'OSINT Recon', 'Crypto Monitor', 'Sub Manager', 'Auto Deploy', 'AI Research'] },
+                      { cat: 'Visual / UI-UX', icon: '🎨', color: 'text-pink-400', items: ['UI-UX Pro Max', 'Screenshot2Code', 'drawdb', 'Chat-GPT PPT'] },
+                      { cat: 'Research / GPT', icon: '📚', color: 'text-indigo-400', items: ['GPT Researcher', 'Dify', 'LobeChat', 'LibreChat', 'DB-GPT', 'Mastra', 'LangChain.js', 'promptfoo', 'Promptify', 'LocalGPT'] },
+                      { cat: 'System Prompts', icon: '💬', color: 'text-violet-400', items: ['Sys Prompts Coll.', 'Awesome Prompts', 'Review Prompts', 'stopslop', 'hakcthropic', 'galah', 'promptHakcer', 'panhandlr'] },
+                    ].map((cat, i) => (
+                      <div key={i} className="bg-[#0a0e1a] border border-slate-700/50 rounded-xl p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-lg">{cat.icon}</span>
+                          <h4 className={`text-sm font-bold ${cat.color}`}>{cat.cat}</h4>
+                          <Badge variant="secondary" className="text-[10px] bg-slate-800 text-slate-400 ml-auto">{cat.items.length}</Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {cat.items.map((item, j) => (
+                            <span key={j} className="px-2 py-0.5 rounded text-[10px] bg-slate-800/80 text-slate-400 border border-slate-700/50">{item}</span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* ═══ n8n AUTOMATION ═══ */}
+          {activeSection === 'n8n' && (
+            <div className="space-y-5">
+              <Card className="bg-[#111827] border-slate-700/50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">⚡ n8n Workflow Automation</CardTitle>
+                  <CardDescription className="text-slate-500 text-xs">
+                    Automated workflows connected to QuantumSwarm AI engine
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {[
+                      { name: 'Telegram AI Auto-Reply', desc: 'AI auto-reply with QuantumSwarm', status: 'active', cat: 'Telegram', nodes: 8 },
+                      { name: 'Security Scanner', desc: 'Auto vuln scanning pipeline', status: 'active', cat: 'Security', nodes: 12 },
+                      { name: 'Agentic Code Gen', desc: 'Multi-model code generation', status: 'active', cat: 'Coding', nodes: 10 },
+                      { name: 'OSINT Recon Agent', desc: 'TOR + onion search automation', status: 'active', cat: 'OSINT', nodes: 15 },
+                      { name: 'Crypto Monitor', desc: 'Wallet and TX monitoring', status: 'active', cat: 'Crypto', nodes: 9 },
+                      { name: 'Subscriber Mgmt', desc: 'Token + payment lifecycle', status: 'active', cat: 'Admin', nodes: 7 },
+                      { name: 'Auto Deploy', desc: 'Git push → build → deploy', status: 'active', cat: 'DevOps', nodes: 6 },
+                      { name: 'AI Research Chain', desc: 'Search + summarize + report', status: 'active', cat: 'Research', nodes: 11 },
+                      { name: 'RedTeam Auto', desc: 'Automated red team testing', status: 'active', cat: 'Security', nodes: 14 },
+                      { name: 'Content Generator', desc: 'Video + audio + image AI', status: 'draft', cat: 'Content', nodes: 8 },
+                    ].map((wf, i) => (
+                      <div key={i} className="bg-[#0a0e1a] border border-slate-700/50 rounded-xl p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <h4 className="text-sm font-bold text-slate-200">{wf.name}</h4>
+                            <p className="text-[11px] text-slate-500 mt-0.5">{wf.desc}</p>
+                          </div>
+                          <Badge variant="secondary" className={`text-[10px] ${wf.status === 'active' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border-amber-500/30'}`}>{wf.status === 'active' ? '● Active' : '○ Draft'}</Badge>
+                        </div>
+                        <div className="flex items-center gap-3 text-[10px] text-slate-500">
+                          <span className="flex items-center gap-1"><Activity className="h-3 w-3" /> {wf.cat}</span>
+                          <span className="flex items-center gap-1"><Cpu className="h-3 w-3" /> {wf.nodes} nodes</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* DEDSEC Status */}
+              <Card className="bg-gradient-to-br from-slate-900/60 to-[#111827] border-slate-600/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">👻 DEDSEC TOR/GHOST Integration</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[
+                      { name: 'TOR-GHOST', desc: 'TOR anonymity & ghost routing', status: 'Integrated' },
+                      { name: 'DEDSEC STOR', desc: 'Encrypted secure storage', status: 'Integrated' },
+                      { name: 'VSDOOR', desc: 'Virtual secure door access', status: 'Integrated' },
+                    ].map((t, i) => (
+                      <div key={i} className="bg-[#0a0e1a] border border-slate-700/30 rounded-lg p-3 text-center">
+                        <p className="text-sm font-bold text-slate-300 mb-1">{t.name}</p>
+                        <p className="text-[10px] text-slate-500 mb-2">{t.desc}</p>
+                        <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]">✅ {t.status}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    Stealth Mode: Active · Auto Rotate: ON
+                  </div>
                 </CardContent>
               </Card>
             </div>
