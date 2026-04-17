@@ -1833,6 +1833,15 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [agentMemory, setAgentMemory] = useState(false);
   const [agentCots, setAgentCots] = useState(true);
 
+  // ─── Co-Pilot Chat State ───
+  const [copilotMode, setCopilotMode] = useState<'full_copilot' | 'agentic_searcher' | 'deep_thinking' | 'terminal_execute'>('full_copilot');
+  const [attachedFiles, setAttachedFiles] = useState<{ name: string; size: number; type: string; path: string; contentPreview: string | null }[]>([]);
+  const [terminalLines, setTerminalLines] = useState<string[]>([]);
+  const [showTerminal, setShowTerminal] = useState(false);
+  const [chatFilesOpen, setChatFilesOpen] = useState(false);
+  const [chatFilesList, setChatFilesList] = useState<any[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const glmEndRef = useRef<HTMLDivElement>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -2094,7 +2103,180 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     setThinkingProgress(0);
   };
 
-  // ─── Config Save ───
+  // ─── Co-Pilot Enhanced Send (terminal + file support) ───
+  const sendCoPilotGLM = async () => {
+    const input = document.getElementById('glmInput') as HTMLInputElement;
+    const msg = input?.value?.trim();
+    if (!msg) return;
+    if (input) input.value = '';
+    setGlmMessages(prev => [...prev, { role: 'user', content: msg }]);
+    setGlmLoading(true);
+    setGlmThinking(true);
+    setThinkingProgress(0);
+    setThinkingStage(0);
+    setStreamingText('');
+    setShowTerminal(true);
+    setTerminalLines([
+      `$ agentic-coder --mode ${copilotMode} --model ${glmModel}`,
+      `$ QuantumSwarm 999999999 :: WhoamisecDeepMind Cognitive Engine`,
+      `$ Processing: "${msg.slice(0, 80)}${msg.length > 80 ? '...' : ''}"`,
+      '',
+    ]);
+    addLog('info', `Co-Pilot [${copilotMode}]: ${msg.slice(0, 60)}`);
+
+    // Animated thinking progress with terminal output
+    const copilotStages = [
+      { label: 'DeepMind: Initializing cognitive pathways...', duration: 500, terminal: '[INIT] Loading WhoamisecDeepMind neural pathways...' },
+      { label: 'QuantumSwarm: Scanning quantum context...', duration: 700, terminal: '[QS] QuantumSwarm 999999999 nodes synchronizing...' },
+      { label: `Co-Pilot: ${copilotMode === 'terminal_execute' ? 'Preparing terminal execution...' : copilotMode === 'agentic_searcher' ? 'Agentic Searcher scanning web...' : 'Deep thinking engaged...'}`, duration: 900, terminal: copilotMode === 'terminal_execute' ? '[EXEC] Initializing terminal environment...' : copilotMode === 'agentic_searcher' ? '[SEARCH] Agentic Searcher activated — scanning...' : '[THINK] DeepMind cognitive evolution in progress...' },
+      { label: 'Agentic: Processing neural reasoning...', duration: 800, terminal: '[REASON] Neural reasoning across all training domains...' },
+      { label: 'DeepMind: Synthesizing response...', duration: 600, terminal: `[${copilotMode.toUpperCase()}] Cross-referencing QuantumSwarm training lineage...` },
+      { label: 'Omega: Finalizing output...', duration: 400, terminal: '[OMEGA] Omega Intelligence finalizing...' },
+    ];
+
+    let totalDuration = copilotStages.reduce((s, t) => s + t.duration, 0);
+    let elapsed = 0;
+
+    const progressInterval = setInterval(() => {
+      elapsed += 80;
+      const pct = Math.min(95, (elapsed / totalDuration) * 95);
+      setThinkingProgress(pct);
+      let acc = 0;
+      for (let si = 0; si < copilotStages.length; si++) {
+        acc += copilotStages[si].duration;
+        if (elapsed < acc) {
+          setThinkingStage(si);
+          // Add terminal line when entering new stage
+          if (copilotStages[si].terminal) {
+            setTerminalLines(prev => {
+              if (!prev.includes(copilotStages[si].terminal)) return [...prev, copilotStages[si].terminal];
+              return prev;
+            });
+          }
+          break;
+        }
+        if (si === copilotStages.length - 1) setThinkingStage(si);
+      }
+    }, 80);
+
+    try {
+      // Build file context from attached files
+      const fileContext = attachedFiles.map(f => ({
+        name: f.name,
+        size: f.size,
+        type: f.type,
+        path: f.path,
+        content: f.contentPreview || null,
+      }));
+
+      const res = await fetch('/api/chat/copilot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: msg, mode: copilotMode, model: glmModel, fileContext }),
+      });
+      const data = await res.json();
+
+      clearInterval(progressInterval);
+      setThinkingProgress(100);
+      setThinkingStage(copilotStages.length - 1);
+
+      // Add terminal lines from response
+      if (data.thinkingStages) {
+        setTerminalLines(prev => [...prev, '', '--- CO-PILOT EXECUTION LOG ---']);
+        for (const stage of data.thinkingStages) {
+          setTerminalLines(prev => [...prev, `  ${stage}`]);
+        }
+      }
+
+      await new Promise(r => setTimeout(r, 300));
+      setGlmThinking(false);
+
+      if (data.response) {
+        // Add response to terminal
+        setTerminalLines(prev => [...prev, '', '=== RESPONSE ===', ...data.response.split('\n').slice(0, 50)]);
+
+        if (data.searchUsed && data.searchResults?.length > 0) {
+          setTerminalLines(prev => [...prev, '', '--- SOURCES ---', ...data.searchResults.map((s: any) => `  [SRC] ${s.name}: ${s.url}`)]);
+        }
+
+        // Streaming text effect
+        const fullText = data.response;
+        let charIdx = 0;
+        const streamInterval = setInterval(() => {
+          const chunkSize = Math.floor(4 + Math.random() * 10);
+          charIdx = Math.min(charIdx + chunkSize, fullText.length);
+          setStreamingText(fullText.slice(0, charIdx));
+          if (charIdx >= fullText.length) {
+            clearInterval(streamInterval);
+            setStreamingText('');
+            setGlmMessages(prev => [...prev, { role: 'assistant', content: fullText }]);
+          }
+        }, 12);
+        addLog('ok', `Co-Pilot [${data.mode || copilotMode}] response received`);
+      } else {
+        setGlmThinking(false);
+        setStreamingText('');
+        setTerminalLines(prev => [...prev, `[ERROR] ${data.error || 'Unknown error'}`]);
+        setGlmMessages(prev => [...prev, { role: 'assistant', content: `Error: ${data.error || 'Unknown error'}` }]);
+        addLog('err', `Co-Pilot error: ${data.error || ''}`);
+      }
+    } catch (e: any) {
+      clearInterval(progressInterval);
+      setGlmThinking(false);
+      setStreamingText('');
+      setTerminalLines(prev => [...prev, `[ERROR] ${e.message}`]);
+      setGlmMessages(prev => [...prev, { role: 'assistant', content: `Error: ${e.message}` }]);
+      addLog('err', e.message);
+    }
+    setGlmLoading(false);
+    setThinkingProgress(0);
+  };
+
+  // ─── File Upload Handler for Chat ───
+  const handleChatFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    addLog('info', `Uploading chat file: ${file.name}`);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/chat/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.success && data.file) {
+        setAttachedFiles(prev => [...prev, data.file]);
+        addLog('ok', `File attached: ${data.file.name} (${(data.file.size / 1024).toFixed(1)}KB)`);
+        toast.success(`Attached: ${data.file.name}`);
+      } else {
+        toast.error(data.error || 'Upload failed');
+      }
+    } catch (err: any) {
+      toast.error('Upload error');
+      addLog('err', err.message);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  // ─── Remove Attached File ───
+  const removeAttachedFile = (index: number) => {
+    setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // ─── Load Chat Files List ───
+  const loadChatFiles = async () => {
+    try {
+      const res = await fetch('/api/chat/upload');
+      const data = await res.json();
+      if (data.files) {
+        setChatFilesList(data.files);
+        setChatFilesOpen(!chatFilesOpen);
+      }
+    } catch {}
+  };
+
+  // ─── Download Chat File ───
+  const downloadChatFile = (fileName: string) => {
+    window.open(`/api/chat/download?file=${encodeURIComponent(fileName)}`, '_blank');
+  };
   const saveConfig = async (updates: Record<string, any>) => {
     try {
       const res = await fetch('/api/config', {
@@ -2618,9 +2800,61 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
                   <span className="text-sm font-bold text-pink-400">Agentic Coder</span>
                   <Brain className="h-4 w-4 text-pink-400" />
+                  {/* Co-Pilot Mode Selector */}
+                  <div className="flex items-center gap-1 ml-2">
+                    {([
+                      { id: 'full_copilot' as const, label: 'Co-Pilot', icon: '🤖' },
+                      { id: 'terminal_execute' as const, label: 'Terminal', icon: '⚡' },
+                      { id: 'agentic_searcher' as const, label: 'Search', icon: '🔍' },
+                      { id: 'deep_thinking' as const, label: 'DeepMind', icon: '🧬' },
+                    ]).map(mode => (
+                      <button
+                        key={mode.id}
+                        onClick={() => setCopilotMode(mode.id)}
+                        className={`px-2 py-1 rounded text-[10px] font-semibold transition-all ${copilotMode === mode.id ? 'bg-red-600/40 text-red-300 border border-red-500/40' : 'bg-[#0a0e1a] text-slate-500 border border-transparent hover:text-slate-300'}`}
+                        title={mode.label}
+                      >
+                        {mode.icon} {mode.label}
+                      </button>
+                    ))}
+                  </div>
                   <span className="ml-auto text-xs font-bold text-red-400">{glmModel}</span>
                   <span className="text-[10px] text-purple-400/70 font-mono">QS:999999999</span>
                 </div>
+
+                {/* Terminal Display (real-time execution) */}
+                {showTerminal && terminalLines.length > 0 && (
+                  <div className="border-b border-red-500/10">
+                    <div className="flex items-center justify-between px-4 py-1.5 bg-black/40">
+                      <span className="text-[10px] text-green-400 font-mono flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                        agentic-coder@quantumswarm:~$
+                      </span>
+                      <button onClick={() => setShowTerminal(false)} className="text-slate-500 hover:text-slate-300 text-xs">✕</button>
+                    </div>
+                    <ScrollArea className="h-[160px] bg-black/60">
+                      <div className="p-3 font-mono text-[11px] leading-relaxed">
+                        {terminalLines.map((line, i) => (
+                          <div key={i} className={
+                            line.startsWith('$') ? 'text-green-400' :
+                            line.startsWith('[INIT]') || line.startsWith('[QS]') ? 'text-cyan-400' :
+                            line.startsWith('[SEARCH]') || line.startsWith('[SRC]') ? 'text-blue-400' :
+                            line.startsWith('[EXEC]') || line.startsWith('[OMEGA]') ? 'text-yellow-400' :
+                            line.startsWith('[THINK]') || line.startsWith('[REASON]') ? 'text-purple-400' :
+                            line.startsWith('[ERROR]') ? 'text-red-400' :
+                            line.startsWith('---') || line.startsWith('===') ? 'text-slate-500 font-bold' :
+                            'text-slate-300'
+                          }>
+                            {line || '\u00A0'}
+                          </div>
+                        ))}
+                        {glmThinking && (
+                          <span className="inline-block w-2 h-3.5 bg-green-500 animate-pulse ml-0.5" />
+                        )}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                )}
                 {/* Chat Messages */}
                 <ScrollArea className="h-[420px]">
                   <div className="p-4 space-y-3">
@@ -2689,18 +2923,77 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     <div ref={glmEndRef} />
                   </div>
                 </ScrollArea>
-                {/* Chat Input */}
+                {/* Attached Files Display */}
+                {attachedFiles.length > 0 && (
+                  <div className="px-4 py-2 border-t border-red-500/10 bg-[#1a0a0a]/60">
+                    <div className="flex flex-wrap gap-2">
+                      {attachedFiles.map((f, i) => (
+                        <div key={i} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-500/10 border border-red-500/20 text-xs">
+                          <span className="text-red-400">📎</span>
+                          <span className="text-slate-300 max-w-[120px] truncate">{f.name}</span>
+                          <span className="text-slate-500">({(f.size / 1024).toFixed(1)}KB)</span>
+                          <button onClick={() => removeAttachedFile(i)} className="text-red-400 hover:text-red-300 ml-1">✕</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* Chat Input with File Upload */}
                 <div className="px-4 py-3 border-t border-red-500/20 bg-[#1a0a0a]/80">
+                  {/* File action buttons row */}
+                  <div className="flex items-center gap-1 mb-2">
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium bg-[#0f0505] border border-red-500/20 text-slate-400 hover:text-red-300 hover:border-red-500/40 transition-all"
+                    >
+                      📎 Upload File
+                    </button>
+                    <button
+                      onClick={loadChatFiles}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium bg-[#0f0505] border border-red-500/20 text-slate-400 hover:text-blue-300 hover:border-blue-500/40 transition-all"
+                    >
+                      📂 Files
+                    </button>
+                    <button
+                      onClick={() => setShowTerminal(!showTerminal)}
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium border transition-all ${showTerminal ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-[#0f0505] border-red-500/20 text-slate-400 hover:text-green-300'}`}
+                    >
+                      ⬛ Terminal
+                    </button>
+                    <span className="ml-auto text-[9px] text-slate-600">{copilotMode === 'terminal_execute' ? '⚡ Terminal Mode' : copilotMode === 'agentic_searcher' ? '🔍 Search Mode' : copilotMode === 'deep_thinking' ? '🧬 DeepMind Mode' : '🤖 Co-Pilot Mode'}</span>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      className="hidden"
+                      onChange={handleChatFileUpload}
+                      accept="*/*"
+                    />
+                  </div>
+                  {/* Chat Files Dropdown */}
+                  {chatFilesOpen && chatFilesList.length > 0 && (
+                    <div className="mb-2 rounded-lg bg-[#0f0505] border border-red-500/10 max-h-[120px] overflow-y-auto">
+                      {chatFilesList.slice(0, 10).map((f: any, i: number) => (
+                        <div key={i} className="flex items-center justify-between px-3 py-1.5 hover:bg-red-500/5 border-b border-red-500/5 last:border-0">
+                          <span className="text-xs text-slate-300 truncate max-w-[200px]">{f.name}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-slate-500">{(f.size / 1024).toFixed(1)}KB</span>
+                            <button onClick={() => downloadChatFile(f.name)} className="text-blue-400 hover:text-blue-300 text-xs">⬇</button>
+                            <button onClick={() => { setAttachedFiles(prev => [...prev, f]); toast.success(`Attached: ${f.name}`); }} className="text-green-400 hover:text-green-300 text-xs">+</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <div className="flex gap-2">
                     <Input
                       id="glmInput"
-                      placeholder={glmMode === 'redteam' ? "Red Team query..." : "Cu ce te pot ajuta astazi?"}
+                      placeholder={copilotMode === 'terminal_execute' ? '$ Execute command or code...' : copilotMode === 'agentic_searcher' ? '🔍 Search anything...' : copilotMode === 'deep_thinking' ? '🧬 Deep thinking query...' : glmMode === 'redteam' ? 'Red Team query...' : 'Cu ce te pot ajuta astazi?'}
                       className="bg-[#0f0505] border-red-500/20 text-white placeholder:text-red-400/40 flex-1 focus:border-red-500/50 focus:ring-red-500/20"
-                      onKeyDown={e => { if (e.key === 'Enter') sendGLM(); }}
+                      onKeyDown={e => { if (e.key === 'Enter') sendCoPilotGLM(); }}
                       disabled={glmLoading}
                     />
                     <button
-                      onClick={sendGLM}
+                      onClick={sendCoPilotGLM}
                       disabled={glmLoading}
                       className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center transition-all shadow-lg shadow-red-600/30 disabled:opacity-50"
                     >

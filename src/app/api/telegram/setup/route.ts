@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        short_description: '🤖 Hermes Bot v4.0 - AI Coding Agent cu 19 modele, Loop Coder 13 limbi, RED TEAM testing. /start',
+        short_description: '🤖 Agentic Coder — QuantumSwarm 999999999 · 19 modele AI · Loop Coder 13 limbi · RED TEAM · Co-Pilot. /start',
       }),
     });
 

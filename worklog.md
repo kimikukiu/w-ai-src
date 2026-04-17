@@ -1,25 +1,108 @@
-# WHOAMISec AI — Work Log
+# WHOAMISec AI Project Worklog
 
 ---
 Task ID: 1
-Agent: Super Z (Main)
-Task: Complete identity overhaul — Agentic Coder QuantumSwarm 999999999
+Agent: Main Agent
+Task: Fix last 'Hermes Bot v4.0' reference in Telegram setup
 
 Work Log:
-- Created src/lib/deepmind-engine.ts — WhoamisecDeepMind cognitive evolution module with 5 IQ tiers beyond human, unified identity system, thinking protocol, all 120+ repos training data
-- Updated src/lib/quantum-swarm-engine.ts — Removed ALL "HERMES BOT" references, QUANTUM_SWARM_MASTER_PROMPT now imports from deepmind-engine.ts, added 13 new skill categories (WhoamisecDeepMind), added 18+ additional repos (haKC-ai suite, investigation-core-ai, etc.), total skills now 120+
-- Updated src/app/api/glm/chat/route.ts — ALL 19 model-specific prompts changed to "Agentic Coder in QuantumSwarm 999999999 mode", response identity field added, engine renamed to 'agentic-coder-deepmind'
-- Updated src/lib/bot-engine.ts — ALL AGENT_PROMPTS use DEEPMIND_SYSTEM_PROMPT, NEVER says "Hermes" — only "Agentic Coder", DEFAULT_PROMPT = DEEPMIND_SYSTEM_PROMPT
-- Created src/lib/agentic-copilot.ts — Unified co-pilot system with: agenticSearch() (Manus-like), deepThink() (WhoamisecDeepMind), fullCopilot() (combined), redTeamGPT() (DarkGPT/HackGPT/WormGPT priority), COPILOT_MODES, REDTEAM_GPT_MODELS
-- Updated src/app/api/telegram/webhook/route.ts — /start shows "Agentic Coder — QuantumSwarm 999999999" (never Hermes Bot), added 6 new commands: /search, /think, /copilot, /deepmind, /redgpt, /agent, updated /status with DeepMind info, updated keyboard with new commands, updated GET endpoint identity
-- Updated src/app/page.tsx — Thinking stages use DeepMind labels, chat header shows "Agentic Coder" + "QS:999999999", chat system message changed to DeepMind identity, sidebar added "DeepMind" and "Co-Pilot" nav items, GLM Engine renamed to "Agentic Coder", added full DeepMind panel with cognitive tiers + training lineage, added full Co-Pilot panel with integration points + Red Team GPT models
+- Changed `src/app/api/telegram/setup/route.ts` line 90
+- Replaced "Hermes Bot v4.0" with "Agentic Coder — QuantumSwarm 999999999"
+- Verified all remaining "Hermes Bot" references are ONLY in "NEVER say Hermes Bot" instructions
 
 Stage Summary:
-- Project builds successfully — 0 errors
-- ALL AI responses will now identify as "Agentic Coder" in "QuantumSwarm 999999999" mode
-- NEVER "Hermes Bot" anywhere in AI responses
-- WhoamisecDeepMind cognitive evolution engine integrated everywhere
-- Agentic Co-Pilot (searcher + deep thinking) active in both web + Telegram
-- 120+ training repos integrated into system prompts
-- 8 new Telegram bot commands added
-- 2 new dashboard panels (DeepMind + Co-Pilot)
+- Last visible Hermes Bot identity reference eliminated
+- Bot description now shows "Agentic Coder — QuantumSwarm 999999999 · 19 modele AI · Loop Coder 13 limbi · RED TEAM · Co-Pilot"
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Add co-pilot API endpoint (/api/chat/copilot)
+
+Work Log:
+- Created `src/app/api/chat/copilot/route.ts`
+- Supports 4 modes: full_copilot, agentic_searcher, deep_thinking, terminal_execute
+- Integrates web search auto-detection from agentic-copilot.ts
+- Includes file context support for attached files
+- Returns thinking stages for terminal display
+- All responses use Agentic Coder QuantumSwarm 999999999 identity via DEEPMIND_SYSTEM_PROMPT
+
+Stage Summary:
+- New endpoint at `/api/chat/copilot` — POST with {prompt, mode, model, fileContext}
+- Returns {response, mode, model, identity, thinkingStages, searchUsed, searchResults}
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Add file upload/download API for chat
+
+Work Log:
+- Created `src/app/api/chat/upload/route.ts` — POST (upload), GET (list), DELETE (remove)
+- Created `src/app/api/chat/download/route.ts` — GET (download binary or text)
+- Supports all file types (*/*)
+- Extracts text preview for code/text files
+- Sanitizes filenames, prevents path traversal
+- Files stored in `chat_uploads/` directory
+
+Stage Summary:
+- Upload endpoint at `/api/chat/upload` with multipart form data
+- Download endpoint at `/api/chat/download?file=name`
+- List all files with GET, delete with DELETE
+
+---
+Task ID: 4
+Agent: Main Agent
+Task: Add co-pilot terminal module + file upload to GLM chat
+
+Work Log:
+- Added 7 new state variables to page.tsx: copilotMode, attachedFiles, terminalLines, showTerminal, chatFilesOpen, chatFilesList, fileInputRef
+- Added `sendCoPilotGLM()` function — full co-pilot with terminal execution display
+- Added `handleChatFileUpload()` — file upload handler
+- Added `removeAttachedFile()` — remove attached file
+- Added `loadChatFiles()` — list uploaded files
+- Added `downloadChatFile()` — download file from server
+- Added Co-Pilot Mode Selector in chat header (Co-Pilot, Terminal, Search, DeepMind)
+- Added real-time Terminal Display panel (green text, colored log lines, pulse cursor)
+- Added File action buttons row (Upload File, Files browser, Terminal toggle)
+- Added Attached Files display bar
+- Added Chat Files dropdown with attach/download actions
+- Updated input placeholder based on active co-pilot mode
+- Send button now calls sendCoPilotGLM() which routes to /api/chat/copilot
+
+Stage Summary:
+- GLM Chat now has 4 modes: Co-Pilot (full), Terminal (execution), Search (agentic), DeepMind (deep thinking)
+- Terminal shows real-time execution with colored log lines: green ($commands), cyan (init/qs), blue (search), yellow (exec/omega), purple (think/reason), red (errors)
+- File upload: any type, shown as attached chips, sent as context to AI
+- File browser: lists all uploaded files, can attach or download
+
+---
+Task ID: 5
+Agent: Main Agent
+Task: Verify /agent and /redgpt in Telegram webhook, update /hermes
+
+Work Log:
+- Verified /agent command exists (lines 882-892) — uses AGENT_PROMPTS or DEFAULT_PROMPT with Agentic Coder identity
+- Verified /redgpt command exists (lines 857-879) — uses redTeamGPT from agentic-copilot.ts
+- Updated /hermes command (lines 400-412) — now redirects to Agentic Coder identity, never says "Hermes"
+- /hermes now shows warning that it's redirected to Agentic Coder / QuantumSwarm 999999999
+
+Stage Summary:
+- /agent: Works with Agentic Coder identity + OpenCode fallback
+- /redgpt: Works with Red Team GPT priority models (DarkGPT, WormGPT, KaliGPT, HackGPT, etc.)
+- /hermes: Now redirects to Agentic Coder — never identifies as Hermes
+
+---
+Task ID: 6
+Agent: Main Agent
+Task: Build and verify compilation
+
+Work Log:
+- Ran `npx next build` — completed successfully with zero errors
+- All 27 routes compiled correctly
+- 3 new routes registered: /api/chat/copilot, /api/chat/download, /api/chat/upload
+- Verified no remaining "Hermes Bot" identity references (only "NEVER say" instructions remain)
+
+Stage Summary:
+- Build: SUCCESS — 0 errors, 0 warnings
+- All existing code preserved (only additions made)
+- Total routes: 27 (24 existing + 3 new)

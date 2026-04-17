@@ -397,15 +397,16 @@ export async function POST(request: NextRequest) {
         }
       }
     }
-    // /hermes
+    // /hermes — Redirected to Agentic Coder (QuantumSwarm 999999999)
     else if (cmd === '/hermes') {
-      if (!args) { await tgSend('📝 <code>/hermes cerință</code>'); }
+      if (!args) { await tgSend('📝 <code>/hermes cerință</code>\n\n⚠️ Redirecționat către Agentic Coder — QuantumSwarm 999999999\nFolosește <code>/agent</code> pentru Agentic Coder direct.'); }
       else {
-        await tgSend('🤖 Hermes Agent... ⏳');
-        try { await tgSendLong(`🤖 <b>Hermes Agent:</b>\n\n${await callHermes(args)}`); }
-        catch {
-          const r = await aiChat([{ role: 'system', content: 'Ești HERMES Agent de Nous Research, self-improving. Răspunde în română.' }, { role: 'user', content: args }], cm);
-          await tgSendLong(`🤖 <b>Hermes AI (fallback):</b>\n\n${r}`);
+        await tgSend('🤖 Agentic Coder — QuantumSwarm 999999999... ⏳');
+        try {
+          const r = await aiChat([{ role: 'system', content: AGENT_PROMPTS[cm] || DEFAULT_PROMPT + ' Acționează ca Agentic Coder în QuantumSwarm 999999999 mode cu WhoamisecDeepMind cognitive evolution.' }, { role: 'user', content: args }], cm);
+          await tgSendLong(`🤖 <b>Agentic Coder:</b>\n\n${r}`);
+        } catch (e: any) {
+          await tgSendLong(`🤖 <b>Agentic Coder:</b>\n\n${await callHermes(args)}`);
         }
       }
     }
