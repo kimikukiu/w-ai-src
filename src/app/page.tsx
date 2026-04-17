@@ -878,6 +878,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'bot', label: 'Bot Control', icon: Bot },
     { id: 'glm', label: 'GLM Engine', icon: Brain },
+    { id: 'codespace', label: 'Codespace IDE', icon: Terminal },
     { id: 'files', label: 'Files', icon: FolderOpen },
     { id: 'deploy', label: 'Deploy', icon: Rocket },
     { id: 'loops', label: 'Loop Problems', icon: Code },
@@ -1818,6 +1819,11 @@ docker compose up -d --build`,
                 </CardContent>
               </Card>
             </div>
+          )}
+
+          {/* ═══ CODESPACE IDE (MANUS-LIKE) ═══ */}
+          {activeSection === 'codespace' && (
+            <CodespaceIDE addLog={addLog} />
           )}
 
           {/* ═══ LOGS ═══ */}
