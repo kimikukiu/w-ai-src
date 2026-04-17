@@ -589,22 +589,42 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
               ))}
             </div>
             {/* BUILDER THINKING showcase */}
-            <div className="rounded-xl bg-[#0a0e1a] border border-red-500/10 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-red-400 text-xs font-black animate-pulse">★</span>
-                <span className="text-red-400 text-[10px] font-black tracking-wider uppercase">BUILDER THINKING — REALTIME</span>
-                <span className="ml-auto text-[9px] text-purple-400/60 font-mono">QS:999999999</span>
+            <div className="rounded-xl bg-[#2d1414] border border-red-500/40 overflow-hidden">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-red-800/50 to-red-900/30 px-4 py-2 border-b border-red-500/30">
+                <div className="flex items-center gap-2">
+                  <span className="text-red-400 text-xs font-black animate-pulse">★</span>
+                  <span className="text-red-400 text-[10px] font-black tracking-wider uppercase">BUILDER THINKING — REALTIME</span>
+                  <span className="ml-auto flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
+                    <span className="text-[9px] text-slate-400 font-mono">ALL MODES ACTIVE</span>
+                  </span>
+                </div>
               </div>
-              <div className="w-full h-1.5 rounded-full bg-[#1a0505] overflow-hidden mb-2">
-                <div className="h-full rounded-full bg-gradient-to-r from-red-600 via-orange-500 via-yellow-500 to-emerald-500 animate-pulse" style={{ width: '75%' }} />
+              {/* Progress bar */}
+              <div className="px-4 pt-2">
+                <div className="w-full h-1.5 rounded-full bg-[#1a0505] overflow-hidden">
+                  <div className="h-full rounded-full animate-pulse" style={{ width: '75%', background: 'linear-gradient(90deg, #dc2626 0%, #e74c3c 30%, #a855f7 60%, #8b5cf6 80%, #22c55e 100%)' }} />
+                </div>
               </div>
-              <div className="font-mono text-[10px] space-y-0.5 text-slate-500">
-                <p className="text-cyan-400">$ agentic-coder --mode full_copilot --model queen-ultra</p>
-                <p className="text-green-400">[BUILDER THINKING] Initializing Quantum Swarm nodes...</p>
-                <p className="text-cyan-400">[QS] QuantumSwarm 999999999 nodes synchronizing...</p>
-                <p className="text-purple-400">[THINK] DeepMind cognitive evolution in progress...</p>
-                <p className="text-yellow-400">[EXEC] Executing agentic code generation...</p>
-                <p className="text-emerald-400">✓ Response synthesized — 0.8s</p>
+              {/* Processing Steps */}
+              <div className="p-4 space-y-1">
+                <div className="font-mono text-[10px] space-y-0.5">
+                  <p className="text-cyan-400">$ agentic-coder --mode full_copilot --model queen-ultra</p>
+                  <div className="flex items-center gap-2"><span className="text-green-400 text-xs">✓</span><span className="text-gray-300">[BUILDER THINKING] Initializing Quantum Swarm nodes...</span></div>
+                  <div className="flex items-center gap-2"><span className="text-green-400 text-xs">✓</span><span className="text-gray-300">[QS] QuantumSwarm 999999999 nodes synchronizing...</span></div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs animate-pulse">⚡</span>
+                    <span className="text-gray-100">[THINK] DeepMind cognitive evolution in progress...</span>
+                    <div className="flex gap-0.5"><span className="w-1 h-1 rounded-full bg-red-500 animate-bounce" style={{ animationDelay: '0ms' }} /><span className="w-1 h-1 rounded-full bg-orange-500 animate-bounce" style={{ animationDelay: '100ms' }} /><span className="w-1 h-1 rounded-full bg-yellow-500 animate-bounce" style={{ animationDelay: '200ms' }} /></div>
+                  </div>
+                  <div className="flex items-center gap-2"><span className="text-slate-700 text-xs">⏳</span><span className="text-gray-600">[EXEC] Executing agentic code generation...</span></div>
+                  <div className="flex items-center gap-2"><span className="text-slate-700 text-xs">⏳</span><span className="text-gray-600">[SYNTH] Synthesizing response...</span></div>
+                </div>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-[9px] text-red-400 font-mono animate-pulse">Processing...</span>
+                  <span className="text-[9px] text-purple-400/60 font-mono">QS:999999999</span>
+                </div>
               </div>
             </div>
             {/* CTA */}
