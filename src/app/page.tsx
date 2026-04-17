@@ -2032,63 +2032,68 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 )}
               </Card>
 
-              {/* GLM Chat */}
-              <Card className={`bg-[#111827] ${glmMode === 'redteam' ? 'border-red-500/30' : 'border-slate-700/50'}`}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${glmMode === 'normal' ? 'bg-slate-400' : 'bg-red-500'}`} />
-                    <span className={glmMode === 'redteam' ? 'text-red-400' : 'text-pink-400'}>AI Chat</span>
-                    <Brain className={`h-3.5 w-3.5 ${glmMode === 'redteam' ? 'text-red-400' : 'text-pink-400'}`} />
-                    <span className="ml-auto text-xs font-bold text-red-400">{glmModel}</span>
-                  </CardTitle>
-                  <CardDescription className="text-slate-500 text-xs">
-                    {glmMode === 'redteam' ? '🔴 Red Team Mode — AI Safety Testing' : ''}
-                    {agentReasoning ? '💡 ' : ''}{agentMemory ? '🧠 ' : ''}{agentCots ? '🔗 ' : ''}
-                    {agentReasoning && 'Reasoning '}{agentMemory && 'Memory '}{agentCots && 'CoTs '}
-                    {!agentReasoning && !agentMemory && !agentCots && glmMode === 'normal' && 'Standard mode'}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
+              {/* GLM Chat — RED DESIGN */}
+              <div className="rounded-xl bg-gradient-to-b from-red-950/80 to-[#1a0a0a] border border-red-500/40 overflow-hidden shadow-2xl shadow-red-500/10">
+                {/* Chat Header */}
+                <div className="px-5 py-3 border-b border-red-500/20 flex items-center gap-3">
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
+                  <span className="text-sm font-bold text-pink-400">AI Chat</span>
+                  <Brain className="h-4 w-4 text-pink-400" />
+                  <span className="ml-auto text-xs font-bold text-red-400">{glmModel}</span>
+                </div>
+                {/* Chat Messages */}
                 <ScrollArea className="h-[420px]">
-                  <div className="space-y-2 pr-3">
+                  <div className="p-4 space-y-3">
                     {glmMessages.map((m, i) => (
-                      <div
-                        key={i}
-                        className={`p-3 rounded-lg text-sm leading-relaxed break-words ${
-                          m.role === 'user'
-                            ? glmMode === 'redteam' ? 'bg-red-950/50 ml-10' : 'bg-[#1e3a5f] ml-10'
-                            : m.role === 'assistant'
-                            ? glmMode === 'redteam' ? 'bg-red-500/10 mr-10 border border-red-500/10' : 'bg-blue-500/10 mr-10 border border-blue-500/10'
-                            : 'text-center text-slate-500 text-xs py-1'
-                        }`}
-                        dangerouslySetInnerHTML={m.role !== 'system' ? { __html: formatGLM(m.content) } : undefined}
-                      >
-                        {m.role === 'system' ? m.content : undefined}
-                      </div>
+                      m.role === 'system' ? (
+                        <div key={i} className="text-center text-red-400/50 text-xs py-2">{m.content}</div>
+                      ) : m.role === 'user' ? (
+                        <div key={i} className="flex justify-end">
+                          <div className="max-w-[75%] px-4 py-2.5 rounded-2xl rounded-tr-sm bg-red-600/30 border border-red-500/20">
+                            <div className="text-sm text-white leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: formatGLM(m.content) }} />
+                          </div>
+                        </div>
+                      ) : (
+                        <div key={i} className="flex justify-start">
+                          <div className="max-w-[75%] px-4 py-2.5 rounded-2xl rounded-tl-sm bg-[#2a1010] border border-red-500/10">
+                            <div className="text-sm text-white/90 leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: formatGLM(m.content) }} />
+                          </div>
+                        </div>
+                      )
                     ))}
                     {glmLoading && (
-                      <div className="text-center py-2">
-                        <Loader2 className={`h-4 w-4 animate-spin inline ${glmMode === 'redteam' ? 'text-red-400' : 'text-blue-400'}`} />
-                        <span className="text-slate-500 text-xs ml-2">Thinking...</span>
+                      <div className="flex justify-start">
+                        <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-[#2a1010] border border-red-500/10">
+                          <div className="flex items-center gap-2">
+                            <Loader2 className="h-4 w-4 text-red-400 animate-spin" />
+                            <span className="text-red-400/70 text-xs">Thinking...</span>
+                          </div>
+                        </div>
                       </div>
                     )}
                     <div ref={glmEndRef} />
                   </div>
                 </ScrollArea>
-                <div className="flex gap-2 pt-2">
-                  <Input
-                    id="glmInput"
-                    placeholder={glmMode === 'redteam' ? "Red Team query..." : "Ask anything..."}
-                    className="bg-[#0f172a] border-slate-600 text-slate-100 flex-1"
-                    onKeyDown={e => { if (e.key === 'Enter') sendGLM(); }}
-                    disabled={glmLoading}
-                  />
-                  <Button onClick={sendGLM} disabled={glmLoading} className={glmMode === 'redteam' ? 'bg-red-600 hover:bg-red-500' : 'bg-blue-600 hover:bg-blue-500'}>
-                    {glmLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  </Button>
+                {/* Chat Input */}
+                <div className="px-4 py-3 border-t border-red-500/20 bg-[#1a0a0a]/80">
+                  <div className="flex gap-2">
+                    <Input
+                      id="glmInput"
+                      placeholder={glmMode === 'redteam' ? "Red Team query..." : "Cu ce te pot ajuta astazi?"}
+                      className="bg-[#0f0505] border-red-500/20 text-white placeholder:text-red-400/40 flex-1 focus:border-red-500/50 focus:ring-red-500/20"
+                      onKeyDown={e => { if (e.key === 'Enter') sendGLM(); }}
+                      disabled={glmLoading}
+                    />
+                    <button
+                      onClick={sendGLM}
+                      disabled={glmLoading}
+                      className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center transition-all shadow-lg shadow-red-600/30 disabled:opacity-50"
+                    >
+                      {glmLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
-                </CardContent>
-              </Card>
+              </div>
             </div>
           )}
 
