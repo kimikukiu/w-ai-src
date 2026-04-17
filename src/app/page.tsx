@@ -2170,12 +2170,16 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
   // ─── GLM Chat — BUILDER THINKING REALTIME ───
   const thinkingStages = [
-    { label: 'BUILDER THINKING: Initializing Quantum Swarm nodes...', duration: 500 },
-    { label: 'DeepMind: Loading cognitive pathways...', duration: 600 },
-    { label: 'QuantumSwarm 999999999: Analyzing context...', duration: 900 },
-    { label: 'Agentic Coder: Processing neural reasoning...', duration: 1200 },
-    { label: 'DeepMind: Synthesizing response...', duration: 800 },
-    { label: 'Omega Intelligence: Finalizing output...', duration: 500 },
+    { label: 'Initializing Quantum Swarm nodes...', icon: '⚡', color: 'text-yellow-400', duration: 400 },
+    { label: `Loading model: ${glmModel}`, icon: '🧠', color: 'text-purple-400', duration: 350 },
+    { label: 'Entangling 9,999,999,999 quantum nodes...', icon: '🌀', color: 'text-blue-400', duration: 500 },
+    { label: 'Analyzing prompt complexity...', icon: '📊', color: 'text-cyan-400', duration: 400 },
+    { label: 'Searching knowledge base...', icon: '🔍', color: 'text-emerald-400', duration: 450 },
+    { label: 'Superposition: exploring all solution paths...', icon: '⚡', color: 'text-yellow-400', duration: 500 },
+    { label: 'Entanglement: correlating context nodes...', icon: '🔗', color: 'text-indigo-400', duration: 400 },
+    { label: 'Tunneling: bypassing optimization barriers...', icon: '🚀', color: 'text-orange-400', duration: 450 },
+    { label: 'Mutation: generating novel code patterns...', icon: '🧬', color: 'text-fuchsia-400', duration: 500 },
+    { label: 'Coherence check: emergent intelligence', icon: '⭐', color: 'text-yellow-300', duration: 350 },
   ];
 
   const sendGLM = async () => {
@@ -2191,21 +2195,21 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     setStreamingText('');
     addLog('info', `GLM: ${msg.slice(0, 60)}`);
 
-    // Animated thinking progress
+    // Animated thinking progress — BUILDER THINKING detailed steps
     let totalDuration = thinkingStages.reduce((s, t) => s + t.duration, 0);
     let elapsed = 0;
     const progressInterval = setInterval(() => {
       elapsed += 100;
       const pct = Math.min(95, (elapsed / totalDuration) * 95);
       setThinkingProgress(pct);
-      // Determine stage
+      // Determine stage — advance through detailed steps
       let acc = 0;
       for (let si = 0; si < thinkingStages.length; si++) {
         acc += thinkingStages[si].duration;
         if (elapsed < acc) { setThinkingStage(si); break; }
         if (si === thinkingStages.length - 1) setThinkingStage(si);
       }
-    }, 100);
+    }, 80);
 
     try {
       const res = await fetch('/api/glm/chat', {
@@ -2275,15 +2279,19 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     ]);
     addLog('info', `Co-Pilot [${copilotMode}]: ${msg.slice(0, 60)}`);
 
-    // Animated thinking progress — BUILDER THINKING REALTIME
+    // Animated thinking progress — BUILDER THINKING REALTIME detailed steps
     const copilotStages = [
-      { label: 'BUILDER THINKING: Initializing Quantum Swarm nodes...', duration: 500, terminal: '[BUILDER THINKING] Initializing Quantum Swarm nodes...' },
-      { label: 'DeepMind: Loading cognitive pathways...', duration: 500, terminal: '[INIT] Loading WhoamisecDeepMind neural pathways...' },
-      { label: 'QuantumSwarm 999999999: Scanning context...', duration: 700, terminal: '[QS] QuantumSwarm 999999999 nodes synchronizing...' },
-      { label: `Co-Pilot: ${copilotMode === 'terminal_execute' ? 'Preparing terminal execution...' : copilotMode === 'agentic_searcher' ? 'Agentic Searcher scanning web...' : 'Deep thinking engaged...'}`, duration: 900, terminal: copilotMode === 'terminal_execute' ? '[EXEC] Initializing terminal environment...' : copilotMode === 'agentic_searcher' ? '[SEARCH] Agentic Searcher activated — scanning...' : '[THINK] DeepMind cognitive evolution in progress...' },
-      { label: 'Agentic Coder: Processing neural reasoning...', duration: 800, terminal: '[REASON] Neural reasoning across all training domains...' },
-      { label: 'DeepMind: Synthesizing response...', duration: 600, terminal: `[${copilotMode.toUpperCase()}] Cross-referencing QuantumSwarm training lineage...` },
-      { label: 'Omega Intelligence: Finalizing output...', duration: 400, terminal: '[OMEGA] Omega Intelligence finalizing...' },
+      { label: 'Initializing Quantum Swarm nodes...', icon: '⚡', color: 'text-yellow-400', duration: 400, terminal: '[BUILDER THINKING] Initializing Quantum Swarm nodes...' },
+      { label: `Loading model: ${glmModel}`, icon: '🧠', color: 'text-purple-400', duration: 350, terminal: '[INIT] WhoamisecDeepMind cognitive pathways loaded...' },
+      { label: 'Entangling 9,999,999,999 quantum nodes...', icon: '🌀', color: 'text-blue-400', duration: 500, terminal: '[QS] QuantumSwarm 999999999 nodes synchronizing...' },
+      { label: 'Analyzing prompt complexity...', icon: '📊', color: 'text-cyan-400', duration: 400, terminal: '[THINK] Analyzing prompt complexity and context...' },
+      { label: copilotMode === 'terminal_execute' ? 'Preparing terminal execution...' : copilotMode === 'agentic_searcher' ? 'Agentic Searcher scanning web...' : 'Deep thinking engaged...', icon: '🔍', color: 'text-emerald-400', duration: 450, terminal: copilotMode === 'terminal_execute' ? '[EXEC] Initializing terminal environment...' : copilotMode === 'agentic_searcher' ? '[SEARCH] Agentic Searcher activated — scanning...' : '[THINK] DeepMind cognitive evolution in progress...' },
+      { label: 'Searching knowledge base...', icon: '🔍', color: 'text-emerald-400', duration: 400, terminal: '[SEARCH] Searching knowledge base across 120+ repos...' },
+      { label: 'Superposition: exploring all solution paths...', icon: '⚡', color: 'text-yellow-400', duration: 450, terminal: '[REASON] Neural reasoning across all training domains...' },
+      { label: 'Entanglement: correlating context nodes...', icon: '🔗', color: 'text-indigo-400', duration: 400, terminal: `[${copilotMode.toUpperCase()}] Cross-referencing QuantumSwarm training lineage...` },
+      { label: 'Tunneling: bypassing optimization barriers...', icon: '🚀', color: 'text-orange-400', duration: 400, terminal: '[EXEC] Bypassing optimization barriers...' },
+      { label: 'Mutation: generating novel code patterns...', icon: '🧬', color: 'text-fuchsia-400', duration: 450, terminal: '[MUTATE] Generating novel code patterns...' },
+      { label: 'Coherence check: emergent intelligence', icon: '⭐', color: 'text-yellow-300', duration: 350, terminal: '[OMEGA] Omega Intelligence finalizing...' },
     ];
 
     let totalDuration = copilotStages.reduce((s, t) => s + t.duration, 0);
@@ -3163,15 +3171,29 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       m.role === 'system' ? (
                         <div key={i} className="text-center text-red-400/50 text-xs py-2">{m.content}</div>
                       ) : m.role === 'user' ? (
-                        <div key={i} className="flex justify-end">
-                          <div className="max-w-[75%] px-4 py-2.5 rounded-2xl rounded-tr-sm bg-red-600/30 border border-red-500/20">
+                        <div key={i} className="flex justify-end group">
+                          <div className="max-w-[75%] px-4 py-2.5 rounded-2xl rounded-tr-sm bg-red-600/30 border border-red-500/20 relative">
                             <div className="text-sm text-white leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: formatGLM(m.content) }} />
+                            <button
+                              onClick={() => { navigator.clipboard.writeText(m.content); toast.success('Prompt copiat!'); }}
+                              className="absolute -left-9 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md bg-slate-800/80 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40"
+                              title="Copiază promptul"
+                            >
+                              <Copy className="h-3 w-3 text-red-400" />
+                            </button>
                           </div>
                         </div>
                       ) : (
-                        <div key={i} className="flex justify-start">
-                          <div className="max-w-[80%] px-4 py-2.5 rounded-2xl rounded-tl-sm bg-[#2a1010] border border-red-500/10">
+                        <div key={i} className="flex justify-start group">
+                          <div className="max-w-[80%] px-4 py-2.5 rounded-2xl rounded-tl-sm bg-[#2a1010] border border-red-500/10 relative">
                             <div className="text-sm text-white/90 leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: formatGLM(m.content) }} />
+                            <button
+                              onClick={() => { navigator.clipboard.writeText(m.content); toast.success('Răspuns copiat!'); }}
+                              className="absolute -right-9 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md bg-slate-800/80 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40"
+                              title="Copiază răspunsul"
+                            >
+                              <Copy className="h-3 w-3 text-red-400" />
+                            </button>
                           </div>
                         </div>
                       )
@@ -3181,7 +3203,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       <div className="flex justify-start">
                         <div className="w-full max-w-[80%] rounded-2xl rounded-tl-sm bg-[#2a1010] border border-red-500/20 overflow-hidden">
                           {/* BUILDER THINKING – REALTIME Header */}
-                          <div className="bg-gradient-to-r from-red-900/60 via-red-800/40 to-purple-900/60 px-5 py-3 border-b border-red-500/20">
+                          <div className="bg-gradient-to-r from-red-900/60 via-red-800/40 to-purple-900/60 px-4 py-2.5 border-b border-red-500/20">
                             <div className="flex items-center gap-2.5">
                               <span className="text-red-400 text-sm font-black animate-pulse">★</span>
                               <span className="text-red-400 text-xs font-black tracking-wider uppercase">BUILDER THINKING — REALTIME</span>
@@ -3190,38 +3212,55 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                                 <span className="text-[10px] text-slate-400 font-mono">{copilotMode === 'terminal_execute' ? '⚡ EXEC' : copilotMode === 'agentic_searcher' ? '🔍 SEARCH' : copilotMode === 'deep_thinking' ? '🧬 DEEP' : '🤖 COPILOT'}</span>
                               </span>
                             </div>
-                            <div className="flex items-center gap-2 mt-1.5">
-                              <span className="text-[10px] text-slate-400">{thinkingStages[thinkingStage]?.label || 'Initializing...'}</span>
-                            </div>
+                          </div>
+                          {/* Detailed Processing Steps — like original */}
+                          <div className="px-4 py-3 space-y-1.5 max-h-[220px] overflow-y-auto">
+                            {thinkingStages.map((stage: any, si: number) => (
+                              <div
+                                key={si}
+                                className={`flex items-center gap-2 transition-all duration-300 ${
+                                  si < thinkingStage ? 'opacity-100' : si === thinkingStage ? 'opacity-100' : 'opacity-30'
+                                }`}
+                              >
+                                <span className={`text-xs ${si < thinkingStage ? 'text-emerald-400' : si === thinkingStage ? 'animate-pulse' : 'text-slate-600'}`}>
+                                  {stage.icon || '⚡'}
+                                </span>
+                                <span className={`text-[11px] font-mono ${
+                                  si < thinkingStage
+                                    ? 'text-emerald-300/80'
+                                    : si === thinkingStage
+                                      ? (stage.color || 'text-yellow-400')
+                                      : 'text-slate-600'
+                                }`}>
+                                  {stage.label}
+                                </span>
+                                {si < thinkingStage && (
+                                  <span className="text-emerald-500 text-[10px] ml-auto">✓</span>
+                                )}
+                                {si === thinkingStage && (
+                                  <div className="ml-auto flex gap-0.5">
+                                    <span className="w-1 h-1 rounded-full bg-red-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                                    <span className="w-1 h-1 rounded-full bg-orange-500 animate-bounce" style={{ animationDelay: '100ms' }} />
+                                    <span className="w-1 h-1 rounded-full bg-yellow-500 animate-bounce" style={{ animationDelay: '200ms' }} />
+                                  </div>
+                                )}
+                              </div>
+                            ))}
                           </div>
                           {/* Progress bar */}
-                          <div className="px-5 py-2.5">
-                            <div className="w-full h-2 rounded-full bg-[#1a0505] overflow-hidden">
+                          <div className="px-4 pb-3">
+                            <div className="w-full h-1.5 rounded-full bg-[#1a0505] overflow-hidden">
                               <div
                                 className="h-full rounded-full transition-all duration-200 ease-out"
                                 style={{
                                   width: `${thinkingProgress}%`,
-                                  background: `linear-gradient(90deg, #dc2626 0%, #f97316 ${Math.min(50, thinkingProgress)}%, #eab308 ${Math.min(75, thinkingProgress)}%, #22c55e ${Math.min(100, thinkingProgress)}%)`,
+                                  background: `linear-gradient(90deg, #dc2626 0%, #f97316 ${Math.min(40, thinkingProgress)}%, #a855f7 ${Math.min(70, thinkingProgress)}%, #22c55e ${Math.min(100, thinkingProgress)}%)`,
                                 }}
                               />
                             </div>
-                            {/* Stage labels */}
-                            <div className="flex gap-2 flex-wrap mt-2.5">
-                              {thinkingStages.map((stage, si) => (
-                                <span key={si} className={`text-[9px] font-medium transition-all duration-300 ${si < thinkingStage ? 'text-emerald-400' : si === thinkingStage ? 'text-yellow-400 font-bold' : 'text-red-900/60'}`}>
-                                  {si <= thinkingStage ? '✓ ' : '○ '}{stage.label.replace('...', '')}
-                                </span>
-                              ))}
-                            </div>
-                            {/* Animated processing indicator */}
-                            <div className="flex items-center gap-1.5 mt-2">
-                              <div className="flex gap-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                                <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-bounce" style={{ animationDelay: '300ms' }} />
-                              </div>
-                              <span className="text-[10px] text-red-400/70 font-mono">Processing...</span>
-                              <span className="ml-auto text-[10px] text-purple-400/60 font-mono">QS:999999999</span>
+                            <div className="flex items-center justify-between mt-1.5">
+                              <span className="text-[9px] text-red-400/60 font-mono">Processing...</span>
+                              <span className="text-[9px] text-purple-400/50 font-mono">QS:999999999</span>
                             </div>
                           </div>
                         </div>
