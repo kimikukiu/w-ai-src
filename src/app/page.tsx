@@ -16,6 +16,7 @@ import {
   Database, GitBranch, Globe, LayoutDashboard, Code, Activity,
   Lock, Unlock, Command, Crown, Star, Users, Sparkles, Play, ChevronDown, X
 } from 'lucide-react';
+import { safeJson } from '@/lib/utils';
 import Image from 'next/image';
 
 // ═══════════════════════════════════════════════
@@ -136,7 +137,7 @@ function InternalAdminLogin({ onSuccess, onClose }: { onSuccess: () => void; onC
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
       });
-      const data = await res.json();
+      const data = await safeJson(res);
       setLoading(false);
       if (data.success) {
         onSuccess();
@@ -319,7 +320,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token }),
       });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (data.valid) {
         localStorage.setItem('wsec_token', token);
         localStorage.setItem('wsec_role', data.role || 'subscriber');
@@ -337,7 +338,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
     setDemoLoading(true);
     try {
       const res = await fetch('/api/subscribe/register', { method: 'POST' });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (data.token) {
         // Auto-login instant — set token and authenticate immediately
         localStorage.setItem('wsec_token', data.token);
@@ -955,7 +956,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
                               wallet: paymentWallet,
                             }),
                           });
-                          const data = await res.json();
+                          const data = await safeJson(res);
                           setPaymentResult({ success: data.success, message: data.message });
                         } catch {
                           setPaymentResult({ success: false, message: 'Eroare de conexiune. Încearcă din nou.' });
@@ -1044,7 +1045,7 @@ function AdminLoginModal({ onSuccess, onClose }: { onSuccess: () => void; onClos
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password }),
     });
-    const data = await res.json();
+    const data = await safeJson(res);
     setLoading(false);
     if (data.success) {
       onSuccess();
@@ -1131,7 +1132,7 @@ function RedTeamPanel({ addLog }: { addLog: (type: LogEntry['type'], msg: string
           reasoning: true,
         }),
       });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (data.response) {
         setRtResponse(data.response);
         setRtHistory(prev => [{ cat: RED_TEAM_CATS[catIndex].name, scenario, response: data.response, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 20));
@@ -1348,7 +1349,7 @@ function CodespaceIDE({ addLog }: { addLog: (type: LogEntry['type'], msg: string
           reasoning: true,
         }),
       });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (data.response) {
         let jsonStr = data.response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         try {
@@ -1770,7 +1771,7 @@ export default function HermesPage() {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
 
   useEffect(() => {
-    fetch('/api/auth/check').then(r => r.json()).then(data => {
+    fetch('/api/auth/check').then(r => safeJson(r)).then(data => {
       setAuthenticated(data.authenticated === true);
       setLoading(false);
     }).catch(() => setLoading(false));
@@ -1782,7 +1783,7 @@ export default function HermesPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: subToken }),
-      }).then(r => r.json()).then(data => {
+      }).then(r => safeJson(r)).then(data => {
         if (data.valid) {
           setAuthenticated(true);
         }
@@ -1983,14 +1984,23 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [agentCots, setAgentCots] = useState(true);
 
   // ─── Co-Pilot Chat State ───
-  // ─── Co-Pilot modes — ALL active simultaneously ───
+  // ─── Co-Pilot modes — ALL active simultaneously (LOCKED — cannot be deselected for max performance) ───
   const [copilotModes, setCopilotModes] = useState<Set<string>>(new Set(['full_copilot', 'agentic_searcher', 'deep_thinking', 'terminal_execute']));
   const toggleCopilotMode = (mode: string) => {
+    // All modes are PERMANENTLY active — clicking only shows visual feedback, keeps all on
+    // This ensures maximum performance with all capabilities combined
     setCopilotModes(prev => {
       const next = new Set(prev);
-      if (next.has(mode)) next.delete(mode); else next.add(mode);
-      // Always keep at least one active
-      if (next.size === 0) next.add('full_copilot');
+      if (next.has(mode)) {
+        // Cannot deselect — all modes always active
+        // Just add back if somehow removed
+        if (!next.has('full_copilot')) next.add('full_copilot');
+        if (!next.has('agentic_searcher')) next.add('agentic_searcher');
+        if (!next.has('deep_thinking')) next.add('deep_thinking');
+        if (!next.has('terminal_execute')) next.add('terminal_execute');
+      } else {
+        next.add(mode);
+      }
       return next;
     });
   };
@@ -2018,7 +2028,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const refreshConfig = useCallback(async () => {
     try {
       const res = await fetch('/api/config');
-      const data = await res.json();
+      const data = await safeJson(res);
       setConfig(data);
       if (data.glm_model) setGlmModel(data.glm_model);
       if (data.glm_endpoint) setGlmEndpoint(data.glm_endpoint);
@@ -2032,7 +2042,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const refreshMessages = useCallback(async () => {
     try {
       const res = await fetch('/api/bot/messages');
-      const data = await res.json();
+      const data = await safeJson(res);
       if (data.messages) setBotMessages(data.messages);
     } catch {}
   }, []);
@@ -2040,7 +2050,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const refreshFiles = useCallback(async () => {
     try {
       const res = await fetch('/api/files');
-      const data = await res.json();
+      const data = await safeJson(res);
       setFiles({
         downloads: Array.isArray(data.downloads) ? data.downloads : data.downloads?.files || [],
         generated: Array.isArray(data.generated) ? data.generated : data.generated_code?.files || [],
@@ -2051,7 +2061,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const refreshDeployStatus = useCallback(async () => {
     try {
       const res = await fetch('/api/deploy/status');
-      const data = await res.json();
+      const data = await safeJson(res);
       setDeployStatus(data);
     } catch {}
   }, []);
@@ -2059,7 +2069,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const refreshLoopProblems = useCallback(async () => {
     try {
       const res = await fetch('/api/loop-problems');
-      const data = await res.json();
+      const data = await safeJson(res);
       if (data.problems) setLoopProblems(data.problems);
     } catch {}
   }, []);
@@ -2097,7 +2107,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     try {
       // Setup bot commands and delete webhook (switch to polling)
       const setupRes = await fetch('/api/telegram/setup', { method: 'POST' });
-      const setupData = await setupRes.json();
+      const setupData = await safeJson(setupRes);
       if (setupData.success || setupData.mode === 'polling') {
         setBotActive(true);
         addLog('ok', `Bot activated (${setupData.mode || 'polling'} mode). Commands registered.`);
@@ -2130,7 +2140,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       const poll = async () => {
         try {
           const res = await fetch('/api/telegram/poll', { method: 'POST' });
-          const data = await res.json();
+          const data = await safeJson(res);
           if (data.success && data.processed > 0) {
             setPollCount(prev => prev + data.processed);
             addLog('info', `Polled ${data.processed} update(s)`);
@@ -2164,7 +2174,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ command }),
       });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (data.ok) {
         toast.success('Command sent!');
         addLog('ok', `Sent: ${command}`);
@@ -2229,7 +2239,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: msg, model: glmModel, reasoning: agentReasoning, memory: agentMemory, cots: agentCots }),
       });
-      const data = await res.json();
+      const data = await safeJson(res);
 
       // Complete thinking
       clearInterval(progressInterval);
@@ -2346,7 +2356,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: msg, mode: copilotMode, model: glmModel, fileContext }),
       });
-      const data = await res.json();
+      const data = await safeJson(res);
 
       clearInterval(progressInterval);
       setThinkingProgress(100);
@@ -2413,7 +2423,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       const formData = new FormData();
       formData.append('file', file);
       const res = await fetch('/api/chat/upload', { method: 'POST', body: formData });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (data.success && data.file) {
         setAttachedFiles(prev => [...prev, data.file]);
         addLog('ok', `File attached: ${data.file.name} (${(data.file.size / 1024).toFixed(1)}KB)`);
@@ -2498,7 +2508,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             model: glmModel,
           }),
         });
-        const data = await res.json();
+        const data = await safeJson(res);
 
         clearInterval(progressInterval);
         setThinkingProgress(100);
@@ -2553,7 +2563,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const loadChatFiles = async () => {
     try {
       const res = await fetch('/api/chat/upload');
-      const data = await res.json();
+      const data = await safeJson(res);
       if (data.files) {
         setChatFilesList(data.files);
         setChatFilesOpen(!chatFilesOpen);
@@ -2572,7 +2582,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
-      const data = await res.json();
+      const data = await safeJson(res);
       if (data.ok !== false) {
         toast.success('Saved!');
         addLog('ok', 'Config updated');
@@ -3120,7 +3130,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
                   <span className="text-sm font-bold text-pink-400">Agentic Coder</span>
                   <Brain className="h-4 w-4 text-pink-400" />
-                  {/* Co-Pilot Mode Selector — ALL active simultaneously */}
+                  {/* Co-Pilot Mode Selector — ALL permanently active for max performance */}
                   <div className="flex items-center gap-1 ml-2">
                     {([
                       { id: 'full_copilot', label: 'Co-Pilot', icon: '🤖' },
@@ -3131,10 +3141,10 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       <button
                         key={mode.id}
                         onClick={() => toggleCopilotMode(mode.id)}
-                        className={`px-2 py-1 rounded text-[10px] font-semibold transition-all ${copilotModes.has(mode.id) ? 'bg-red-600/50 text-white border border-red-500/50 shadow-sm shadow-red-500/20' : 'bg-[#0a0e1a] text-slate-500 border border-transparent hover:text-slate-300'}`}
-                        title={mode.label}
+                        className="px-2 py-1 rounded text-[10px] font-semibold transition-all bg-red-600/50 text-white border border-red-500/50 shadow-sm shadow-red-500/20"
+                        title={`${mode.label} — Always Active`}
                       >
-                        {mode.icon} {mode.label}{copilotModes.has(mode.id) ? ' ✓' : ''}
+                        {mode.icon} {mode.label} ✓
                       </button>
                     ))}
                   </div>
@@ -4359,7 +4369,7 @@ docker compose up -d --build`,
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({ prompt: `QUANTUM SWARM Stage ${stage.stage} (${stage.name})\n\n${prompt}\n\nExecute this self-improvement prompt. Generate detailed analysis and code if applicable.`, model: glmModel, reasoning: true }),
                                   });
-                                  const data = await res.json();
+                                  const data = await safeJson(res);
                                   if (data.response) addLog('ok', `Stage ${stage.stage} prompt ${pi + 1} complete`);
                                 } catch (e: any) { addLog('err', e.message); }
                               }}
