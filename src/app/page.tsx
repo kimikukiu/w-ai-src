@@ -1301,6 +1301,10 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   // Loading states
   const [botLoading, setBotLoading] = useState(false);
   const [glmLoading, setGlmLoading] = useState(false);
+  const [glmThinking, setGlmThinking] = useState(false);
+  const [thinkingProgress, setThinkingProgress] = useState(0);
+  const [thinkingStage, setThinkingStage] = useState(0);
+  const [streamingText, setStreamingText] = useState('');
   const [botActive, setBotActive] = useState(false);
   const [botSetupLoading, setBotSetupLoading] = useState(false);
   const [pollCount, setPollCount] = useState(0);
@@ -1490,6 +1494,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   };
 
   // ─── GLM Chat ───
+  const thinkingStages = [
+    { label: 'Analyzing query...', duration: 800 },
+    { label: 'Processing context...', duration: 1200 },
+    { label: 'Reasoning...', duration: 1500 },
+    { label: 'Generating response...', duration: 1000 },
+  ];
+
   const sendGLM = async () => {
     const input = document.getElementById('glmInput') as HTMLInputElement;
     const msg = input?.value?.trim();
@@ -1497,7 +1508,28 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     if (input) input.value = '';
     setGlmMessages(prev => [...prev, { role: 'user', content: msg }]);
     setGlmLoading(true);
+    setGlmThinking(true);
+    setThinkingProgress(0);
+    setThinkingStage(0);
+    setStreamingText('');
     addLog('info', `GLM: ${msg.slice(0, 60)}`);
+
+    // Animated thinking progress
+    let totalDuration = thinkingStages.reduce((s, t) => s + t.duration, 0);
+    let elapsed = 0;
+    const progressInterval = setInterval(() => {
+      elapsed += 100;
+      const pct = Math.min(95, (elapsed / totalDuration) * 95);
+      setThinkingProgress(pct);
+      // Determine stage
+      let acc = 0;
+      for (let si = 0; si < thinkingStages.length; si++) {
+        acc += thinkingStages[si].duration;
+        if (elapsed < acc) { setThinkingStage(si); break; }
+        if (si === thinkingStages.length - 1) setThinkingStage(si);
+      }
+    }, 100);
+
     try {
       const res = await fetch('/api/glm/chat', {
         method: 'POST',
@@ -1505,18 +1537,44 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         body: JSON.stringify({ prompt: msg, model: glmModel, reasoning: agentReasoning, memory: agentMemory, cots: agentCots }),
       });
       const data = await res.json();
+
+      // Complete thinking
+      clearInterval(progressInterval);
+      setThinkingProgress(100);
+      setThinkingStage(thinkingStages.length - 1);
+      await new Promise(r => setTimeout(r, 400));
+      setGlmThinking(false);
+
       if (data.response) {
-        setGlmMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+        // Streaming text effect
+        const fullText = data.response;
+        let charIdx = 0;
+        const streamInterval = setInterval(() => {
+          const chunkSize = Math.floor(3 + Math.random() * 8);
+          charIdx = Math.min(charIdx + chunkSize, fullText.length);
+          setStreamingText(fullText.slice(0, charIdx));
+          if (charIdx >= fullText.length) {
+            clearInterval(streamInterval);
+            setStreamingText('');
+            setGlmMessages(prev => [...prev, { role: 'assistant', content: fullText }]);
+          }
+        }, 15);
         addLog('ok', 'GLM response received');
       } else {
+        setGlmThinking(false);
+        setStreamingText('');
         setGlmMessages(prev => [...prev, { role: 'assistant', content: `Error: ${data.error || 'Unknown error'}` }]);
         addLog('err', `GLM error: ${data.error || ''}`);
       }
     } catch (e: any) {
+      clearInterval(progressInterval);
+      setGlmThinking(false);
+      setStreamingText('');
       setGlmMessages(prev => [...prev, { role: 'assistant', content: `Error: ${e.message}` }]);
       addLog('err', e.message);
     }
     setGlmLoading(false);
+    setThinkingProgress(0);
   };
 
   // ─── Config Save ───
@@ -2032,7 +2090,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 )}
               </Card>
 
-              {/* GLM Chat — RED DESIGN */}
+              {/* GLM Chat — RED DESIGN WITH THINKING */}
               <div className="rounded-xl bg-gradient-to-b from-red-950/80 to-[#1a0a0a] border border-red-500/40 overflow-hidden shadow-2xl shadow-red-500/10">
                 {/* Chat Header */}
                 <div className="px-5 py-3 border-b border-red-500/20 flex items-center gap-3">
@@ -2055,19 +2113,54 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                         </div>
                       ) : (
                         <div key={i} className="flex justify-start">
-                          <div className="max-w-[75%] px-4 py-2.5 rounded-2xl rounded-tl-sm bg-[#2a1010] border border-red-500/10">
+                          <div className="max-w-[80%] px-4 py-2.5 rounded-2xl rounded-tl-sm bg-[#2a1010] border border-red-500/10">
                             <div className="text-sm text-white/90 leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: formatGLM(m.content) }} />
                           </div>
                         </div>
                       )
                     ))}
-                    {glmLoading && (
+                    {/* THINKING STATE — progress bar + stages */}
+                    {glmThinking && (
                       <div className="flex justify-start">
-                        <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-[#2a1010] border border-red-500/10">
+                        <div className="w-full max-w-[80%] px-5 py-4 rounded-2xl rounded-tl-sm bg-[#2a1010] border border-red-500/20 space-y-3">
+                          {/* Animated dots */}
                           <div className="flex items-center gap-2">
-                            <Loader2 className="h-4 w-4 text-red-400 animate-spin" />
-                            <span className="text-red-400/70 text-xs">Thinking...</span>
+                            <div className="flex gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-red-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                              <span className="w-2 h-2 rounded-full bg-orange-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                              <span className="w-2 h-2 rounded-full bg-yellow-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                            </div>
+                            <span className="text-red-400 text-xs font-medium ml-1">
+                              {thinkingStages[thinkingStage]?.label || 'Thinking...'}
+                            </span>
                           </div>
+                          {/* Colored progress bar */}
+                          <div className="w-full h-1.5 rounded-full bg-[#1a0505] overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-200 ease-out"
+                              style={{
+                                width: `${thinkingProgress}%`,
+                                background: `linear-gradient(90deg, #dc2626 0%, #f97316 ${Math.min(50, thinkingProgress)}%, #eab308 ${Math.min(75, thinkingProgress)}%, #22c55e ${Math.min(100, thinkingProgress)}%)`,
+                              }}
+                            />
+                          </div>
+                          {/* Stage labels */}
+                          <div className="flex gap-3 flex-wrap">
+                            {thinkingStages.map((stage, si) => (
+                              <span key={si} className={`text-[10px] transition-all duration-300 ${si < thinkingStage ? 'text-emerald-400' : si === thinkingStage ? 'text-yellow-400 font-semibold' : 'text-red-900'}`}>
+                                {si <= thinkingStage ? '✓ ' : '○ '}{stage.label.replace('...', '')}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {/* STREAMING TEXT (after thinking, before adding to messages) */}
+                    {streamingText && (
+                      <div className="flex justify-start">
+                        <div className="max-w-[80%] px-4 py-2.5 rounded-2xl rounded-tl-sm bg-[#2a1010] border border-red-500/10">
+                          <div className="text-sm text-white/90 leading-relaxed break-words" dangerouslySetInnerHTML={{ __html: formatGLM(streamingText) }} />
+                          <span className="inline-block w-1.5 h-4 bg-red-500 animate-pulse ml-0.5 align-middle rounded-sm" />
                         </div>
                       </div>
                     )}
