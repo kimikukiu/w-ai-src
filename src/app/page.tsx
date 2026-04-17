@@ -1983,7 +1983,19 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [agentCots, setAgentCots] = useState(true);
 
   // ─── Co-Pilot Chat State ───
-  const [copilotMode, setCopilotMode] = useState<'full_copilot' | 'agentic_searcher' | 'deep_thinking' | 'terminal_execute'>('full_copilot');
+  // ─── Co-Pilot modes — ALL active simultaneously ───
+  const [copilotModes, setCopilotModes] = useState<Set<string>>(new Set(['full_copilot', 'agentic_searcher', 'deep_thinking', 'terminal_execute']));
+  const toggleCopilotMode = (mode: string) => {
+    setCopilotModes(prev => {
+      const next = new Set(prev);
+      if (next.has(mode)) next.delete(mode); else next.add(mode);
+      // Always keep at least one active
+      if (next.size === 0) next.add('full_copilot');
+      return next;
+    });
+  };
+  // Computed: primary mode for API routing (always full_copilot since all active)
+  const copilotMode = 'full_copilot' as const;
   const [attachedFiles, setAttachedFiles] = useState<{ name: string; size: number; type: string; path: string; contentPreview: string | null }[]>([]);
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const [showTerminal, setShowTerminal] = useState(false);
@@ -3108,21 +3120,21 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
                   <span className="text-sm font-bold text-pink-400">Agentic Coder</span>
                   <Brain className="h-4 w-4 text-pink-400" />
-                  {/* Co-Pilot Mode Selector */}
+                  {/* Co-Pilot Mode Selector — ALL active simultaneously */}
                   <div className="flex items-center gap-1 ml-2">
                     {([
-                      { id: 'full_copilot' as const, label: 'Co-Pilot', icon: '🤖' },
-                      { id: 'terminal_execute' as const, label: 'Terminal', icon: '⚡' },
-                      { id: 'agentic_searcher' as const, label: 'Search', icon: '🔍' },
-                      { id: 'deep_thinking' as const, label: 'DeepMind', icon: '🧬' },
+                      { id: 'full_copilot', label: 'Co-Pilot', icon: '🤖' },
+                      { id: 'terminal_execute', label: 'Terminal', icon: '⚡' },
+                      { id: 'agentic_searcher', label: 'Search', icon: '🔍' },
+                      { id: 'deep_thinking', label: 'DeepMind', icon: '🧬' },
                     ]).map(mode => (
                       <button
                         key={mode.id}
-                        onClick={() => setCopilotMode(mode.id)}
-                        className={`px-2 py-1 rounded text-[10px] font-semibold transition-all ${copilotMode === mode.id ? 'bg-red-600/40 text-red-300 border border-red-500/40' : 'bg-[#0a0e1a] text-slate-500 border border-transparent hover:text-slate-300'}`}
+                        onClick={() => toggleCopilotMode(mode.id)}
+                        className={`px-2 py-1 rounded text-[10px] font-semibold transition-all ${copilotModes.has(mode.id) ? 'bg-red-600/50 text-white border border-red-500/50 shadow-sm shadow-red-500/20' : 'bg-[#0a0e1a] text-slate-500 border border-transparent hover:text-slate-300'}`}
                         title={mode.label}
                       >
-                        {mode.icon} {mode.label}
+                        {mode.icon} {mode.label}{copilotModes.has(mode.id) ? ' ✓' : ''}
                       </button>
                     ))}
                   </div>
@@ -3201,41 +3213,41 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     {/* THINKING STATE — BUILDER THINKING – REALTIME */}
                     {glmThinking && (
                       <div className="flex justify-start">
-                        <div className="w-full max-w-[80%] rounded-2xl rounded-tl-sm bg-[#2a1010] border border-red-500/20 overflow-hidden">
+                        <div className="w-full max-w-[85%] rounded-xl bg-[#2d1414] border border-red-500/40 overflow-hidden">
                           {/* BUILDER THINKING – REALTIME Header */}
-                          <div className="bg-gradient-to-r from-red-900/60 via-red-800/40 to-purple-900/60 px-4 py-2.5 border-b border-red-500/20">
-                            <div className="flex items-center gap-2.5">
-                              <span className="text-red-400 text-sm font-black animate-pulse">★</span>
-                              <span className="text-red-400 text-xs font-black tracking-wider uppercase">BUILDER THINKING — REALTIME</span>
+                          <div className="bg-gradient-to-r from-red-800/50 to-red-900/30 px-4 py-2 border-b border-red-500/30">
+                            <div className="flex items-center gap-2">
+                              <span className="text-red-400 text-xs font-black animate-pulse">★</span>
+                              <span className="text-red-400 text-[11px] font-black tracking-wider uppercase">BUILDER THINKING — REALTIME</span>
                               <span className="ml-auto flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
-                                <span className="text-[10px] text-slate-400 font-mono">{copilotMode === 'terminal_execute' ? '⚡ EXEC' : copilotMode === 'agentic_searcher' ? '🔍 SEARCH' : copilotMode === 'deep_thinking' ? '🧬 DEEP' : '🤖 COPILOT'}</span>
+                                <span className="text-[9px] text-slate-400 font-mono">ALL MODES ACTIVE</span>
                               </span>
                             </div>
                           </div>
-                          {/* Detailed Processing Steps — like original */}
-                          <div className="px-4 py-3 space-y-1.5 max-h-[220px] overflow-y-auto">
+                          {/* Detailed Processing Steps — matching original video */}
+                          <div className="px-4 py-2.5 space-y-1 max-h-[240px] overflow-y-auto">
                             {thinkingStages.map((stage: any, si: number) => (
                               <div
                                 key={si}
-                                className={`flex items-center gap-2 transition-all duration-300 ${
-                                  si < thinkingStage ? 'opacity-100' : si === thinkingStage ? 'opacity-100' : 'opacity-30'
+                                className={`flex items-center gap-2 transition-all duration-200 ${
+                                  si < thinkingStage ? 'opacity-100' : si === thinkingStage ? 'opacity-100' : 'opacity-25'
                                 }`}
                               >
-                                <span className={`text-xs ${si < thinkingStage ? 'text-emerald-400' : si === thinkingStage ? 'animate-pulse' : 'text-slate-600'}`}>
+                                <span className={`text-xs shrink-0 ${si < thinkingStage ? 'text-green-400' : si === thinkingStage ? 'animate-pulse' : 'text-slate-700'}`}>
                                   {stage.icon || '⚡'}
                                 </span>
                                 <span className={`text-[11px] font-mono ${
                                   si < thinkingStage
-                                    ? 'text-emerald-300/80'
+                                    ? 'text-gray-300'
                                     : si === thinkingStage
-                                      ? (stage.color || 'text-yellow-400')
-                                      : 'text-slate-600'
+                                      ? 'text-gray-100'
+                                      : 'text-gray-600'
                                 }`}>
                                   {stage.label}
                                 </span>
                                 {si < thinkingStage && (
-                                  <span className="text-emerald-500 text-[10px] ml-auto">✓</span>
+                                  <span className="text-green-400 text-[10px] ml-auto">✓</span>
                                 )}
                                 {si === thinkingStage && (
                                   <div className="ml-auto flex gap-0.5">
@@ -3247,20 +3259,20 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                               </div>
                             ))}
                           </div>
-                          {/* Progress bar */}
-                          <div className="px-4 pb-3">
+                          {/* Progress bar — purple/pink gradient like original */}
+                          <div className="px-4 pb-2.5">
                             <div className="w-full h-1.5 rounded-full bg-[#1a0505] overflow-hidden">
                               <div
-                                className="h-full rounded-full transition-all duration-200 ease-out"
+                                className="h-full rounded-full transition-all duration-150 ease-out"
                                 style={{
                                   width: `${thinkingProgress}%`,
-                                  background: `linear-gradient(90deg, #dc2626 0%, #f97316 ${Math.min(40, thinkingProgress)}%, #a855f7 ${Math.min(70, thinkingProgress)}%, #22c55e ${Math.min(100, thinkingProgress)}%)`,
+                                  background: `linear-gradient(90deg, #dc2626 0%, #e74c3c 30%, #a855f7 60%, #8b5cf6 80%, #22c55e 100%)`,
                                 }}
                               />
                             </div>
-                            <div className="flex items-center justify-between mt-1.5">
-                              <span className="text-[9px] text-red-400/60 font-mono">Processing...</span>
-                              <span className="text-[9px] text-purple-400/50 font-mono">QS:999999999</span>
+                            <div className="flex items-center justify-between mt-1">
+                              <span className="text-[9px] text-red-400 font-mono animate-pulse">Processing...</span>
+                              <span className="text-[9px] text-purple-400/60 font-mono">QS:999999999</span>
                             </div>
                           </div>
                         </div>
@@ -3321,7 +3333,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     >
                       ⬛ Terminal
                     </button>
-                    <span className="ml-auto text-[9px] text-slate-600">{copilotMode === 'terminal_execute' ? '⚡ Terminal Mode' : copilotMode === 'agentic_searcher' ? '🔍 Search Mode' : copilotMode === 'deep_thinking' ? '🧬 DeepMind Mode' : '🤖 Co-Pilot Mode'}</span>
+                    <span className="ml-auto text-[9px] text-emerald-400/80">🤖⚡🔍🧬 ALL MODES ACTIVE</span>
                     <input
                       ref={fileInputRef}
                       type="file"
