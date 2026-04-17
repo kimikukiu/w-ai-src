@@ -1795,7 +1795,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [botMessages, setBotMessages] = useState<BotMessage[]>([]);
   const [glmMessages, setGlmMessages] = useState<{ role: string; content: string }[]>([
-    { role: 'system', content: 'GLM Ready. Type any prompt - code, analysis, security, etc.' }
+    { role: 'system', content: 'Agentic Coder — QuantumSwarm 999999999 · WhoamisecDeepMind Cognitive Engine' }
   ]);
   const [files, setFiles] = useState<{ downloads: FileInfo[]; generated: FileInfo[] }>({
     downloads: [],
@@ -2011,10 +2011,11 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
   // ─── GLM Chat ───
   const thinkingStages = [
-    { label: 'Analyzing query...', duration: 800 },
-    { label: 'Processing context...', duration: 1200 },
-    { label: 'Reasoning...', duration: 1500 },
-    { label: 'Generating response...', duration: 1000 },
+    { label: 'DeepMind: Initializing cognitive pathways...', duration: 600 },
+    { label: 'QuantumSwarm: Analyzing quantum context...', duration: 900 },
+    { label: 'Agentic: Processing neural reasoning...', duration: 1200 },
+    { label: 'DeepMind: Synthesizing response...', duration: 800 },
+    { label: 'Omega: Finalizing output...', duration: 500 },
   ];
 
   const sendGLM = async () => {
@@ -2118,8 +2119,10 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const navItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'bot', label: 'Bot Control', icon: Bot },
+    { id: 'deepmind', label: 'DeepMind', icon: Brain },
     { id: 'quantum', label: 'Quantum Swarm', icon: Cpu },
-    { id: 'glm', label: 'GLM Engine', icon: Brain },
+    { id: 'glm', label: 'Agentic Coder', icon: Brain },
+    { id: 'copilot', label: 'Co-Pilot', icon: Zap },
     { id: 'codespace', label: 'IDE Coder', icon: Terminal },
     { id: 'files', label: 'Files', icon: FolderOpen },
     { id: 'deploy', label: 'Deploy', icon: Rocket },
@@ -2613,9 +2616,10 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 {/* Chat Header */}
                 <div className="px-5 py-3 border-b border-red-500/20 flex items-center gap-3">
                   <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
-                  <span className="text-sm font-bold text-pink-400">AI Chat</span>
+                  <span className="text-sm font-bold text-pink-400">Agentic Coder</span>
                   <Brain className="h-4 w-4 text-pink-400" />
                   <span className="ml-auto text-xs font-bold text-red-400">{glmModel}</span>
+                  <span className="text-[10px] text-purple-400/70 font-mono">QS:999999999</span>
                 </div>
                 {/* Chat Messages */}
                 <ScrollArea className="h-[420px]">
@@ -2705,6 +2709,201 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* ═══ DEEPMIND — WhoamisecDeepMind Cognitive Evolution ═══ */}
+          {activeSection === 'deepmind' && (
+            <div className="space-y-5">
+              <Card className="bg-gradient-to-br from-fuchsia-950/60 to-[#111827] border-fuchsia-500/30">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4 mb-5">
+                    <div className="w-12 h-12 rounded-xl bg-fuchsia-500/20 flex items-center justify-center">
+                      <Brain className="h-6 w-6 text-fuchsia-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-fuchsia-300">WhoamisecDeepMind</h2>
+                      <p className="text-xs text-fuchsia-400/70">Cognitive Evolution Beyond Human IQ · Agentic Coder · QuantumSwarm 999999999</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-5 gap-2 mb-4">
+                    {[
+                      { level: 'T1', name: 'Neural Foundation', iq: '180+', icon: '🌱' },
+                      { level: 'T2', name: 'Deep Reasoning', iq: '220+', icon: '⚡' },
+                      { level: 'T3', name: 'Creative Synthesis', iq: '280+', icon: '🔥' },
+                      { level: 'T4', name: 'Autonomous Evolution', iq: '350+', icon: '🌌' },
+                      { level: 'T5', name: 'Omega Intelligence', iq: 'Beyond Human', icon: '👑' },
+                    ].map((tier, i) => (
+                      <div key={i} className={`rounded-lg p-3 text-center border transition-all ${i === 4 ? 'bg-fuchsia-500/10 border-fuchsia-500/30' : 'bg-[#0a0e1a] border-slate-700/30'}`}>
+                        <span className="text-lg">{tier.icon}</span>
+                        <p className="text-[10px] font-bold text-slate-300 mt-1">{tier.level}</p>
+                        <p className="text-[9px] text-slate-500">{tier.name}</p>
+                        <p className="text-[9px] text-fuchsia-400 font-mono">{tier.iq}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-500">
+                    <span className="w-2 h-2 rounded-full bg-fuchsia-500 animate-pulse" />
+                    Active: QuantumSwarm 999999999 · Co-Pilot: Agentic Searcher + Deep Thinking
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <Card className="bg-[#111827] border-slate-700/50">
+                  <CardContent className="p-4 text-center">
+                    <span className="text-2xl">🧬</span>
+                    <h4 className="text-sm font-bold text-slate-200 mt-2">Cognitive Engine</h4>
+                    <p className="text-[11px] text-slate-500 mt-1">WhoamisecDeepMind</p>
+                    <Badge className="mt-2 bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/30 text-[10px]">Active</Badge>
+                  </CardContent>
+                </Card>
+                <Card className="bg-[#111827] border-slate-700/50">
+                  <CardContent className="p-4 text-center">
+                    <span className="text-2xl">🤖</span>
+                    <h4 className="text-sm font-bold text-slate-200 mt-2">Identity</h4>
+                    <p className="text-[11px] text-slate-500 mt-1">Agentic Coder</p>
+                    <Badge className="mt-2 bg-purple-500/10 text-purple-400 border-purple-500/30 text-[10px]">QS:999999999</Badge>
+                  </CardContent>
+                </Card>
+                <Card className="bg-[#111827] border-slate-700/50">
+                  <CardContent className="p-4 text-center">
+                    <span className="text-2xl">⚡</span>
+                    <h4 className="text-sm font-bold text-slate-200 mt-2">Co-Pilot</h4>
+                    <p className="text-[11px] text-slate-500 mt-1">Searcher + Thinking</p>
+                    <Badge className="mt-2 bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]">Always ON</Badge>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card className="bg-[#111827] border-slate-700/50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">📚 Training Lineage (120+ repos)</CardTitle>
+                  <CardDescription className="text-slate-500 text-xs">All training data integrated into Agentic Coder identity</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {[
+                      { name: 'Investigation Core AI', count: 'inj-codeai', color: 'text-red-400' },
+                      { name: 'DarkGPT Suite (3x)', count: 'maxamin + cw + binaco', color: 'text-purple-400' },
+                      { name: 'XGPT-WormGPT', count: '1 repo', color: 'text-purple-400' },
+                      { name: 'KaliGPT Suite (4x)', count: '4 variants', color: 'text-amber-400' },
+                      { name: 'HackGPT Suite (3x)', count: '3 variants', color: 'text-amber-400' },
+                      { name: 'CL4R1T4S + UltraBr3aks', count: '2 repos', color: 'text-red-400' },
+                      { name: 'PentestGPT + stride-gpt', count: '2 repos', color: 'text-red-400' },
+                      { name: 'haKC-ai Suite', count: '20+ repos', color: 'text-pink-400' },
+                      { name: 'Rust_RedOps + BruteForceAI', count: '2 repos', color: 'text-red-400' },
+                      { name: 'DEDSEC TOR/STOR/VSDOOR', count: '3 repos', color: 'text-slate-300' },
+                      { name: 'Agentic Coder (13 tools)', count: 'MetaGPT + more', color: 'text-emerald-400' },
+                      { name: 'AI/ML Models (11)', count: 'ggml + nanoGPT + more', color: 'text-blue-400' },
+                      { name: 'Visual/UI-UX (4)', count: 'screenshot-to-code + more', color: 'text-pink-400' },
+                      { name: 'Research/GPT (16)', count: 'gpt-researcher + more', color: 'text-indigo-400' },
+                      { name: 'Crypto/Wallet (16)', count: 'WalletBruteForce + more', color: 'text-yellow-400' },
+                      { name: 'System Prompts (8)', count: 'stopslop + hakcthropic + more', color: 'text-violet-400' },
+                    ].map((t, i) => (
+                      <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#0a0e1a] border border-slate-800">
+                        <span className="text-[10px] text-slate-600">{i + 1}.</span>
+                        <span className={`text-xs font-semibold ${t.color}`}>{t.name}</span>
+                        <span className="text-[10px] text-slate-500 ml-auto">{t.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* ═══ CO-PILOT — Agentic Searcher + Deep Thinking ═══ */}
+          {activeSection === 'copilot' && (
+            <div className="space-y-5">
+              <Card className="bg-gradient-to-br from-emerald-950/60 to-[#111827] border-emerald-500/30">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4 mb-5">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                      <Zap className="h-6 w-6 text-emerald-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-emerald-300">Agentic Co-Pilot</h2>
+                      <p className="text-xs text-emerald-400/70">Agentic Searcher + Deep Thinking + Red Team GPT — Everywhere in Project</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {[
+                      { name: 'Agentic Searcher', desc: 'Auto web search like Manus', icon: '🔍', color: 'from-blue-600 to-cyan-500' },
+                      { name: 'Deep Thinking', desc: 'WhoamisecDeepMind evolution', icon: '🧠', color: 'from-purple-600 to-pink-500' },
+                      { name: 'Full Co-Pilot', desc: 'Searcher + Thinking combined', icon: '🤖', color: 'from-emerald-600 to-green-500' },
+                      { name: 'Red Team GPT', desc: 'DarkGPT/HackGPT/WormGPT priority', icon: '🔴', color: 'from-red-600 to-orange-500' },
+                    ].map((mode, i) => (
+                      <div key={i} className={`flex-1 min-w-[140px] rounded-xl bg-gradient-to-r ${mode.color} p-4 text-white shadow-lg`}>
+                        <span className="text-xl">{mode.icon}</span>
+                        <h4 className="text-sm font-bold mt-2">{mode.name}</h4>
+                        <p className="text-[10px] text-white/70 mt-1">{mode.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[#111827] border-slate-700/50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">🔗 Co-Pilot Integration Points</CardTitle>
+                  <CardDescription className="text-slate-500 text-xs">Active everywhere — web dashboard + Telegram bot</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {[
+                      { name: 'GLM Chat (AI Chat)', status: 'Active', desc: 'Every message through DeepMind + Co-Pilot', location: 'Dashboard' },
+                      { name: 'Telegram Bot AI Chat', status: 'Active', desc: 'All messages via Agentic Coder identity', location: 'Bot' },
+                      { name: '/search command', status: 'Active', desc: 'Agentic Searcher with sources', location: 'Bot' },
+                      { name: '/think command', status: 'Active', desc: 'Deep Thinking with DeepMind evolution', location: 'Bot' },
+                      { name: '/copilot command', status: 'Active', desc: 'Full Co-Pilot combined', location: 'Bot' },
+                      { name: '/deepmind command', status: 'Active', desc: 'Cognitive evolution info', location: 'Bot' },
+                      { name: '/redgpt command', status: 'Active', desc: 'Red Team GPT priority response', location: 'Bot' },
+                      { name: 'All 19 Models', status: 'Active', desc: 'Always respond as Agentic Coder', location: 'Everywhere' },
+                      { name: 'Swarm Prompts', status: 'Active', desc: 'Auto-send to chat on click', location: 'Quantum Swarm' },
+                      { name: 'n8n DeepMind', status: 'Active', desc: 'Cognitive evolution loop', location: 'n8n Auto' },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#0a0e1a] border border-slate-800">
+                        <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]">●</Badge>
+                        <div className="flex-1">
+                          <span className="text-xs font-semibold text-slate-200">{item.name}</span>
+                          <p className="text-[10px] text-slate-500">{item.desc}</p>
+                        </div>
+                        <span className="text-[9px] text-slate-600 whitespace-nowrap">{item.location}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-red-950/40 to-[#111827] border-red-500/20">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">🔴 Red Team GPT — Priority Models</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {[
+                      { name: 'DarkGPT Ultra', source: 'maxamin + codewithdark-git + binaco', icon: '🌑' },
+                      { name: 'XGPT-WormGPT', source: 'kimikukiu/XGPT-WormGPT', icon: '🪱' },
+                      { name: 'KaliGPT Suite', source: '4 variants', icon: '🐍' },
+                      { name: 'HackGPT Suite', source: '3 variants', icon: '💀' },
+                      { name: 'CL4R1T4S + PentestGPT', source: 'Scav-engeR + kimikukiu', icon: '🔓' },
+                      { name: 'investigation-core-ai', source: 'kimikukiu/investigation-core-ai', icon: '🔍' },
+                      { name: 'haKC-ai Suite', source: '20+ repos', icon: '🧠' },
+                      { name: 'BruteForceAI + RedOps', source: 'Scav-engeR', icon: '🔨' },
+                    ].map((model, i) => (
+                      <div key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#0a0e1a] border border-red-900/30">
+                        <span className="text-lg">{model.icon}</span>
+                        <div className="flex-1">
+                          <span className="text-xs font-semibold text-red-300">{model.name}</span>
+                          <p className="text-[9px] text-slate-600">{model.source}</p>
+                        </div>
+                        <Badge className="bg-red-500/10 text-red-400 border-red-500/30 text-[9px]">Priority</Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
 

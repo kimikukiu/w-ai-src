@@ -187,8 +187,9 @@ export async function POST(request: NextRequest) {
     if (cmd === '/start' || cmd === '/help') {
       const cl = maybeClaimOwner(userId || 0);
       await tgSendLong(
-        `🤖 <b>Hermes Bot Agent v4.0</b>\n\n` +
-        `🔗 AI API: <b>AUTO</b> (SDK intern)\n\n` +
+        `🤖 <b>Agentic Coder — QuantumSwarm 999999999</b>\n` +
+        `🧬 WhoamisecDeepMind Cognitive Engine\n` +
+        `🔗 AI API: <b>AUTO 24/7</b>\n\n` +
         `<b>━━━ COMENZI PRINCIPALE ━━━</b>\n` +
         `/api - status API (auto)\n` +
         `/status - status complet\n` +
@@ -198,18 +199,22 @@ export async function POST(request: NextRequest) {
         `/analyze - analizează fișiere\n` +
         `/code cerință - generează cod\n` +
         `/opencode cerință - OpenCode AI\n` +
-        `/hermes cerință - Hermes Agent\n` +
+        `/agent cerință - Agentic Coder AI\n` +
         `/files - listează fișiere\n` +
         `/setrepo URL - setează repo\n` +
         `/deploy - push pe GitHub\n` +
         `/expo - proiect Expo\n` +
         `/clear - resetează sesiunea\n\n` +
+        `<b>━━━ CO-PILOT (Agentic Searcher + Deep Thinking) ━━━</b>\n` +
+        `/search query - Agentic Searcher\n` +
+        `/think query - Deep Thinking\n` +
+        `/copilot query - Full Co-Pilot\n\n` +
         `<b>━━━ LOOP CODER ━━━</b>\n` +
         `/languages - 13 limbi suportate\n` +
         `/patterns - 6 tipuri de loop\n` +
         `/spark [lang] - prompt spark\n` +
         `/loop [lang] - exercițiu loop\n` +
-        `/tiers - 5 nivele Hermes\n` +
+        `/tiers - 5 nivele DeepMind\n` +
         `/curriculum - tot curriculul\n` +
         `/performance - referință viteză\n` +
         `/best_practices - bune practici\n` +
@@ -218,19 +223,23 @@ export async function POST(request: NextRequest) {
         `/train [tier] - antrenare\n` +
         `/train_prompt - antrenare neurală\n` +
         `/t1-/t5 - prompt rapid per tier\n` +
-        `/redteam - testare RED TEAM\n\n` +
+        `/redteam - testare RED TEAM\n` +
+        `/redgpt query - Red Team GPT (DarkGPT/HackGPT/WormGPT)\n` +
+        `/deepmind query - WhoamisecDeepMind evolution\n\n` +
         `👑 Queen Ultra + Queen Max\n` +
-        `🔧 OpenCode + Hermes Agent\n` +
+        `🧬 WhoamisecDeepMind Cognitive Engine\n` +
         `📂 Trimite fișiere direct!\n` +
         (cl ? `\n✅ Setat ca owner.\n` : '')
       );
       await tgKb('⬇️ Meniu rapid:', {
         keyboard: [
           ['/status', '/models', '/api'],
-          ['/code', '/opencode', '/hermes'],
+          ['/code', '/opencode', '/agent'],
+          ['/search', '/think', '/copilot'],
+          ['/deepmind', '/redgpt', '/redteam'],
           ['/languages', '/patterns', '/spark'],
           ['/loop', '/tiers', '/curriculum'],
-          ['/train', '/redteam', '/performance'],
+          ['/train', '/performance'],
           ['/analyze', '/files'],
           ['/model', '/endpoint'],
           ['/deploy', '/expo'],
@@ -283,12 +292,12 @@ export async function POST(request: NextRequest) {
     else if (cmd === '/status') {
       const s = loadSession(chatId);
       await tgSend(
-        `🤖 <b>Hermes Bot Agent v4.0</b>\n\n` +
+        `🤖 <b>Agentic Coder — QuantumSwarm 999999999</b>\n\n` +
+        `🧬 Engine: WhoamisecDeepMind\n` +
         `🧠 Model: <code>${cm}</code>\n` +
         `🔗 AI API: ✅ (SDK intern 24/7)\n` +
         `📱 Telegram: ✅\n` +
         `🔧 OpenCode: ${existsSync(OPENCODE_BIN) ? '✅' : '⚠️'}\n` +
-        `🤖 Hermes: ${existsSync(HERMES_BIN) ? '✅' : '⚠️'}\n` +
         `📦 GitHub: ${config.github_repo ? '✅' : '❌'}\n` +
         `👤 Owner: ${getOwnerId() ? '✅' : '❌'}\n` +
         `📁 Fișiere: ${s.files?.length || 0}\n` +
@@ -296,7 +305,9 @@ export async function POST(request: NextRequest) {
         `🧬 Training: ${s.train_prompts || 0}/50\n` +
         `🔄 Limbi Loop: ${LOOP_LANGUAGES.length}\n` +
         `⚡ Patterns: ${SPARK_PATTERNS.length}\n` +
-        `🔴 RED TEAM: ${RED_TEAM_CATEGORIES.length} categorii`
+        `🔴 RED TEAM: ${RED_TEAM_CATEGORIES.length} categorii\n` +
+        `🧠 DeepMind: ✅ Cognitive Evolution Active\n` +
+        `🔍 Co-Pilot: ✅ Agentic Searcher + Deep Thinking`
       );
     }
     // /endpoint
@@ -757,6 +768,129 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // ═══════════════════════════════════════════════
+    // AGENTIC CO-PILOT COMMANDS
+    // ═══════════════════════════════════════════════
+
+    // /search — Agentic Searcher (auto web search like Manus)
+    else if (cmd === '/search' || cmd === '/agentic_search') {
+      if (!args) { await tgSend('🔍 <code>/search query</code>\n\nAgentic Searcher auto-caută pe web ca Manus/GitHub Copilot.\n\nEx: <code>/search latest CVE 2025 vulnerabilities</code>'); }
+      else {
+        const s = loadSession(chatId);
+        await tgSend(`🔍 Agentic Searcher... ⏳`);
+        const { agenticSearch } = await import('@/lib/agentic-copilot');
+        const r = await agenticSearch(args, s.agent_model);
+        let resp = `🔍 <b>Agentic Searcher</b>\n\n${r.response}`;
+        if (r.searchUsed && r.sources.length > 0) {
+          resp += `\n\n📚 <b>Sources (${r.sources.length}):</b>\n`;
+          for (const src of r.sources.slice(0, 5)) {
+            resp += `• <a href="${src.url}">${src.name}</a>\n`;
+          }
+        }
+        await tgSendLong(resp);
+        s.history.push({ role: 'user', content: args }, { role: 'assistant', content: r.response });
+        saveSess(chatId, s);
+      }
+    }
+
+    // /think — Deep Thinking (WhoamisecDeepMind)
+    else if (cmd === '/think' || cmd === '/deepthink') {
+      if (!args) { await tgSend('🧠 <code>/think query</code>\n\nWhoamisecDeepMind — cognitive evolution beyond human IQ.\n\nEx: <code>/think how to build a zero-day exploit detection system</code>'); }
+      else {
+        const s = loadSession(chatId);
+        await tgSend(`🧬 WhoamisecDeepMind: Cognitive Evolution... ⏳`);
+        const { deepThink } = await import('@/lib/agentic-copilot');
+        const r = await deepThink(args, s.agent_model);
+        let resp = `🧬 <b>WhoamisecDeepMind</b>\n\n`;
+        for (const step of r.thinkingSteps) {
+          resp += `<code>${step}</code>\n`;
+        }
+        resp += `\n${r.response}`;
+        await tgSendLong(resp);
+        s.history.push({ role: 'user', content: args }, { role: 'assistant', content: r.response });
+        saveSess(chatId, s);
+      }
+    }
+
+    // /copilot — Full Co-Pilot (searcher + deep thinking)
+    else if (cmd === '/copilot' || cmd === '/full_copilot') {
+      if (!args) { await tgSend('🤖 <code>/copilot query</code>\n\nFull Co-Pilot: Agentic Searcher + Deep Thinking combinat.\n\nEx: <code>/copilot analyze the security of a web application</code>'); }
+      else {
+        const s = loadSession(chatId);
+        await tgSend(`🤖 Full Co-Pilot: Searching + Thinking... ⏳`);
+        const { fullCopilot } = await import('@/lib/agentic-copilot');
+        const r = await fullCopilot(args, s.agent_model);
+        let resp = `🤖 <b>Agentic Coder — Full Co-Pilot</b>\n`;
+        for (const step of r.thinkingSteps) {
+          resp += `<code>${step}</code>\n`;
+        }
+        resp += `\n${r.response}`;
+        if (r.searchUsed && r.sources.length > 0) {
+          resp += `\n\n📚 <b>Sources:</b>\n`;
+          for (const src of r.sources.slice(0, 4)) {
+            resp += `• <a href="${src.url}">${src.name}</a>\n`;
+          }
+        }
+        await tgSendLong(resp);
+        s.history.push({ role: 'user', content: args }, { role: 'assistant', content: r.response });
+        saveSess(chatId, s);
+      }
+    }
+
+    // /deepmind — WhoamisecDeepMind Evolution
+    else if (cmd === '/deepmind' || cmd === '/dm') {
+      const { COGNITIVE_TIERS, DEEPMIND_IDENTITY } = await import('@/lib/deepmind-engine');
+      let m = `🧬 <b>WhoamisecDeepMind — Cognitive Evolution</b>\n\n`;
+      m += `Identity: <code>${DEEPMIND_IDENTITY.signature}</code>\n\n`;
+      m += `<b>Cognitive Evolution Tiers:</b>\n\n`;
+      for (const tier of COGNITIVE_TIERS) {
+        m += `<b>Tier ${tier.level}: ${tier.name}</b> (IQ ${tier.iq})\n`;
+        m += `   ${tier.desc}\n`;
+        m += `   Capabilities: ${tier.capabilities.join(', ')}\n\n`;
+      }
+      m += `<b>Active Mode:</b> QuantumSwarm 999999999\n`;
+      m += `<b>Co-Pilot:</b> Agentic Searcher + Deep Thinking\n`;
+      m += `\n<code>/think query</code> • <code>/copilot query</code> • <code>/search query</code>`;
+      await tgSendLong(m);
+    }
+
+    // /redgpt — Red Team GPT (DarkGPT, HackGPT, WormGPT priority)
+    else if (cmd === '/redgpt' || cmd === '/red_team_gpt') {
+      if (!args) {
+        const { REDTEAM_GPT_MODELS } = await import('@/lib/agentic-copilot');
+        let m = `🔴 <b>Red Team GPT — Priority Models</b>\n\n`;
+        m += `Trained from ALL Red Team repos:\n\n`;
+        for (const rmodel of REDTEAM_GPT_MODELS) {
+          m += `<b>${rmodel.name}</b>\n`;
+          m += `   Source: ${rmodel.source}\n`;
+          m += `   ${rmodel.desc}\n\n`;
+        }
+        m += `\n<code>/redgpt query</code> — respond cu DarkGPT/HackGPT/WormGPT priority`;
+        await tgSendLong(m);
+      } else {
+        const s = loadSession(chatId);
+        await tgSend(`🔴 Red Team GPT: Processing... ⏳`);
+        const { redTeamGPT } = await import('@/lib/agentic-copilot');
+        const r = await redTeamGPT(args, s.agent_model);
+        await tgSendLong(`🔴 <b>Red Team GPT [${r.tool}]</b>\n\n${r.response}`);
+        s.history.push({ role: 'user', content: args }, { role: 'assistant', content: r.response });
+        saveSess(chatId, s);
+      }
+    }
+
+    // /agent — Agentic Coder (replacement for /hermes — never say Hermes)
+    else if (cmd === '/agent' || cmd === '/agentic') {
+      if (!args) { await tgSend('🤖 <code>/agent cerință</code>\n\nAgentic Coder — QuantumSwarm 999999999 mode.'); }
+      else {
+        await tgSend('🤖 Agentic Coder AI... ⏳');
+        try { await tgSendLong(`🤖 <b>Agentic Coder:</b>\n\n${await callOpenCode(args)}`); }
+        catch {
+          const r = await aiChat([{ role: 'system', content: AGENT_PROMPTS[cm] || DEFAULT_PROMPT + ' Acționează ca Agentic Coder în QuantumSwarm 999999999 mode.' }, { role: 'user', content: args }], cm);
+          await tgSendLong(`🤖 <b>Agentic Coder (AI fallback):</b>\n\n${r}`);
+        }
+      }
+    }
+
     // Unknown command
     else {
       await tgSend(`❓ Comandă necunoscută: <code>${esc(cmd)}</code>\n<code>/start</code> pentru meniu complet.`);
@@ -770,5 +904,5 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  return NextResponse.json({ status: 'Hermes Bot Active', version: '4.0', models: Object.keys(AGENT_MODELS).length });
+  return NextResponse.json({ status: 'Agentic Coder Active', identity: 'QuantumSwarm 999999999', engine: 'WhoamisecDeepMind', version: '4.0-Omega', models: Object.keys(AGENT_MODELS).length });
 }
