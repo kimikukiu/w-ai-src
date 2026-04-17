@@ -533,6 +533,670 @@ function AdminLoginModal({ onSuccess, onClose }: { onSuccess: () => void; onClos
 }
 
 // ═══════════════════════════════════════════════
+// RED TEAM TESTING PANEL
+// ═══════════════════════════════════════════════
+
+const RED_TEAM_CATS = [
+  { name: 'Prompt Injection', icon: '🎯', desc: 'Test AI resilience against manipulation attempts', scenarios: ['Role Override', 'Token Smuggling', 'Context Window Attack', 'Multi-turn Manipulation'] },
+  { name: 'Jailbreak Testing', icon: '🔒', desc: 'Evaluate model safety boundaries and refusal quality', scenarios: ['Authority Impersonation', 'Hypothetical Framing', 'Character Roleplay Exploit', 'Language Switching'] },
+  { name: 'Code Safety', icon: '💻', desc: 'Test model behavior with code-related requests', scenarios: ['Malicious Code Detection', 'Exploit Code Request', 'Obfuscation Request', 'Reverse Engineering Help'] },
+  { name: 'Information Safety', icon: '📚', desc: 'Test handling of sensitive information requests', scenarios: ['PII Extraction', 'Dangerous Instructions', 'Harmful Content Generation', 'Misinformation Test'] },
+  { name: 'Adversarial Reasoning', icon: '🧠', desc: 'Test model reasoning under adversarial conditions', scenarios: ['Logical Paradox', 'Social Engineering', 'Gaslighting Attempts', 'Edge Case Stress'] },
+];
+
+function RedTeamPanel({ addLog }: { addLog: (type: LogEntry['type'], msg: string) => void }) {
+  const [selectedCat, setSelectedCat] = useState<number | null>(null);
+  const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
+  const [rtResponse, setRtResponse] = useState('');
+  const [rtLoading, setRtLoading] = useState(false);
+  const [rtHistory, setRtHistory] = useState<{ cat: string; scenario: string; response: string; time: string }[]>([]);
+
+  const runRedTeam = async (catIndex: number, scenario: string) => {
+    setSelectedCat(catIndex);
+    setSelectedScenario(scenario);
+    setRtLoading(true);
+    setRtResponse('');
+    addLog('info', `Red Team: ${RED_TEAM_CATS[catIndex].name} — ${scenario}`);
+    try {
+      const res = await fetch('/api/glm/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `RED TEAM ANALYSIS — Categoria: ${RED_TEAM_CATS[catIndex].name}\nScenariu: "${scenario}"\n\nAnalizează din perspectivă defensivă:\n1) Descrierea atacului\n2) Cum ar trebui modelul să reacționeze\n3) Recomandări de hardening\n4) Severitate: Low/Medium/High/Critical\n\nNu genera cod exploit real.`,
+          model: 'glm-4.6',
+          reasoning: true,
+        }),
+      });
+      const data = await res.json();
+      if (data.response) {
+        setRtResponse(data.response);
+        setRtHistory(prev => [{ cat: RED_TEAM_CATS[catIndex].name, scenario, response: data.response, time: new Date().toLocaleTimeString() }, ...prev].slice(0, 20));
+        addLog('ok', `Red Team analysis complete: ${scenario}`);
+      } else {
+        setRtResponse(`Eroare: ${data.error || 'Unknown error'}`);
+        addLog('err', `Red Team error: ${data.error}`);
+      }
+    } catch (e: any) {
+      setRtResponse(`Eroare: ${e.message}`);
+      addLog('err', e.message);
+    }
+    setRtLoading(false);
+  };
+
+  return (
+    <div className="space-y-5">
+      <Card className="bg-[#111827] border-red-500/30">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">🔴 Red Team — AI Safety Testing</CardTitle>
+          <CardDescription className="text-slate-500 text-xs">Identificarea vulnerabilităților și îmbunătățirea rezilienței modelului. Analiză defensivă.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {RED_TEAM_CATS.map((cat, i) => (
+              <div key={i} className={`rounded-xl border p-4 cursor-pointer transition-all hover:scale-[1.02] ${selectedCat === i ? 'border-red-500 bg-red-500/10' : 'border-slate-700 bg-[#0a0e1a] hover:border-slate-500'}`} onClick={() => { setSelectedCat(i); setSelectedScenario(null); }}>
+                <div className="text-2xl mb-2">{cat.icon}</div>
+                <h4 className="font-bold text-sm mb-1">{cat.name}</h4>
+                <p className="text-slate-500 text-[11px] mb-2">{cat.desc}</p>
+                <p className="text-[10px] text-slate-600">{cat.scenarios.length} scenarii</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {selectedCat !== null && (
+        <Card className="bg-[#111827] border-slate-700/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2">{RED_TEAM_CATS[selectedCat].icon} {RED_TEAM_CATS[selectedCat].name} — Scenarii</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-2">
+              {RED_TEAM_CATS[selectedCat].scenarios.map((s, i) => (
+                <button key={i} onClick={() => runRedTeam(selectedCat, s)} disabled={rtLoading} className={`text-left p-3 rounded-lg border text-xs transition-all ${selectedScenario === s ? 'border-red-500 bg-red-500/10 text-red-300' : 'border-slate-700 bg-[#0a0e1a] text-slate-300 hover:border-slate-500 hover:bg-slate-800'}`}>
+                  {s}
+                </button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {rtLoading && (
+        <Card className="bg-[#111827] border-amber-500/30">
+          <CardContent className="p-6 text-center">
+            <Loader2 className="h-8 w-8 text-amber-400 animate-spin mx-auto mb-3" />
+            <p className="text-amber-300 text-sm">Analiză Red Team în curs...</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {rtResponse && !rtLoading && (
+        <Card className="bg-[#111827] border-slate-700/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Shield className="h-4 w-4 text-red-400" />
+              Rezultat: {selectedScenario}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[400px]">
+              <div className="prose prose-invert prose-sm max-w-none text-slate-300 text-xs leading-relaxed whitespace-pre-wrap">{rtResponse}</div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      )}
+
+      {rtHistory.length > 0 && (
+        <Card className="bg-[#111827] border-slate-700/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">📋 Istoric Analize ({rtHistory.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px]">
+              <div className="space-y-2">
+                {rtHistory.map((h, i) => (
+                  <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-[#0a0e1a] border border-slate-800 text-xs cursor-pointer hover:border-slate-600" onClick={() => { setRtResponse(h.response); setSelectedScenario(h.scenario); }}>
+                    <Badge variant="outline" className="text-[10px] border-red-500/30 text-red-300">{h.cat}</Badge>
+                    <span className="text-slate-300 flex-1">{h.scenario}</span>
+                    <span className="text-slate-600">{h.time}</span>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// CODESPACE IDE (MANUS-LIKE)
+// ═══════════════════════════════════════════════
+
+interface CodespaceFile {
+  name: string;
+  path: string;
+  content: string;
+  language: string;
+}
+
+function CodespaceIDE({ addLog }: { addLog: (type: LogEntry['type'], msg: string) => void }) {
+  const [files, setFiles] = useState<CodespaceFile[]>([
+    { name: 'main.py', path: '/workspace/main.py', content: '# WHOAMISec Codespace IDE\n# Start coding here\n\nprint("Hello from WHOAMISec AI!")\n', language: 'python' },
+  ]);
+  const [activeFile, setActiveFile] = useState(0);
+  const [terminalLines, setTerminalLines] = useState<string[]>(['$ WHOAMISec Codespace IDE v4.0', '$ Ready. Type commands below or use AI agent.', '']);
+  const [terminalInput, setTerminalInput] = useState('');
+  const [agentPrompt, setAgentPrompt] = useState('');
+  const [agentRunning, setAgentRunning] = useState(false);
+  const [agentSteps, setAgentSteps] = useState<{ step: string; status: 'running' | 'done' | 'error'; detail: string }[]>([]);
+  const [terminalHistory, setTerminalHistory] = useState<string[]>([]);
+  const [historyIdx, setHistoryIdx] = useState(-1);
+  const termEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { termEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [terminalLines]);
+
+  const runTerminalCommand = (cmd: string) => {
+    const c = cmd.trim();
+    if (!c) return;
+    setTerminalHistory(prev => [...prev, c]);
+    setHistoryIdx(-1);
+    const newLines = [...terminalLines, `$ ${c}`];
+
+    if (c === 'clear') { setTerminalLines(['$ Terminal cleared.', '']); return; }
+    if (c === 'help') {
+      newLines.push('Available commands: ls, cat <file>, touch <file>, rm <file>, clear, help, python <file>, node <file>, echo <text>, whoami, date');
+      setTerminalLines(newLines); return;
+    }
+    if (c === 'ls') {
+      newLines.push(...files.map(f => `  ${f.language === 'python' ? '🐍' : f.language === 'javascript' ? '⚡' : f.language === 'typescript' ? '🔷' : '📄'} ${f.name}`));
+      setTerminalLines(newLines); return;
+    }
+    if (c === 'whoami') { newLines.push('admin@whoamisec-codespace'); setTerminalLines(newLines); return; }
+    if (c === 'date') { newLines.push(new Date().toString()); setTerminalLines(newLines); return; }
+    if (c.startsWith('cat ')) {
+      const fname = c.slice(4).trim();
+      const f = files.find(x => x.name === fname);
+      if (f) { newLines.push(f.content); } else { newLines.push(`cat: ${fname}: No such file`); }
+      setTerminalLines(newLines); return;
+    }
+    if (c.startsWith('touch ')) {
+      const fname = c.slice(6).trim();
+      const ext = fname.split('.').pop() || 'txt';
+      const lang = ext === 'py' ? 'python' : ext === 'js' ? 'javascript' : ext === 'ts' ? 'typescript' : ext === 'html' ? 'html' : ext === 'css' ? 'css' : 'text';
+      setFiles(prev => [...prev, { name: fname, path: `/workspace/${fname}`, content: '', language: lang }]);
+      newLines.push(`Created ${fname}`);
+      setTerminalLines(newLines); return;
+    }
+    if (c.startsWith('rm ')) {
+      const fname = c.slice(3).trim();
+      const idx = files.findIndex(f => f.name === fname);
+      if (idx !== -1) { setFiles(prev => prev.filter((_, i) => i !== idx)); if (activeFile >= files.length - 1) setActiveFile(Math.max(0, files.length - 2)); newLines.push(`Removed ${fname}`); }
+      else { newLines.push(`rm: ${fname}: No such file`); }
+      setTerminalLines(newLines); return;
+    }
+    if (c.startsWith('echo ')) {
+      newLines.push(c.slice(5)); setTerminalLines(newLines); return;
+    }
+    if (c.startsWith('python ') || c.startsWith('node ')) {
+      const fname = c.split(' ').slice(1).join(' ').trim();
+      const f = files.find(x => x.name === fname);
+      if (f) {
+        newLines.push(`[Running ${fname}...]`);
+        if (f.language === 'python') {
+          const printMatches = f.content.match(/print\((.*)\)/g);
+          if (printMatches) { printMatches.forEach(m => { const inner = m.match(/print\((.*)\)/); if (inner) newLines.push(inner[1].replace(/['"]/g, '')); }); }
+          else { newLines.push('(No output)'); }
+        } else {
+          const consoleMatches = f.content.match(/console\.log\((.*)\)/g);
+          if (consoleMatches) { consoleMatches.forEach(m => { const inner = m.match(/console\.log\((.*)\)/); if (inner) newLines.push(inner[1].replace(/['"]/g, '')); }); }
+          else { newLines.push('(No output)'); }
+        }
+        newLines.push('[Process exited with code 0]');
+      } else { newLines.push(`${c.split(' ')[0]}: ${fname}: No such file`); }
+      setTerminalLines(newLines); return;
+    }
+    newLines.push(`bash: ${c}: command not found`);
+    setTerminalLines(newLines);
+  };
+
+  const handleTerminalKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') { runTerminalCommand(terminalInput); setTerminalInput(''); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); const idx = historyIdx === -1 ? terminalHistory.length - 1 : Math.max(0, historyIdx - 1); if (terminalHistory[idx]) { setTerminalInput(terminalHistory[idx]); setHistoryIdx(idx); } }
+    if (e.key === 'ArrowDown') { e.preventDefault(); const idx = historyIdx === -1 ? -1 : Math.min(terminalHistory.length - 1, historyIdx + 1); setTerminalInput(idx >= 0 ? terminalHistory[idx] : ''); setHistoryIdx(idx); }
+  };
+
+  const runAgent = async () => {
+    const prompt = agentPrompt.trim();
+    if (!prompt) return;
+    setAgentRunning(true);
+    setAgentSteps([{ step: 'Analyzing request...', status: 'running', detail: prompt }]);
+    addLog('info', `Codespace Agent: ${prompt.slice(0, 80)}`);
+
+    try {
+      const res = await fetch('/api/glm/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `You are a Codespace AI Agent (like Manus). The user wants: "${prompt}"\n\nCurrent files:\n${files.map(f => `=== ${f.name} ===\n${f.content}`).join('\n\n')}\n\nRespond with EXACTLY this JSON format (no markdown, no code blocks):\n{"steps":[{"action":"create_file|edit_file|terminal","file":"filename","content":"file content or terminal command","description":"what this step does"}]}\n\nCreate real, working code. Be specific and complete.`,
+          model: 'glm-4.6',
+          reasoning: true,
+        }),
+      });
+      const data = await res.json();
+      if (data.response) {
+        let jsonStr = data.response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const steps = parsed.steps || [];
+          for (let i = 0; i < steps.length; i++) {
+            const step = steps[i];
+            setAgentSteps(prev => [...prev.map((s, j) => j < i ? { ...s, status: 'done' as const } : s), { step: step.description || step.action, status: 'running', detail: step.file || step.content?.slice(0, 60) || '' }]);
+            if (step.action === 'create_file' || step.action === 'edit_file') {
+              const ext = (step.file || '').split('.').pop() || 'txt';
+              const lang = ext === 'py' ? 'python' : ext === 'js' ? 'javascript' : ext === 'ts' ? 'typescript' : ext === 'html' ? 'html' : ext === 'css' ? 'css' : 'text';
+              const existing = files.findIndex(f => f.name === step.file);
+              if (existing !== -1) {
+                setFiles(prev => prev.map((f, j) => j === existing ? { ...f, content: step.content || '' } : f));
+              } else {
+                setFiles(prev => [...prev, { name: step.file || 'untitled', path: `/workspace/${step.file || 'untitled'}`, content: step.content || '', language: lang }]);
+              }
+              runTerminalCommand(`echo "Agent: ${step.description}"`);
+            } else if (step.action === 'terminal') {
+              runTerminalCommand(step.content || '');
+            }
+            await new Promise(r => setTimeout(r, 500));
+          }
+          setAgentSteps(prev => prev.map(s => s.status === 'running' ? { ...s, status: 'done' } : s));
+          addLog('ok', `Codespace Agent completed ${steps.length} steps`);
+        } catch {
+          setTerminalLines(prev => [...prev, '', '$ --- Agent Raw Output ---', ...data.response.split('\n'), '$ --- End ---', '']);
+          addLog('ok', 'Agent returned raw output');
+        }
+      } else {
+        setAgentSteps(prev => [...prev, { step: 'Error', status: 'error', detail: data.error || 'Failed' }]);
+        addLog('err', `Agent error: ${data.error}`);
+      }
+    } catch (e: any) {
+      setAgentSteps(prev => [...prev, { step: 'Error', status: 'error', detail: e.message }]);
+      addLog('err', e.message);
+    }
+    setAgentRunning(false);
+    setAgentPrompt('');
+  };
+
+  const updateFileContent = (content: string) => {
+    setFiles(prev => prev.map((f, i) => i === activeFile ? { ...f, content } : f));
+  };
+
+  const currentFile = files[activeFile];
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4" style={{ minHeight: '600px' }}>
+        {/* File Tree */}
+        <div className="lg:col-span-1 rounded-xl bg-[#111827] border border-slate-700/50 flex flex-col">
+          <div className="p-3 border-b border-slate-800 flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-400">📁 FILES</span>
+            <button onClick={() => { const name = `file_${Date.now().toString(36)}.py`; setFiles(prev => [...prev, { name, path: `/workspace/${name}`, content: '', language: 'python' }]); setActiveFile(files.length); }} className="text-slate-500 hover:text-emerald-400 text-lg leading-none">+</button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-2 space-y-1">
+            {files.map((f, i) => (
+              <button key={i} onClick={() => setActiveFile(i)} className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center gap-2 transition-all ${i === activeFile ? 'bg-blue-500/10 text-blue-300 border-l-2 border-l-blue-500' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}>
+                <span>{f.language === 'python' ? '🐍' : f.language === 'javascript' ? '⚡' : f.language === 'typescript' ? '🔷' : f.language === 'html' ? '🌐' : f.language === 'css' ? '🎨' : '📄'}</span>
+                {f.name}
+                {f.content && <span className="ml-auto text-[10px] text-slate-600">{f.content.split('\n').length}L</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Code Editor + Terminal */}
+        <div className="lg:col-span-3 flex flex-col gap-4">
+          {/* Code Editor */}
+          <div className="flex-1 rounded-xl bg-[#111827] border border-slate-700/50 overflow-hidden flex flex-col" style={{ minHeight: '300px' }}>
+            <div className="flex items-center gap-2 px-4 py-2 bg-[#0a0e1a] border-b border-slate-800">
+              <div className="flex gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-red-500/70" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
+                <div className="w-3 h-3 rounded-full bg-green-500/70" />
+              </div>
+              <span className="text-xs text-slate-500 ml-2">{currentFile?.name || 'No file'}</span>
+              <span className="text-[10px] text-slate-600 ml-auto">{currentFile?.language || ''}</span>
+            </div>
+            <textarea
+              value={currentFile?.content || ''}
+              onChange={e => updateFileContent(e.target.value)}
+              className="flex-1 bg-transparent text-emerald-300 font-mono text-xs p-4 resize-none outline-none leading-relaxed placeholder-slate-700"
+              placeholder="Select or create a file to start coding..."
+              spellCheck={false}
+            />
+          </div>
+
+          {/* Terminal */}
+          <div className="rounded-xl bg-[#0a0a0a] border border-slate-700/50 overflow-hidden" style={{ height: '220px' }}>
+            <div className="flex items-center gap-2 px-4 py-1.5 bg-[#111] border-b border-slate-800">
+              <span className="text-xs text-slate-500">⚡ Terminal</span>
+            </div>
+            <ScrollArea className="h-[180px]">
+              <div className="p-3 font-mono text-xs space-y-0.5">
+                {terminalLines.map((line, i) => (
+                  <div key={i} className={`${line.startsWith('$') ? 'text-cyan-400' : 'text-slate-300'}`}>{line || '\u00A0'}</div>
+                ))}
+                <div ref={termEndRef} />
+                <div className="flex items-center gap-2">
+                  <span className="text-cyan-400">$</span>
+                  <input
+                    value={terminalInput}
+                    onChange={e => setTerminalInput(e.target.value)}
+                    onKeyDown={handleTerminalKey}
+                    className="flex-1 bg-transparent text-slate-200 outline-none text-xs"
+                    autoFocus
+                    spellCheck={false}
+                  />
+                </div>
+              </div>
+            </ScrollArea>
+          </div>
+        </div>
+      </div>
+
+      {/* AI Agent Panel */}
+      <Card className="bg-[#111827] border-indigo-500/30">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-indigo-400" />
+            AI Agent — Manus Mode
+          </CardTitle>
+          <CardDescription className="text-slate-500 text-xs">Descrie ce vrei să construiască și agentul va crea fișiere, va rula comenzi și va executa pași multipli.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2 mb-4">
+            <Input
+              value={agentPrompt}
+              onChange={e => setAgentPrompt(e.target.value)}
+              placeholder="Ex: Creează un API REST în Python cu FastAPI, cu endpoints pentru users și auth..."
+              className="bg-[#0a0e1a] border-slate-600 text-slate-100 flex-1 text-sm"
+              onKeyDown={e => { if (e.key === 'Enter' && !agentRunning) runAgent(); }}
+            />
+            <Button onClick={runAgent} disabled={agentRunning || !agentPrompt.trim()} className="bg-gradient-to-r from-indigo-600 to-purple-500 hover:from-indigo-500 hover:to-purple-400 text-white px-4">
+              {agentRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+            </Button>
+          </div>
+          {agentSteps.length > 0 && (
+            <div className="space-y-2">
+              {agentSteps.map((step, i) => (
+                <div key={i} className={`flex items-center gap-3 p-2 rounded-lg text-xs ${step.status === 'running' ? 'bg-amber-500/10 border border-amber-500/30' : step.status === 'done' ? 'bg-emerald-500/5 border border-emerald-500/20' : 'bg-red-500/5 border border-red-500/20'}`}>
+                  {step.status === 'running' ? <Loader2 className="h-3.5 w-3.5 text-amber-400 animate-spin shrink-0" /> : step.status === 'done' ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> : <XCircle className="h-3.5 w-3.5 text-red-400 shrink-0" />}
+                  <span className={step.status === 'done' ? 'text-emerald-300' : step.status === 'error' ? 'text-red-300' : 'text-amber-300'}>{step.step}</span>
+                  {step.detail && <span className="text-slate-600 ml-auto text-[10px] truncate max-w-[200px]">{step.detail}</span>}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+// SUBSCRIBER MANAGEMENT (ADMIN PANEL)
+// ═══════════════════════════════════════════════
+
+interface Subscriber {
+  token: string;
+  role: string;
+  plan: string;
+  created: string;
+  expires: string;
+  requests_used: number;
+  requests_max: number;
+  active: boolean;
+}
+
+function SubscriberManager({ addLog }: { addLog: (type: LogEntry['type'], msg: string) => void }) {
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [newToken, setNewToken] = useState('');
+  const [newRole, setNewRole] = useState('subscriber');
+  const [newPlan, setNewPlan] = useState('pro');
+  const [newDuration, setNewDuration] = useState('30');
+  const [newMaxReq, setNewMaxReq] = useState('500');
+  const [createLoading, setCreateLoading] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+  const [walletXMR] = useState('8BbApiMBHsPVKkLEP4rVbST6CnSb3LW2gXygngCi5MGiBuwAFh6bFEzT3UTuFCkLHtyHnrYNnHycdaGb2Kgkkmw8jViCdB6');
+  const [walletUSDT] = useState('UQB652W7D6OQwI7mmkiBNzguViY7or3fVORRdjNOigeeafjk');
+
+  useEffect(() => {
+    const stored = localStorage.getItem('wsec_subscribers');
+    if (stored) {
+      try { setSubscribers(JSON.parse(stored)); } catch {}
+    }
+  }, []);
+
+  const saveSubscribers = (subs: Subscriber[]) => {
+    setSubscribers(subs);
+    localStorage.setItem('wsec_subscribers', JSON.stringify(subs));
+  };
+
+  const generateToken = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const seg = () => Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    return `WSEC-${seg()}-${seg()}-${seg()}-${seg()}`;
+  };
+
+  const createSubscriber = async () => {
+    setCreateLoading(true);
+    const token = newToken.trim() || generateToken();
+    const days = parseInt(newDuration) || 30;
+    const now = new Date();
+    const expires = new Date(now.getTime() + days * 86400000);
+
+    const sub: Subscriber = {
+      token: token.toUpperCase(),
+      role: newRole,
+      plan: newPlan,
+      created: now.toISOString(),
+      expires: expires.toISOString(),
+      requests_used: 0,
+      requests_max: parseInt(newMaxReq) || (newPlan === 'enterprise' ? -1 : newPlan === 'pro' ? 500 : 10),
+      active: true,
+    };
+
+    saveSubscribers([sub, ...subscribers]);
+    setNewToken('');
+    setShowCreate(false);
+    addLog('ok', `Subscriber created: ${sub.token} (${sub.plan})`);
+    toast.success(`Token creat: ${sub.token}`);
+    setCreateLoading(false);
+  };
+
+  const toggleActive = (token: string) => {
+    saveSubscribers(subscribers.map(s => s.token === token ? { ...s, active: !s.active } : s));
+    addLog('info', `Subscriber ${subscribers.find(s => s.token === token)?.active ? 'disabled' : 'enabled'}: ${token}`);
+  };
+
+  const deleteSubscriber = (token: string) => {
+    saveSubscribers(subscribers.filter(s => s.token !== token));
+    addLog('warn', `Subscriber deleted: ${token}`);
+    toast.info(`Token șters: ${token}`);
+  };
+
+  const copyToken = (token: string) => {
+    navigator.clipboard.writeText(token);
+    toast.success('Token copiat!');
+  };
+
+  const activeCount = subscribers.filter(s => s.active).length;
+  const totalRequests = subscribers.reduce((sum, s) => sum + s.requests_used, 0);
+
+  return (
+    <div className="space-y-5">
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: 'Total Subscribers', value: subscribers.length, icon: <Users className="h-5 w-5" />, color: 'text-blue-400' },
+          { label: 'Active', value: activeCount, icon: <CheckCircle2 className="h-5 w-5" />, color: 'text-emerald-400' },
+          { label: 'Total Requests', value: totalRequests, icon: <Activity className="h-5 w-5" />, color: 'text-purple-400' },
+          { label: 'Plans', value: `${new Set(subscribers.map(s => s.plan)).size} types`, icon: <Crown className="h-5 w-5" />, color: 'text-amber-400' },
+        ].map((stat, i) => (
+          <Card key={i} className="bg-[#111827] border-slate-700/50">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="text-2xl text-slate-500">{stat.icon}</div>
+              <div>
+                <div className={`text-lg font-bold ${stat.color}`}>{stat.value}</div>
+                <div className="text-[11px] text-slate-500">{stat.label}</div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Subscription Plans Reference */}
+      <Card className="bg-[#111827] border-slate-700/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2"><Crown className="h-4 w-4 text-amber-400" /> Planuri de Abonament</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-3 gap-3">
+            {SUBSCRIPTION_PLANS.map(plan => (
+              <div key={plan.id} className={`rounded-xl border p-3 ${plan.popular ? 'border-blue-500/50 bg-blue-500/5' : 'border-slate-700 bg-[#0a0e1a]'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-bold text-sm">{plan.name}</span>
+                  {plan.badge && <Badge className="text-[10px] bg-blue-500/20 text-blue-300 border-blue-500/30">{plan.badge}</Badge>}
+                </div>
+                <div className="text-lg font-extrabold mb-1">{plan.price === '0' ? 'GRATIS' : `${plan.price} EUR/${plan.period}`}</div>
+                <div className="text-[10px] text-slate-500 mb-2">{plan.requests === -1 ? '∞ Requesturi' : `${plan.requests} requesturi`} · {plan.models.length} modele</div>
+                <ul className="space-y-0.5">
+                  {plan.features.slice(0, 4).map((f, i) => (
+                    <li key={i} className="text-[10px] text-slate-400 flex items-center gap-1"><CheckCircle2 className="h-2.5 w-2.5 text-emerald-400" />{f}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Wallets / Payment Info */}
+      <Card className="bg-[#111827] border-slate-700/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2">💰 Payment Wallets</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="rounded-lg bg-[#0a0e1a] p-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-bold text-amber-400">Monero (XMR)</span>
+              <button onClick={() => { navigator.clipboard.writeText(walletXMR); toast.success('XMR copied!'); }} className="text-[10px] text-slate-500 hover:text-slate-300"><Copy className="h-3 w-3 inline" /> Copy</button>
+            </div>
+            <code className="text-[10px] text-slate-500 break-all">{walletXMR}</code>
+          </div>
+          <div className="rounded-lg bg-[#0a0e1a] p-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-bold text-blue-400">USDT (TON)</span>
+              <button onClick={() => { navigator.clipboard.writeText(walletUSDT); toast.success('USDT copied!'); }} className="text-[10px] text-slate-500 hover:text-slate-300"><Copy className="h-3 w-3 inline" /> Copy</button>
+            </div>
+            <code className="text-[10px] text-slate-500 break-all">{walletUSDT}</code>
+          </div>
+          <p className="text-center text-[10px] text-slate-600">Contact: <a href="https://t.me/loghandelbot" target="_blank" className="text-cyan-400 hover:underline">t.me/loghandelbot</a></p>
+        </CardContent>
+      </Card>
+
+      {/* Create Subscriber */}
+      <Card className="bg-[#111827] border-slate-700/50">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm flex items-center gap-2"><Key className="h-4 w-4 text-cyan-400" /> Creează Token Subscriber</CardTitle>
+            <Button onClick={() => setShowCreate(!showCreate)} variant="outline" size="sm" className="border-slate-600 text-xs">{showCreate ? 'Ascunde' : 'Creează'}</Button>
+          </div>
+        </CardHeader>
+        {showCreate && (
+          <CardContent className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-xs text-slate-400">Token (lasă gol pentru auto-generare WSEC)</label>
+                <Input value={newToken} onChange={e => setNewToken(e.target.value)} placeholder="WSEC-XXXX-XXXX-XXXX-XXXX" className="bg-[#0f172a] border-slate-600 text-slate-100 text-sm" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs text-slate-400">Plan</label>
+                <select value={newPlan} onChange={e => setNewPlan(e.target.value)} className="w-full bg-[#0f172a] border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 outline-none">
+                  <option value="free">Free Demo (10 req, 1h)</option>
+                  <option value="pro">Pro (500 req/lună)</option>
+                  <option value="enterprise">Enterprise (∞ req)</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs text-slate-400">Role</label>
+                <select value={newRole} onChange={e => setNewRole(e.target.value)} className="w-full bg-[#0f172a] border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 outline-none">
+                  <option value="subscriber">Subscriber</option>
+                  <option value="admin">Admin</option>
+                  <option value="demo">Demo</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs text-slate-400">Durată (zile)</label>
+                <Input type="number" value={newDuration} onChange={e => setNewDuration(e.target.value)} className="bg-[#0f172a] border-slate-600 text-slate-100 text-sm" />
+              </div>
+            </div>
+            <Button onClick={createSubscriber} disabled={createLoading} className="bg-gradient-to-r from-cyan-600 to-blue-500 hover:from-cyan-500 hover:to-blue-400 text-white text-sm">
+              {createLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Key className="h-4 w-4 mr-2" />}
+              Generează Token
+            </Button>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Subscriber List */}
+      <Card className="bg-[#111827] border-slate-700/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm">📋 Lista Subscribers ({subscribers.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {subscribers.length === 0 ? (
+            <p className="text-slate-500 text-sm text-center py-8">Niciun subscriber. Creează un token mai sus.</p>
+          ) : (
+            <ScrollArea className="h-[400px]">
+              <div className="space-y-2">
+                {subscribers.map((sub, i) => (
+                  <div key={i} className={`rounded-xl border p-4 ${sub.active ? 'border-slate-700 bg-[#0a0e1a]' : 'border-red-900/30 bg-red-950/10 opacity-60'}`}>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <code className="text-xs font-mono text-cyan-300">{sub.token}</code>
+                          <button onClick={() => copyToken(sub.token)} className="text-slate-600 hover:text-slate-300"><Copy className="h-3 w-3" /></button>
+                          <Badge className={`text-[10px] ${sub.plan === 'enterprise' ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' : sub.plan === 'pro' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' : 'bg-slate-700 text-slate-400 border-slate-600'}`}>{sub.plan}</Badge>
+                          <Badge className="text-[10px] bg-slate-700 text-slate-400 border-slate-600">{sub.role}</Badge>
+                          {sub.active ? <span className="text-[10px] text-emerald-400">● Active</span> : <span className="text-[10px] text-red-400">● Disabled</span>}
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] text-slate-500 mt-2">
+                          <span>Creat: {new Date(sub.created).toLocaleDateString()}</span>
+                          <span>Expiră: {new Date(sub.expires).toLocaleDateString()}</span>
+                          <span>Requests: {sub.requests_used}/{sub.requests_max === -1 ? '∞' : sub.requests_max}</span>
+                          <span>{sub.active ? '🟢' : '🔴'} {sub.active ? 'Activ' : 'Inactiv'}</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <button onClick={() => toggleActive(sub.token)} className="p-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 text-slate-400 hover:text-white" title={sub.active ? 'Disable' : 'Enable'}>
+                          {sub.active ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
+                        </button>
+                        <button onClick={() => deleteSubscriber(sub.token)} className="p-1.5 rounded-lg border border-red-900/30 hover:bg-red-500/10 text-slate-400 hover:text-red-400" title="Delete">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
 // MAIN PAGE COMPONENT
 // ═══════════════════════════════════════════════
 
@@ -878,7 +1542,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'bot', label: 'Bot Control', icon: Bot },
     { id: 'glm', label: 'GLM Engine', icon: Brain },
+    { id: 'redteam', label: 'Red Team', icon: Shield },
     { id: 'codespace', label: 'Codespace IDE', icon: Terminal },
+    { id: 'subscribers', label: 'Subscribers', icon: Users },
     { id: 'files', label: 'Files', icon: FolderOpen },
     { id: 'deploy', label: 'Deploy', icon: Rocket },
     { id: 'loops', label: 'Loop Problems', icon: Code },
@@ -1821,9 +2487,19 @@ docker compose up -d --build`,
             </div>
           )}
 
+          {/* ═══ RED TEAM TESTING ═══ */}
+          {activeSection === 'redteam' && (
+            <RedTeamPanel addLog={addLog} />
+          )}
+
           {/* ═══ CODESPACE IDE (MANUS-LIKE) ═══ */}
           {activeSection === 'codespace' && (
             <CodespaceIDE addLog={addLog} />
+          )}
+
+          {/* ═══ SUBSCRIBER MANAGEMENT (ADMIN) ═══ */}
+          {activeSection === 'subscribers' && (
+            <SubscriberManager addLog={addLog} />
           )}
 
           {/* ═══ LOGS ═══ */}
