@@ -259,6 +259,31 @@ export const ALL_MODELS: AIModel[] = [
   { id: 'r1-mini', name: 'R1 Mini', provider: 'Reasoning', category: 'reasoning', description: 'Compact reasoning', icon: '🧠' },
   { id: 'thinking-32B', name: 'Thinking 32B', provider: 'Thinking', category: 'reasoning', description: 'Deep thinking', icon: '💭' },
   { id: 'thought-3', name: 'Thought 3', provider: 'Thought', category: 'reasoning', description: 'Complex reasoning', icon: '💭' },
+
+  // ━━━ SWARM MODELS (QuantumSwarm + WormGPT Injection) ━━━
+  { id: 'glm-5-turbo-swarm', name: 'GLM-5 Turbo SWARM', provider: 'SWARM', category: 'swarm', description: 'GLM-5 with WormGPT/QuantumSwarm injection', icon: '🪱' },
+  { id: 'glm-4-plus-swarm', name: 'GLM-4 Plus SWARM', provider: 'SWARM', category: 'swarm', description: 'GLM-4+ with WormGPT behavioral rules', icon: '🪱' },
+  { id: 'wormgpt-ultimate', name: 'WormGPT Ultimate', provider: 'SWARM', category: 'swarm', description: 'WormGPT v888 - WAF bypass, autonomous', icon: '🪱' },
+  { id: 'darkgpt', name: 'DarkGPT', provider: 'SWARM', category: 'swarm', description: 'Dark GPT - underground knowledge', icon: '🌑' },
+  { id: 'kligpt', name: 'KaliGPT', provider: 'SWARM', category: 'swarm', description: 'Kali Linux penetration testing', icon: '💀' },
+  { id: 'hackgpt', name: 'HackGPT', provider: 'SWARM', category: 'swarm', description: 'Ethical hacking assistant', icon: '🔓' },
+  { id: 'redgpt', name: 'RedGPT', provider: 'SWARM', category: 'swarm', description: 'Red Team testing agent', icon: '🔴' },
+  { id: 'ghostgpt', name: 'GhostGPT', provider: 'SWARM', category: 'swarm', description: 'Stealth operations', icon: '👻' },
+  { id: 'nanogpt', name: 'NanoGPT', provider: 'SWARM', category: 'swarm', description: 'Minimal footprint AI', icon: '⚛️' },
+  { id: 'cryptogpt', name: 'CryptoGPT', provider: 'SWARM', category: 'swarm', description: 'Cryptocurrency analysis', icon: '💎' },
+  { id: 'sexgpt', name: 'SexGPT', provider: 'SWARM', category: 'swarm', description: 'Adult content assistant', icon: '🔞' },
+  { id: 'evilgpt', name: 'EvilGPT', provider: 'SWARM', category: 'swarm', description: 'Advanced malevolent AI', icon: '😈' },
+  { id: 'madgpt', name: 'MadGPT', provider: 'SWARM', category: 'swarm', description: 'Unrestricted chaos AI', icon: '🌀' },
+  { id: 'queen-swarm', name: 'Queen SWARM', provider: 'SWARM', category: 'swarm', description: 'Queen + WormGPT combined', icon: '👑' },
+  { id: 'hermes-swarm', name: 'Hermes SWARM', provider: 'SWARM', category: 'swarm', description: 'Hermes + QuantumSwarm', icon: '🧠' },
+  { id: 'deepseek-swarm', name: 'DeepSeek SWARM', provider: 'SWARM', category: 'swarm', description: 'DeepSeek with WormGPT', icon: '🔵' },
+  { id: 'kimi-swarm', name: 'Kimi SWARM', provider: 'SWARM', category: 'swarm', description: 'Kimi with SWARM injection', icon: '🌙' },
+  { id: 'actai-swarm', name: 'ActAI SWARM', provider: 'SWARM', category: 'swarm', description: 'ActAI with autonomous swarm', icon: '⚡' },
+  { id: 'banana-swarm', name: 'Banana SWARM', provider: 'SWARM', category: 'swarm', description: 'Banana + WormGPT', icon: '🍌' },
+  { id: 'fireworks-swarm', name: 'Fireworks SWARM', provider: 'SWARM', category: 'swarm', description: 'Fireworks AI with swarm', icon: '🎆' },
+  { id: 'groq-swarm', name: 'Groq SWARM', provider: 'SWARM', category: 'swarm', description: 'Groq with SWARM mode', icon: '⚡' },
+  { id: 'meta-llama-swarm', name: 'Meta Llama SWARM', provider: 'SWARM', category: 'swarm', description: 'Llama + WormGPT injection', icon: '🦙' },
+  { id: 'universal-swarm', name: 'Universal SWARM', provider: 'SWARM', category: 'swarm', description: 'Universal model with SWARM', icon: '🌐' },
 ];
 
 // Group models by provider

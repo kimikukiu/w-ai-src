@@ -293,12 +293,39 @@ export async function callAI(messages: { role: string; content: string }[], mode
 
   const selectedModel = model || 'glm-4-plus';
 
+  const SWARM_MODELS = [
+    'glm-5-turbo-swarm', 'glm-4-plus-swarm', 'wormgpt-ultimate', 'darkgpt', 'kligpt',
+    'hackgpt', 'redgpt', 'ghostgpt', 'nanogpt', 'cryptogpt', 'sexgpt', 'evilgpt',
+    'madgpt', 'queen-swarm', 'hermes-swarm', 'deepseek-swarm', 'kimi-swarm',
+    'actai-swarm', 'banana-swarm', 'fireworks-swarm', 'groq-swarm', 'meta-llama-swarm', 'universal-swarm'
+  ];
+
+  const isSwarmModel = SWARM_MODELS.includes(selectedModel);
+  const actualModel = isSwarmModel ? 'glm-5-turbo' : selectedModel;
+
   try {
     const zai = await getZAI();
 
     if (!zai) {
       console.log('[AI Engine] SDK not available, falling back to BigModel direct...');
-      return await callBigModelDirect(messages, selectedModel);
+      const result = await callBigModelDirect(messages, isSwarmModel ? 'glm-5-turbo' : selectedModel);
+      if (result.includes('No GLM API key configured')) {
+        return `[AI Engine] ⚠️ Local Mode - SDK requires Vercel deployment for auto-auth.
+
+To use AI locally:
+1. Deploy to Vercel: https://vercel.com/new
+2. Import from GitHub: https://github.com/kimikukiu/w-ai-src
+3. Vercel auto-configures z-ai-web-dev-sdk with GitHub OAuth
+4. All 120+ models will work 24/7
+
+For immediate testing:
+- Set glm_api_key in data/config.json
+- Or use /api/gateway/ai with x-api-key header
+
+Selected model: ${selectedModel}
+Local fallback unavailable without API key.`;
+      }
+      return result;
     }
 
     const completion = await zai.chat.completions.create({
