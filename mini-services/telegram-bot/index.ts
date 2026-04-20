@@ -504,7 +504,7 @@ async function sendLongMsg(chatId: number, text: string) {
 async function sendMenu(chatId: number) {
   const cfg = getConfig();
   const isOwner = String(chatId) === String(cfg.owner_id) || chatId === 8135486660;
-  
+
   const adminSection = isOwner ? `
 <b>━━━ 🔐 ADMIN CPANEL ━━━</b>
 /admin - Meniu Admin
@@ -513,11 +513,11 @@ async function sendMenu(chatId: number) {
 /gen [plan] - Genereaza token
 /revoke [token] - Revoca token
 ` : '';
-  
+
   const menu = {
     chat_id: chatId,
     parse_mode: "HTML" as const,
-    text: `🤖 <b>Agentic Coder — QuantumSwarm 999999999</b>
+    text: `🤖 <b>WHOAMISec AI — QuantumSwarm 999999999</b>
 🧬 WhoamisecDeepMind Cognitive Engine
 🔗 AI API: <b>AUTO 24/7</b>
 
@@ -529,10 +529,12 @@ async function sendMenu(chatId: number) {
 /endpoint - schimba endpoint
 /analyze - analizeaza fisiere
 /code cerinta - genereaza cod
+/opencode cerinta - OpenCode AI Agent
 /agent cerinta - Agentic Coder AI
 /files - listeaza fisiere
 /setrepo URL - seteaza repo
 /deploy - push pe GitHub (auto)
+/expo - proiect Expo
 /clear - reseteaza sesiunea
 
 <b>━━━ CO-PILOT (Agentic Searcher + Deep Thinking) ━━━</b>
@@ -545,11 +547,16 @@ async function sendMenu(chatId: number) {
 /patterns - 6 tipuri de loop
 /spark [lang] - prompt spark
 /loop [lang] - exercitiu loop
+/p1-/p12 - probleme loop
 /tiers - 5 nivele DeepMind
+/curriculum - curriculum complet 20 prompts
+/performance - referinta viteza loops
+/best_practices - bune practici
 
 <b>━━━ TRAINING & RED TEAM ━━━</b>
 /train [tier] - antrenare
 /train_prompt - antrenare neuronala
+/t1-/t5 - prompt rapid per tier
 /redteam - testare RED TEAM
 /redgpt query - Red Team GPT (DarkGPT/HackGPT/WormGPT)
 /deepmind query - WhoamisecDeepMind evolution${adminSection}
@@ -560,13 +567,16 @@ async function sendMenu(chatId: number) {
     reply_markup: {
       keyboard: [
         ['/status', '/models', '/api'],
-        ['/code', '/agent'],
+        ['/code', '/opencode', '/agent'],
         ['/search', '/think', '/copilot'],
         ['/deepmind', '/redgpt', '/redteam'],
-        ['/loop', '/tiers', '/train'],
+        ['/languages', '/patterns', '/spark'],
+        ['/loop', '/tiers', '/curriculum'],
+        ['/train', '/performance', '/best_practices'],
         ['/analyze', '/files'],
         ['/model', '/endpoint'],
-        ...(isOwner ? [['/admin', '/stats']] : []),
+        ['/deploy', '/expo'],
+        ...(isOwner ? [['Admin', '/admin']] : []),
         ['/clear'],
       ],
       resize_keyboard: true,
@@ -1078,6 +1088,25 @@ Repo setat: ${cfg.github_repo || "none"}
       } else {
         await sendMessage({ chat_id: chatId, text: `❌ Problema ${num} nu exista.` });
       }
+      break;
+    }
+
+    // ═══ T1-T5 — Quick Tier Prompts ═══
+    case "/t1": case "/t2": case "/t3": case "/t4": case "/t5": {
+      const tierIdx = parseInt(cmd.replace("/t", "")) - 1;
+      const tier = HERMES_TIERS[tierIdx];
+      if (!tier) { await sendMessage({ chat_id: chatId, text: `❌ Tier ${tierIdx + 1} nu exista.` }); break; }
+      const tp = getRandomPrompt(tierIdx);
+      sessions[chatId] = sessions[chatId] || { history: [], train_prompts: 0 };
+      sessions[chatId].train_prompts = (sessions[chatId].train_prompts || 0) + 1;
+      await sendMessage({ chat_id: chatId, text: `${tier.color} <b>Tier ${tierIdx + 1}: ${tier.name}</b>\n🎯 ${tp?.title || 'Exercitiu'} ⏳` });
+      const tierPromptText = tp?.prompt || `Training tier ${tierIdx + 1}`;
+      const tierInj = buildCodeInjection(tierPromptText, 'copilot');
+      const r = await callAI([
+        { role: 'system', content: `${AGENTIC_CODER_SYSTEM_PROMPT}\n\nHERMES Tier ${tierIdx + 1}: ${tier.name}. Model: ${tier.model}. Focus: ${tier.focus}. Genereaza cod complet.` },
+        { role: 'user', content: tierPromptText + tierInj },
+      ], cm);
+      await sendLongMsg(chatId, `${tier.color} <b>T${tierIdx + 1}: ${tier.name}</b> — ${tp?.title}\n\n${r}`);
       break;
     }
 
