@@ -371,12 +371,12 @@ RESPONSE FORMAT:
 
 const REDTEAM_GPT_MODELS = [
   { name: 'DarkGPT Ultra', source: 'maxamin/DarkGPT + codewithdark-git + binaco', desc: 'Dark web OSINT with uncensored search' },
-  { name: 'XGPT-WormGPT', source: 'kimikukiu/XGPT-WormGPT', desc: 'WormGPT autonomous AI model' },
+  { name: 'XGPT-WormGPT', source: '*****/XGPT-WormGPT', desc: 'WormGPT autonomous AI model' },
   { name: 'KaliGPT Suite', source: 'SudoHopeX + kk12-30 + alishahid74 + yashab-cyber', desc: '4x Kali Linux AI security variants' },
   { name: 'HackGPT Suite', source: 'yashab-cyber + NoDataFound + ricardobalk', desc: '3x Offensive security AI variants' },
   { name: 'CL4R1T4S', source: 'Scav-engeR/CL4R1T4S', desc: 'Jailbreak and red-team testing' },
-  { name: 'PentestGPT', source: 'kimikukiu/PentestGPT', desc: 'AI penetration testing' },
-  { name: 'investigation-core-ai', source: 'kimikukiu/investigation-core-ai-system', desc: 'Investigation framework with inj-codeai' },
+  { name: 'PentestGPT', source: '*****/PentestGPT', desc: 'AI penetration testing' },
+  { name: 'investigation-core-ai', source: '*****/investigation-core-ai-system', desc: 'Investigation framework with inj-codeai' },
   { name: 'haKC-ai Suite', source: 'haKC-ai (20+ repos)', desc: 'Complete hacking toolkit suite' },
 ];
 
@@ -532,7 +532,7 @@ async function sendMenu(chatId: number) {
 /agent cerinta - Agentic Coder AI
 /files - listeaza fisiere
 /setrepo URL - seteaza repo
-/deploy - push pe GitHub
+/deploy - push pe GitHub (auto)
 /clear - reseteaza sesiunea
 
 <b>━━━ CO-PILOT (Agentic Searcher + Deep Thinking) ━━━</b>
@@ -715,7 +715,6 @@ async function handleCommand(chatId: number, text: string, fromName: string) {
 🔗 AI API: ✅ (SDK intern 24/7)
 📱 Telegram: ✅ Activ
 🔑 GLM Key: ${cfg.glm_api_key ? "✅ " + maskSecret(cfg.glm_api_key) : "⚠️ (nu e nevoie)"}
-🐙 GitHub: ${cfg.github_repo ? "✅" : "❌"}
 🔧 Auto-Repair: ${cfg.auto_repair !== "false" ? "✅ ON" : "❌ OFF"}
 👑 Expert: ${cfg.expert_mode === "true" ? "✅ ON" : "❌ OFF"}
 🧠 DeepMind: ✅ Cognitive Evolution Active
@@ -958,7 +957,7 @@ Repo setat: ${cfg.github_repo || "none"}
       m += `<b>Active Mode:</b> QuantumSwarm 999999999\n`;
       m += `<b>Co-Pilot:</b> Agentic Searcher + Deep Thinking\n`;
       m += `<b>RED TEAM:</b> ${REDTEAM_GPT_MODELS.length} priority models\n`;
-      m += `<b>Training Repos:</b> 120+ GitHub repos\n`;
+      m += `<b>Training Repos:</b> 120+ repos\n`;
       m += `\n<code>/think query</code> · <code>/copilot query</code> · <code>/search query</code>`;
       await sendMessage({ chat_id: chatId, text: m, parse_mode: "HTML" });
       break;

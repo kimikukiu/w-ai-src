@@ -3773,11 +3773,11 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {[
                       { name: 'DarkGPT Ultra', source: 'maxamin + codewithdark-git + binaco', icon: '🌑' },
-                      { name: 'XGPT-WormGPT', source: 'kimikukiu/XGPT-WormGPT', icon: '🪱' },
+                      { name: 'XGPT-WormGPT', source: '*****/XGPT-WormGPT', icon: '🪱' },
                       { name: 'KaliGPT Suite', source: '4 variants', icon: '🐍' },
                       { name: 'HackGPT Suite', source: '3 variants', icon: '💀' },
-                      { name: 'CL4R1T4S + PentestGPT', source: 'Scav-engeR + kimikukiu', icon: '🔓' },
-                      { name: 'investigation-core-ai', source: 'kimikukiu/investigation-core-ai', icon: '🔍' },
+                      { name: 'CL4R1T4S + PentestGPT', source: 'Scav-engeR + *****', icon: '🔓' },
+                      { name: 'investigation-core-ai', source: '*****/investigation-core-ai', icon: '🔍' },
                       { name: 'haKC-ai Suite', source: '20+ repos', icon: '🧠' },
                       { name: 'BruteForceAI + RedOps', source: 'Scav-engeR', icon: '🔨' },
                     ].map((model, i) => (
