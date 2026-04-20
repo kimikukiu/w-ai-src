@@ -2030,6 +2030,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
   // ─── PARALLEL SWARM STATE ───
   const [swarmMode, setSwarmMode] = useState(false);
+  const [swarmParallel, setSwarmParallel] = useState(true); // true = parallel, false = sequential
   const [swarmResponses, setSwarmResponses] = useState<Record<string, { label: string; icon: string; color: string; text: string; status: 'pending' | 'thinking' | 'done'; ms: number; firstTokenMs: number }>>({
     builder: { label: 'BUILDER THINKING', icon: '⚡', color: 'text-yellow-400', text: '', status: 'pending', ms: 0, firstTokenMs: 0 },
     searcher: { label: 'AGENTIC SEARCH', icon: '🌐', color: 'text-blue-400', text: '', status: 'pending', ms: 0, firstTokenMs: 0 },
@@ -2061,7 +2062,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       const response = await fetch('/api/chat/swarm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: msg, model: glmModel }),
+        body: JSON.stringify({ prompt: msg, model: glmModel, parallel: swarmParallel }),
       });
 
       const reader = response.body?.getReader();
@@ -3259,6 +3260,17 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   <Brain className="h-4 w-4 text-pink-400" />
                   {/* Co-Pilot Mode Selector — ALL permanently active for max performance */}
                   <div className="hidden sm:flex items-center gap-1 ml-2">
+                    <button
+                      onClick={() => setSwarmParallel(p => !p)}
+                      className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
+                        swarmParallel
+                          ? 'bg-yellow-500/20 border-yellow-400/50 text-yellow-400'
+                          : 'bg-purple-500/20 border-purple-400/50 text-purple-400'
+                      }`}
+                      title={swarmParallel ? 'PARALLEL: all 5 agents at once' : 'SEQUENTIAL: one agent after another'}
+                    >
+                      {swarmParallel ? '⚡ PARA' : '🔁 SEQ'}
+                    </button>
                     <button
                       onClick={() => swarmMode ? sendCoPilotGLM() : sendSwarmGLM()}
                       className={`px-3 py-1.5 rounded text-[11px] font-black uppercase tracking-wider transition-all border ${
