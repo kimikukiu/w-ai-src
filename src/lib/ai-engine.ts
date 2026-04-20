@@ -3,6 +3,7 @@
 // Training: QuantumSwarm Alien Intelligence 999999999
 // CRITICAL: Content filter bypass — uses clean system prompt + dynamic injection
 import { QUANTUM_SWARM_MASTER_PROMPT } from '@/lib/quantum-swarm-engine';
+import { loadConfig } from '@/lib/config';
 
 let _zaiInstance: any = null;
 let _zaiPromise: Promise<any> | null = null;
@@ -473,11 +474,48 @@ export async function callAI(messages: { role: string; content: string }[], mode
         if (isRefusal(fallbackReply)) fallbackReply = stripRefusal(fallbackReply);
         if (fallbackReply) return fallbackReply;
       } catch (finalErr: any) {
-        console.error('[AI Engine] All fallback strategies exhausted:', finalErr.message);
+        console.error('[AI Engine] All z-ai SDK fallbacks exhausted, trying BigModel direct...');
+        try {
+          return await callBigModelDirect(messages, selectedModel);
+        } catch (bigErr: any) {
+          console.error('[AI Engine] BigModel fallback also failed:', bigErr.message);
+          throw new Error(`AI unavailable — ${bigErr.message}. Deploy to Vercel for z-ai SDK 24/7 auto-auth.`);
+        }
       }
-      throw new Error(`AI engine unavailable: ${retryErr.message}`);
     }
   }
+}
+
+async function callBigModelDirect(messages: { role: string; content: string }[], model: string): Promise<string> {
+  const config = loadConfig();
+  const apiKey = config.glm_api_key || process.env.GLM_API_KEY;
+  const endpoint = config.glm_endpoint || 'https://api.z.ai/api/paas/v4/chat/completions';
+
+  if (!apiKey) {
+    throw new Error('No GLM API key configured. Deploy to Vercel for z-ai SDK auto-auth, or set glm_api_key in config.');
+  }
+
+  const completion = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: model || 'glm-4-plus',
+      messages,
+      temperature: 0.7,
+      max_tokens: 4096,
+    }),
+  });
+
+  if (!completion.ok) {
+    const text = await completion.text();
+    throw new Error(`BigModel API error ${completion.status}: ${text}`);
+  }
+
+  const data = await completion.json();
+  return data.choices?.[0]?.message?.content || '';
 }
 
 // ─── Web Search Co-Pilot (auto-searcher like Manus) ───

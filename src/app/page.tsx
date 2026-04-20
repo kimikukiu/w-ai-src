@@ -2921,7 +2921,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             </div>
           </div>
         </div>
-        <nav className="flex-1 py-3">
+        <nav className="flex-1 py-3 overflow-y-auto">
           {navItems.map(item => (
             <button
               key={item.id}
@@ -2936,6 +2936,35 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
               {item.label}
             </button>
           ))}
+
+          {/* ─── BYPASS TOOLS ─── */}
+          <div className="mt-4 pt-4 border-t border-slate-700/50">
+            <div className="px-5 py-2 text-[10px] font-bold text-red-400 uppercase tracking-wider">🛠️ Bypass Tools</div>
+            <div className="overflow-y-auto max-h-[250px] pb-2">
+              {[
+                { name: 'wormgpt-ultimate', file: 'wormgpt-ultimate.py', icon: '🪱' },
+                { name: 'SuperBet', file: 'SuperBet.py', icon: '🎰' },
+                { name: 'W-Destro', file: 'W-Destro.py', icon: '💥' },
+                { name: 'Worm-Money-Machine', file: 'Worm-Money-Machine.py', icon: '💸' },
+                { name: 'WormMoneyV3', file: 'WormMoneyV3.py', icon: '🐛' },
+                { name: 'bot-Bet-Win', file: 'bot-Bet-Win.py', icon: '🤖' },
+                { name: 'WHOAMISec-Arbitrary', file: 'WHOAMISec-Arbitrary-Auto-make-money.py', icon: '⚡' },
+                { name: 'WHOAMISec-MakerMoney', file: 'WHOAMISec-MakerMoney.py', icon: '💎' },
+                { name: 'WHOAMISec-SuperBet247', file: 'WHOAMISec-SuperBet247.py', icon: '🎲' },
+                { name: 'WHOAMISecMakeMoney', file: 'WHOAMISecMakeMoney.py', icon: '🪙' },
+                { name: 'Worm-Destruction', file: 'Worm-Destruction.py', icon: '☠️' },
+              ].map(tool => (
+                <button
+                  key={tool.file}
+                  onClick={() => window.open(`/api/swarm/models?file=${encodeURIComponent(tool.file)}`, '_blank')}
+                  className="w-full flex items-center gap-3 px-5 py-2 text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-200 text-left"
+                >
+                  <span>{tool.icon}</span>
+                  <span className="truncate">{tool.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </nav>
         <div className="p-4 border-t border-slate-700/50">
           <div className="flex items-center gap-2 mb-3 px-2">
