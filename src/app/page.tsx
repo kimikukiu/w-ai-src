@@ -1456,11 +1456,13 @@ function CodespaceIDE({ addLog }: { addLog: (type: LogEntry['type'], msg: string
                 { name: 'WHOAMISec-SuperBet247', file: 'WHOAMISec-SuperBet247.py', icon: '🎲', color: 'text-pink-400' },
                 { name: 'WHOAMISecMakeMoney', file: 'WHOAMISecMakeMoney.py', icon: '🪙', color: 'text-amber-400' },
                 { name: 'Worm-Destruction', file: 'Worm-Destruction.py', icon: '☠️', color: 'text-red-500' },
-                { name: 'Network.rip', file: 'Network.rip.rar', icon: '🌐', color: 'text-slate-400' },
+                { name: 'Agent-tool2.zip', file: 'Agent-tool2.zip', icon: '📦', color: 'text-violet-400' },
+                { name: 'byp-all.zip', file: 'byp-all.zip', icon: '🗜️', color: 'text-teal-400' },
+                { name: 'Webstresser.cc.zip', file: 'Webstresser.cc.zip', icon: '🌐', color: 'text-sky-400' },
               ].map(tool => (
                 <button
                   key={tool.file}
-                  onClick={() => window.open(`/api/swarm/tools?file=${encodeURIComponent(tool.file)}`, '_blank')}
+                  onClick={() => window.open(`/api/swarm/models?file=${encodeURIComponent(tool.file)}`, '_blank')}
                   className={`w-full text-left px-3 py-1.5 rounded-lg text-[11px] flex items-center gap-2 transition-all text-slate-400 hover:bg-slate-800 ${tool.color}`}
                 >
                   <span>{tool.icon}</span>
