@@ -4,6 +4,29 @@
 // CRITICAL: Content filter bypass — uses clean system prompt + dynamic injection
 import { QUANTUM_SWARM_MASTER_PROMPT } from '@/lib/quantum-swarm-engine';
 import { loadConfig } from '@/lib/config';
+import { existsSync, mkdirSync } from 'fs';
+import { join } from 'path';
+
+const VERCEL_DATA_PATH = '/var/task/data';
+const LOCAL_DATA_PATH = join(process.cwd(), 'data');
+function ensureDataPath(): string {
+  const path = VERCEL_DATA_PATH;
+  try {
+    if (!existsSync(path)) {
+      mkdirSync(path, { recursive: true });
+    }
+  } catch {
+    try {
+      if (!existsSync(LOCAL_DATA_PATH)) {
+        mkdirSync(LOCAL_DATA_PATH, { recursive: true });
+      }
+      return LOCAL_DATA_PATH;
+    } catch {
+      return path;
+    }
+  }
+  return path;
+}
 
 let _zaiInstance: any = null;
 let _zaiPromise: Promise<any> | null = null;
@@ -17,15 +40,17 @@ async function getZAI(): Promise<any> {
   if (_zaiPromise) return _zaiPromise;
   _zaiPromise = (async () => {
     try {
+      ensureVercelDataPath();
       const mod = await import('z-ai-web-dev-sdk');
       const ZAI = (mod as any).default || (mod as any).ZAI || mod;
       _zaiInstance = await ZAI.create();
       _reconnectAttempts = 0;
       startKeepalive(_zaiInstance);
       return _zaiInstance;
-    } catch (e: any) {
+    } catch (initErr: any) {
+      console.warn('[AI Engine] z-ai SDK init failed (likely local dev):', initErr.message);
       _zaiPromise = null;
-      throw new Error(`Failed to initialize AI SDK: ${e.message}`);
+      return null;
     }
   })();
   return _zaiPromise;

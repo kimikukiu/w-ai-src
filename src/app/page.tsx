@@ -75,6 +75,7 @@ const SUBSCRIPTION_PLANS = [
     id: 'free',
     name: 'Free Demo',
     price: '0',
+    yearlyPrice: '0',
     currency: 'EUR',
     period: '1 oră',
     requests: 10,
@@ -88,6 +89,7 @@ const SUBSCRIPTION_PLANS = [
     id: 'pro',
     name: 'Pro',
     price: '25',
+    yearlyPrice: '20',
     currency: 'EUR',
     period: 'lună',
     requests: 500,
@@ -101,6 +103,7 @@ const SUBSCRIPTION_PLANS = [
     id: 'enterprise',
     name: 'Enterprise',
     price: '75',
+    yearlyPrice: '60',
     currency: 'EUR',
     period: 'lună',
     requests: -1,
@@ -292,6 +295,7 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
   const [paymentResult, setPaymentResult] = useState<{ success: boolean; message: string } | null>(null);
   const [tokenGenerating, setTokenGenerating] = useState(false);
   const [generatedToken, setGeneratedToken] = useState('');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -1437,10 +1441,10 @@ function CodespaceIDE({ addLog }: { addLog: (type: LogEntry['type'], msg: string
             ))}
           </div>
 
-          {/* ─── BYPASS TOOLS ─── */}
+          {/* ─── Tools ─── */}
           <div className="border-t border-slate-800">
             <div className="p-3 border-b border-slate-800 flex items-center justify-between">
-              <span className="text-xs font-bold text-red-400">🛠️ BYPASS TOOLS</span>
+              <span className="text-xs font-bold text-cyan-400">🛠️ Tools</span>
               <button onClick={() => window.open('/api/swarm/models?tools=true', '_blank')} className="text-slate-500 hover:text-red-400 text-lg leading-none" title="Open all tools">↗</button>
             </div>
             <div className="overflow-y-auto max-h-[200px] p-2 space-y-1">
@@ -2937,9 +2941,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             </button>
           ))}
 
-          {/* ─── BYPASS TOOLS ─── */}
+          {/* ─── Tools ─── */}
           <div className="mt-4 pt-4 border-t border-slate-700/50">
-            <div className="px-5 py-2 text-[10px] font-bold text-red-400 uppercase tracking-wider">🛠️ Bypass Tools</div>
+            <div className="px-5 py-2 text-[10px] font-bold text-cyan-400 uppercase tracking-wider">🛠️ Tools</div>
             <div className="overflow-y-auto max-h-[250px] pb-2">
               {[
                 { name: 'wormgpt-ultimate', file: 'wormgpt-ultimate.py', icon: '🪱' },
@@ -4719,9 +4723,25 @@ docker compose up -d --build`,
                   <CardTitle className="text-base">💎 Subscription Plans</CardTitle>
                   <CardDescription className="text-slate-500 text-xs">Plată în XMR sau USDT(TON) · Contact: t.me/loghandelbot</CardDescription>
                 </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className={`text-xs font-bold ${billingCycle === 'monthly' ? 'text-cyan-400' : 'text-slate-500'}`}>Monthly</span>
+                    <button
+                      onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
+                      className={`w-12 h-6 rounded-full transition-all relative ${billingCycle === 'yearly' ? 'bg-fuchsia-500' : 'bg-slate-700'}`}
+                    >
+                      <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${billingCycle === 'yearly' ? 'left-7' : 'left-1'}`} />
+                    </button>
+                    <span className={`text-xs font-bold ${billingCycle === 'yearly' ? 'text-fuchsia-400' : 'text-slate-500'}`}>Yearly <span className="text-[10px] text-emerald-400 ml-1">-20%</span></span>
+                  </div>
+                </CardContent>
               </Card>
               <div className="grid md:grid-cols-3 gap-5">
-                {SUBSCRIPTION_PLANS.map(plan => (
+                {SUBSCRIPTION_PLANS.map(plan => {
+                  const isYearly = billingCycle === 'yearly';
+                  const displayPrice = isYearly && plan.yearlyPrice ? plan.yearlyPrice : plan.price;
+                  const period = isYearly ? 'year' : plan.period;
+                  return (
                   <div key={plan.id} className={`relative rounded-2xl bg-gradient-to-b ${plan.color} p-[1px] ${plan.popular ? 'md:-mt-4 md:mb-[-16px] scale-105 z-10' : ''}`}>
                     {plan.badge && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-[10px] font-bold">
@@ -4731,11 +4751,14 @@ docker compose up -d --build`,
                     <div className="rounded-2xl bg-[#111827] p-5 h-full">
                       <h4 className="text-lg font-bold mb-1">{plan.name}</h4>
                       <div className="flex items-baseline gap-1 mb-3">
-                        <span className="text-2xl font-extrabold">{plan.price === '0' ? 'GRATIS' : `${plan.price}`}</span>
-                        {plan.price !== '0' && <span className="text-slate-500 text-xs">{plan.currency}/{plan.period}</span>}
+                        <span className="text-2xl font-extrabold">{displayPrice === '0' ? 'GRATIS' : `${displayPrice}`}</span>
+                        {displayPrice !== '0' && <span className="text-slate-500 text-xs">{plan.currency}/{period}</span>}
                       </div>
+                      {isYearly && plan.yearlyPrice && (
+                        <div className="text-[10px] text-emerald-400 mb-2">Save {Math.round((1 - parseFloat(plan.yearlyPrice) / parseFloat(plan.price)) * 100)}% yearly</div>
+                      )}
                       <div className="text-xs text-slate-400 mb-3">
-                        {plan.requests === -1 ? '∞ Requesturi' : `${plan.requests} requesturi`} · {plan.models.length} modele
+                        {plan.requests === -1 ? '∞ Requesturi' : `${isYearly ? (plan.requests * 12) : plan.requests} requesturi`} · {plan.models.length} modele
                       </div>
                       <ul className="space-y-2 mb-5">
                         {plan.features.map((f, i) => (
@@ -4757,7 +4780,8 @@ docker compose up -d --build`,
                       </button>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
               <Card className="bg-[#111827] border-slate-700/50">
                 <CardContent className="p-5">
