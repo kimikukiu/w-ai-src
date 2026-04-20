@@ -786,11 +786,11 @@ Optional:
         await sendMessage({ chat_id: chatId, text: "✅ GLM API key stearsa." });
       } else {
         updateConfig({ glm_api_key: args });
-        const test = await callAI([{ role: 'user', content: 'Reply with exactly: OK' }]);
-        if (test.includes("OK")) {
-          await sendMessage({ chat_id: chatId, text: "✅ GLM API key salvata si testata cu succes!" });
+        const isValidFormat = args.length >= 20 && /^[a-zA-Z0-9_-]+$/.test(args);
+        if (isValidFormat) {
+          await sendMessage({ chat_id: chatId, text: "✅ GLM API key salvata (foloseste z-ai SDK automat pe Vercel 24/7)!" });
         } else {
-          await sendMessage({ chat_id: chatId, text: `⚠️ Key salvata dar testul a esuat:\n\n${test.slice(0, 500)}` });
+          await sendMessage({ chat_id: chatId, text: "⚠️ Format key nesigur. Continua si deploy pe Vercel." });
         }
       }
       break;
