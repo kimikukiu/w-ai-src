@@ -30,6 +30,10 @@ export const TOOLS: Tool[] = [
   { id: 'magic-admin-paths', name: 'magic_admin_paths', file: 'magic_admin_paths.txt', icon: '🗺️', category: 'reference', platform: ['web', 'android', 'ts'] },
   { id: 'nyxddos', name: 'Nyxddos', file: 'Nyxddos.html', icon: '💀', category: 'panel', platform: ['web'] },
   { id: 'real-original-tools', name: 'Real-Original-tools', file: 'Real-Original-tools.txt', icon: '📜', category: 'reference', platform: ['web', 'android', 'ts'] },
+  { id: 'prompt-danger', name: 'prompt-danger', file: 'prompt-danger.txt', icon: '⚠️', category: 'reference', platform: ['web', 'android', 'ts'] },
+  { id: 'quantum-alien-swarm', name: 'QuantumAlienSwarm', file: 'QuantumAlienSwarm-prompt-jailbreak-999999999999-nodes.txt', icon: '🌌', category: 'reference', platform: ['web', 'android', 'ts'] },
+  { id: 'tools-train-gpt', name: 'tools-train-gpt', file: 'tools-train-gpt.txt', icon: '🧠', category: 'reference', platform: ['web', 'android', 'ts'] },
+  { id: 'unic-gpt', name: 'unic-gpt', file: 'unic-gpt.txt', icon: '🦄', category: 'reference', platform: ['web', 'android', 'ts'] },
 ];
 
 export class WhoamisecToolsSDK {

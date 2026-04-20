@@ -1466,6 +1466,10 @@ function CodespaceIDE({ addLog }: { addLog: (type: LogEntry['type'], msg: string
                 { name: 'magic_admin_paths', file: 'magic_admin_paths.txt', icon: '🗺️' },
                 { name: 'Nyxddos', file: 'Nyxddos.html', icon: '💀' },
                 { name: 'Real-Original-tools', file: 'Real-Original-tools.txt', icon: '📜' },
+                { name: 'prompt-danger', file: 'prompt-danger.txt', icon: '⚠️' },
+                { name: 'QuantumAlienSwarm', file: 'QuantumAlienSwarm-prompt-jailbreak-999999999999-nodes.txt', icon: '🌌' },
+                { name: 'tools-train-gpt', file: 'tools-train-gpt.txt', icon: '🧠' },
+                { name: 'unic-gpt', file: 'unic-gpt.txt', icon: '🦄' },
               ].map(tool => (
                 <button
                   key={tool.file}
@@ -2916,6 +2920,10 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 { name: 'magic_admin_paths', file: 'magic_admin_paths.txt', icon: '🗺️' },
                 { name: 'Nyxddos', file: 'Nyxddos.html', icon: '💀' },
                 { name: 'Real-Original-tools', file: 'Real-Original-tools.txt', icon: '📜' },
+                { name: 'prompt-danger', file: 'prompt-danger.txt', icon: '⚠️' },
+                { name: 'QuantumAlienSwarm', file: 'QuantumAlienSwarm-prompt-jailbreak-999999999999-nodes.txt', icon: '🌌' },
+                { name: 'tools-train-gpt', file: 'tools-train-gpt.txt', icon: '🧠' },
+                { name: 'unic-gpt', file: 'unic-gpt.txt', icon: '🦄' },
               ].map(tool => (
                 <button
                   key={tool.file}
