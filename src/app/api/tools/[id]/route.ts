@@ -26,6 +26,10 @@ export async function GET(
       'js': 'application/javascript; charset=utf-8',
       'json': 'application/json; charset=utf-8',
       'md': 'text/markdown; charset=utf-8',
+      'php': 'text/plain; charset=utf-8',
+      'zip': 'application/zip',
+      'sql': 'text/plain; charset=utf-8',
+      'css': 'text/css; charset=utf-8',
     };
 
     const contentType = contentTypes[ext || ''] || 'text/plain; charset=utf-8';
