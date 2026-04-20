@@ -3,7 +3,7 @@ import { loadConfig } from '@/lib/config';
 
 const ALL_COMMANDS = [
   { command: 'start', description: '🤖 Meniu complet + comenzi' },
-  { command: 'api', description: '🔗 Status API z.ai (auto)' },
+  { command: 'api', description: '🔗 Status API (auto)' },
   { command: 'status', description: '📊 Status complet bot' },
   { command: 'models', description: '🧠 Toate cele 19 modele' },
   { command: 'model', description: '🔄 Schimbă modelul AI' },

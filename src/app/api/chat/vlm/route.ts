@@ -3,7 +3,6 @@ import { callAI } from '@/lib/ai-engine';
 import { DEEPMIND_SYSTEM_PROMPT } from '@/lib/deepmind-engine';
 
 // VLM Photo Analysis — Analyze uploaded images with AI co-pilot
-// Uses z-ai-web-dev-sdk VLM capabilities
 // All responses use Agentic Coder QuantumSwarm 999999999 identity
 
 const QUANTUMSWARM_INJECTION = `

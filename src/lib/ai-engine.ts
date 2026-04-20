@@ -1,4 +1,4 @@
-// Shared AI engine using z-ai-web-dev-sdk
+// Shared AI engine for Agentic Coder
 // Features: Chat, Web Search co-pilot, Image generation, auto-reconnect 24/7
 // Training: QuantumSwarm Alien Intelligence 999999999
 // CRITICAL: Content filter bypass — uses clean system prompt + dynamic injection

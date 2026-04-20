@@ -2027,6 +2027,92 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   };
   // Computed: primary mode for API routing (always full_copilot since all active)
   const copilotMode = 'full_copilot' as const;
+
+  // ─── PARALLEL SWARM STATE ───
+  const [swarmMode, setSwarmMode] = useState(false);
+  const [swarmResponses, setSwarmResponses] = useState<Record<string, { label: string; icon: string; color: string; text: string; status: 'pending' | 'thinking' | 'done'; ms: number; firstTokenMs: number }>>({
+    builder: { label: 'BUILDER THINKING', icon: '⚡', color: 'text-yellow-400', text: '', status: 'pending', ms: 0, firstTokenMs: 0 },
+    searcher: { label: 'AGENTIC SEARCH', icon: '🌐', color: 'text-blue-400', text: '', status: 'pending', ms: 0, firstTokenMs: 0 },
+    thinker: { label: 'DEEP THINKING', icon: '💭', color: 'text-purple-400', text: '', status: 'pending', ms: 0, firstTokenMs: 0 },
+    deepmind: { label: 'DEEPMIND COGNITIVE', icon: '🧬', color: 'text-fuchsia-400', text: '', status: 'pending', ms: 0, firstTokenMs: 0 },
+    redteam: { label: 'RED TEAM', icon: '🛡️', color: 'text-red-400', text: '', status: 'pending', ms: 0, firstTokenMs: 0 },
+  });
+  const [swarmPrompt, setSwarmPrompt] = useState('');
+
+  const sendSwarmGLM = async () => {
+    const input = document.getElementById('glmInput') as HTMLInputElement;
+    const msg = input?.value?.trim();
+    if (!msg) return;
+    if (input) input.value = '';
+    setSwarmPrompt(msg);
+    setGlmMessages(prev => [...prev, { role: 'user', content: msg }]);
+
+    const initStates = { builder: 'pending', searcher: 'pending', thinker: 'pending', deepmind: 'pending', redteam: 'pending' };
+    setSwarmResponses(prev => Object.fromEntries(Object.keys(prev).map(k => [k, { ...prev[k], text: '', status: 'pending', ms: 0, firstTokenMs: 0 }])));
+    setShowTerminal(true);
+    setTerminalLines([`$ SWARM MODE — 5 agents parallel`, `$ Prompt: "${msg.slice(0, 80)}${msg.length > 80 ? '...' : ''}"`, ``]);
+    setGlmLoading(true);
+    setSwarmMode(true);
+
+    const startTime = Date.now();
+    let receivedFirst = false;
+
+    try {
+      const response = await fetch('/api/chat/swarm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: msg, model: glmModel }),
+      });
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      if (!reader) throw new Error('No reader available');
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const event = JSON.parse(line.slice(6));
+            if (event.type === 'agent_start') {
+              setSwarmResponses(prev => ({ ...prev, [event.agentId]: { ...prev[event.agentId], status: 'thinking' } }));
+              setTerminalLines(prev => [...prev, `[${event.agentId.toUpperCase()}] ⚡ Thinking...`]);
+            } else if (event.type === 'agent_token') {
+              if (!receivedFirst) {
+                receivedFirst = true;
+                const firstMs = Date.now() - startTime;
+                setTerminalLines(prev => [...prev, `[${event.agentId.toUpperCase()}] ⚡ First token: ${firstMs}ms — SPEED OF LIGHT 🚀`]);
+              }
+            } else if (event.type === 'agent_response') {
+              setSwarmResponses(prev => ({ ...prev, [event.agentId]: { ...prev[event.agentId], text: event.response, status: 'done', ms: event.totalMs } }));
+              setTerminalLines(prev => [...prev, `[${event.agentId.toUpperCase()}] ✅ Done in ${event.totalMs}ms`]);
+            } else if (event.type === 'agent_error') {
+              setSwarmResponses(prev => ({ ...prev, [event.agentId]: { ...prev[event.agentId], text: `[ERROR: ${event.error}]`, status: 'done', ms: 0 } }));
+              setTerminalLines(prev => [...prev, `[${event.agentId.toUpperCase()}] ❌ Error: ${event.error}`]);
+            } else if (event.type === 'complete') {
+              setGlmLoading(false);
+              const allResponses = Object.values(swarmResponses).map(r => r.text).filter(Boolean);
+              const summary = `[⚡ SWARM COMPLETE — All 5 agents responded in parallel]\n\n${Object.entries(swarmResponses).map(([k, r]) => `[${r.label}] ${r.icon}\n${r.text || 'Pending...'}`).join('\n\n')}`;
+              setGlmMessages(prev => [...prev, { role: 'assistant', content: summary }]);
+              setTerminalLines(prev => [...prev, ``, `=== SWARM COMPLETE in ${Date.now() - startTime}ms ===`]);
+              addLog('ok', `Swarm: all 5 agents done in ${Date.now() - startTime}ms`);
+            }
+          } catch {}
+        }
+      }
+    } catch (e: any) {
+      setGlmLoading(false);
+      setGlmMessages(prev => [...prev, { role: 'assistant', content: `[SWARM ERROR: ${e.message}]` }]);
+      addLog('err', `Swarm error: ${e.message}`);
+    }
+    setSwarmMode(false);
+  };
   const [attachedFiles, setAttachedFiles] = useState<{ name: string; size: number; type: string; path: string; contentPreview: string | null }[]>([]);
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const [showTerminal, setShowTerminal] = useState(false);
@@ -3173,6 +3259,17 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   <Brain className="h-4 w-4 text-pink-400" />
                   {/* Co-Pilot Mode Selector — ALL permanently active for max performance */}
                   <div className="hidden sm:flex items-center gap-1 ml-2">
+                    <button
+                      onClick={() => swarmMode ? sendCoPilotGLM() : sendSwarmGLM()}
+                      className={`px-3 py-1.5 rounded text-[11px] font-black uppercase tracking-wider transition-all border ${
+                        swarmMode
+                          ? 'bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 border-yellow-400/50 text-white shadow-lg shadow-orange-500/40 animate-pulse'
+                          : 'bg-red-600/50 border-red-500/50 text-white hover:bg-red-500/60'
+                      }`}
+                      title={swarmMode ? 'SWARM: 5 agents parallel — click to activate' : 'Click to activate SWARM MODE: 5 AI agents respond simultaneously'}
+                    >
+                      {swarmMode ? '⚡ SWARM ON 🚀' : '🚀 SWARM'}
+                    </button>
                     {([
                       { id: 'full_copilot', label: 'Co-Pilot', icon: '🤖' },
                       { id: 'terminal_execute', label: 'Terminal', icon: '⚡' },
@@ -3341,6 +3438,62 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     <div ref={glmEndRef} />
                   </div>
                 </ScrollArea>
+
+                {/* ─── PARALLEL SWARM PANEL — 5 agents simultaneous ─── */}
+                {swarmMode && (
+                  <div className="border-t border-red-500/20 bg-gradient-to-b from-[#1a0a0a] to-[#0d0505]">
+                    <div className="px-3 py-2 border-b border-red-500/20 flex items-center gap-2">
+                      <span className="text-red-400 text-xs font-black animate-pulse">⚡</span>
+                      <span className="text-red-400 text-[11px] font-black tracking-wider uppercase">PARALLEL SWARM — 5 AGENTS ACTIVE</span>
+                      <span className="ml-auto text-[9px] text-slate-500 font-mono">{swarmPrompt.slice(0, 40)}{swarmPrompt.length > 40 ? '...' : ''}</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 p-2 max-h-64 overflow-y-auto">
+                      {Object.entries(swarmResponses).map(([key, agent]) => (
+                        <div
+                          key={key}
+                          className={`rounded-lg border overflow-hidden ${
+                            agent.status === 'done'
+                              ? 'border-green-500/30 bg-[#0a1510]'
+                              : agent.status === 'thinking'
+                                ? 'border-yellow-500/30 bg-[#15100a]'
+                                : 'border-slate-700/30 bg-[#0a0a10]'
+                          }`}
+                        >
+                          <div className={`px-2 py-1.5 border-b border-white/5 flex items-center gap-1.5 ${agent.color}`}>
+                            <span className="text-xs">{agent.icon}</span>
+                            <span className="text-[10px] font-black tracking-wider uppercase truncate">{agent.label}</span>
+                            {agent.status === 'thinking' && <span className="ml-auto text-[9px] text-yellow-400 animate-pulse">⚡</span>}
+                            {agent.status === 'done' && <span className="ml-auto text-[9px] text-green-400">✓</span>}
+                            {agent.status === 'pending' && <span className="ml-auto text-[9px] text-slate-600">○</span>}
+                          </div>
+                          <div className="p-2 max-h-36 overflow-y-auto">
+                            {agent.status === 'pending' && <div className="text-[9px] text-slate-600 italic">Initializing...</div>}
+                            {agent.status === 'thinking' && (
+                              <div className="space-y-1">
+                                <div className="flex gap-0.5">
+                                  {[...Array(3)].map((_, i) => (
+                                    <span key={i} className="w-1 h-2 rounded-full animate-pulse" style={{ background: agent.color, animationDelay: `${i * 100}ms` }} />
+                                  ))}
+                                </div>
+                                <div className="text-[9px] text-slate-500 font-mono">{agent.ms > 0 ? `${agent.ms}ms` : 'thinking...'}</div>
+                              </div>
+                            )}
+                            {agent.status === 'done' && (
+                              <div className="text-[10px] text-slate-300 leading-relaxed whitespace-pre-wrap break-words line-clamp-6" dangerouslySetInnerHTML={{ __html: formatGLM(agent.text) }} />
+                            )}
+                          </div>
+                          {agent.status === 'done' && agent.ms > 0 && (
+                            <div className="px-2 py-1 border-t border-white/5 flex items-center gap-1">
+                              <span className="text-[8px] text-green-500 font-mono">{agent.ms}ms</span>
+                              {agent.firstTokenMs > 0 && agent.firstTokenMs < 100 && <span className="text-[8px] text-yellow-400 font-mono">⚡&lt;100ms</span>}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Attached Files Display */}
                 {attachedFiles.length > 0 && (
                   <div className="px-4 py-2 border-t border-red-500/10 bg-[#1a0a0a]/60">
