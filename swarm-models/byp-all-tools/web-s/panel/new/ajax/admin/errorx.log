@@ -1,0 +1,12 @@
+ERROR: SQLSTATE[HY000] [2002] Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2) - /panel/complexx/admin/view.php at Saturday 9th of July, 2022, 11:15:39 AM
+ERROR: SQLSTATE[HY000] [2002] Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2) - /panel/complexx/admin/stats.php at Saturday 9th of July, 2022, 11:15:39 AM
+ERROR: SQLSTATE[HY000] [2002] Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2) - /panel/complexx/admin/stats.php at Saturday 9th of July, 2022, 11:15:40 AM
+ERROR: SQLSTATE[HY000] [2002] Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2) - /panel/complexx/admin/view.php at Saturday 9th of July, 2022, 11:15:40 AM
+ERROR: SQLSTATE[HY000] [2002] Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2) - /panel/complexx/admin/stats.php at Saturday 9th of July, 2022, 11:15:41 AM
+ERROR: SQLSTATE[HY000] [2002] Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2) - /panel/complexx/admin/view.php at Saturday 9th of July, 2022, 11:15:41 AM
+ERROR: SQLSTATE[HY000] [2002] Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2) - /panel/complexx/admin/view.php at Saturday 9th of July, 2022, 11:16:47 AM
+ERROR: SQLSTATE[HY000] [2002] Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2) - /panel/complexx/admin/stats.php at Saturday 9th of July, 2022, 11:16:47 AM
+ERROR: SQLSTATE[HY000] [2002] Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2) - /panel/complexx/admin/stats.php at Saturday 9th of July, 2022, 11:16:48 AM
+ERROR: SQLSTATE[HY000] [2002] Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2) - /panel/complexx/admin/view.php at Saturday 9th of July, 2022, 11:16:48 AM
+ERROR: SQLSTATE[HY000] [2002] Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2) - /panel/complexx/admin/stats.php at Saturday 9th of July, 2022, 11:16:50 AM
+ERROR: SQLSTATE[HY000] [2002] Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2) - /panel/complexx/admin/view.php at Saturday 9th of July, 2022, 11:16:50 AM

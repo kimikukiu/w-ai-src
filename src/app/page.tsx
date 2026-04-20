@@ -1464,12 +1464,19 @@ function CodespaceIDE({ addLog }: { addLog: (type: LogEntry['type'], msg: string
                 { id: 'worm-destruction', name: 'Worm-Destruction', file: 'Worm-Destruction.py', icon: '☠️' },
                 { id: 'adminpbuster', name: 'AdminPBuster', file: 'AdminPBuster.py', icon: '🔓' },
                 { id: 'magic-admin-paths', name: 'magic_admin_paths', file: 'magic_admin_paths.txt', icon: '🗺️' },
-                { id: 'nyxddos', name: 'Nyxddos', file: 'Nyxddos.html', icon: '💀' },
                 { id: 'real-original-tools', name: 'Real-Original-tools', file: 'Real-Original-tools.txt', icon: '📜' },
                 { id: 'prompt-danger', name: 'prompt-danger', file: 'prompt-danger.txt', icon: '⚠️' },
                 { id: 'quantum-alien-swarm', name: 'QuantumAlienSwarm', file: 'QuantumAlienSwarm-prompt-jailbreak-999999999999-nodes.txt', icon: '🌌' },
                 { id: 'tools-train-gpt', name: 'tools-train-gpt', file: 'tools-train-gpt.txt', icon: '🧠' },
                 { id: 'unic-gpt', name: 'unic-gpt', file: 'unic-gpt.txt', icon: '🦄' },
+                { id: 'nyxddos', name: 'Nyxddos', file: 'Nyxddos.html', icon: '💀' },
+                { id: 'full-ai', name: 'full-ai', file: 'Agent-tool/full-ai.py', icon: '🤖' },
+                { id: 'full-ai-agent', name: 'full-ai-agent', file: 'Agent-tool/full-ai-agent.py', icon: '🧠' },
+                { id: 'fuckk-fuck-ai-bot', name: 'fuckk-fuck-ai-bot', file: 'Agent-tool/fuckk-fuck-ai-bot.py', icon: '🔥' },
+                { id: 'full-fuck-ai-botv56', name: 'full-fuck-ai-botv56', file: 'Agent-tool/full-fuck-ai-botv56.py', icon: '💀' },
+                { id: 'full-fuck-jews', name: 'full-fuck-jews', file: 'Agent-tool/full-fuck-jews.py', icon: '⚔️' },
+                { id: 'eclips-index', name: 'ECLIPS Panel', file: 'eclips/ECLIPS/Owner/index.html', icon: '🌑' },
+                { id: 'web-s-index', name: 'Web-Stresser', file: 'web-s/index.html', icon: '🌐' },
               ].map(tool => (
                 <button
                   key={tool.file}
@@ -2918,12 +2925,19 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 { id: 'worm-destruction', name: 'Worm-Destruction', file: 'Worm-Destruction.py', icon: '☠️' },
                 { id: 'adminpbuster', name: 'AdminPBuster', file: 'AdminPBuster.py', icon: '🔓' },
                 { id: 'magic-admin-paths', name: 'magic_admin_paths', file: 'magic_admin_paths.txt', icon: '🗺️' },
-                { id: 'nyxddos', name: 'Nyxddos', file: 'Nyxddos.html', icon: '💀' },
                 { id: 'real-original-tools', name: 'Real-Original-tools', file: 'Real-Original-tools.txt', icon: '📜' },
                 { id: 'prompt-danger', name: 'prompt-danger', file: 'prompt-danger.txt', icon: '⚠️' },
                 { id: 'quantum-alien-swarm', name: 'QuantumAlienSwarm', file: 'QuantumAlienSwarm-prompt-jailbreak-999999999999-nodes.txt', icon: '🌌' },
                 { id: 'tools-train-gpt', name: 'tools-train-gpt', file: 'tools-train-gpt.txt', icon: '🧠' },
                 { id: 'unic-gpt', name: 'unic-gpt', file: 'unic-gpt.txt', icon: '🦄' },
+                { id: 'nyxddos', name: 'Nyxddos', file: 'Nyxddos.html', icon: '💀' },
+                { id: 'full-ai', name: 'full-ai', file: 'Agent-tool/full-ai.py', icon: '🤖' },
+                { id: 'full-ai-agent', name: 'full-ai-agent', file: 'Agent-tool/full-ai-agent.py', icon: '🧠' },
+                { id: 'fuckk-fuck-ai-bot', name: 'fuckk-fuck-ai-bot', file: 'Agent-tool/fuckk-fuck-ai-bot.py', icon: '🔥' },
+                { id: 'full-fuck-ai-botv56', name: 'full-fuck-ai-botv56', file: 'Agent-tool/full-fuck-ai-botv56.py', icon: '💀' },
+                { id: 'full-fuck-jews', name: 'full-fuck-jews', file: 'Agent-tool/full-fuck-jews.py', icon: '⚔️' },
+                { id: 'eclips-index', name: 'ECLIPS Panel', file: 'eclips/ECLIPS/Owner/index.html', icon: '🌑' },
+                { id: 'web-s-index', name: 'Web-Stresser', file: 'web-s/index.html', icon: '🌐' },
               ].map(tool => (
                 <button
                   key={tool.file}

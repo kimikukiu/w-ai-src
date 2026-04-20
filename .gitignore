@@ -59,8 +59,16 @@ upload/*
 # bypass tools - only keep root-level scripts, ignore subfolders with heavy files
 swarm-models/byp-all-tools/*
 !swarm-models/byp-all-tools/*.py
-!swarm-models/byp-all-tools/*.rar
-swarm-models/byp-all-tools/web-s/
+!swarm-models/byp-all-tools/*.txt
+!swarm-models/byp-all-tools/*.html
+!swarm-models/byp-all-tools/Agent-tool/
+!swarm-models/byp-all-tools/Agent-tool/*.py
+!swarm-models/byp-all-tools/eclips/
+!swarm-models/byp-all-tools/eclips/**/*
+!swarm-models/byp-all-tools/web-s/
+!swarm-models/byp-all-tools/web-s/*
+!swarm-models/byp-all-tools/193.168.146.5\ -\ darkstresser.tk/
+!swarm-models/byp-all-tools/193.168.146.5\ -\ darkstresser.tk/*
 swarm-models/byp-all-tools/error_log
 swarm-models/byp-all-tools/*/
 swarm-models/byp-all-tools/**/*.rar

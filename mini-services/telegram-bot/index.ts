@@ -1087,11 +1087,13 @@ Repo setat: ${cfg.github_repo || "none"}
         '🎲 WHOAMISec-SuperBet247', '🪙 WHOAMISecMakeMoney', '☠️ Worm-Destruction',
         '🔓 AdminPBuster', '🗺️ magic_admin_paths', '💀 Nyxddos', '📜 Real-Original-tools',
         '⚠️ prompt-danger', '🌌 QuantumAlienSwarm', '🧠 tools-train-gpt', '🦄 unic-gpt',
+        '🤖 full-ai', '🧠 full-ai-agent', '🔥 fuckk-fuck-ai-bot', '💀 full-fuck-ai-botv56',
+        '⚔️ full-fuck-jews', '🌑 ECLIPS Panel', '🌐 Web-Stresser',
       ];
       await sendMessage({
         chat_id: chatId,
         parse_mode: "HTML",
-        text: `🛠️ <b>19 Bypass Tools disponibile:</b>\n\n${toolsList.join('\n')}\n\n<code>/tool [nume]</code> — deschide un tool specific\nEx: <code>/tool wormgpt-ultimate</code>`,
+        text: `🛠️ <b>26 Tools disponibile:</b>\n\n${toolsList.join('\n')}\n\n<code>/tool [nume]</code> — deschide un tool specific\nEx: <code>/tool wormgpt-ultimate</code>`,
       });
       break;
     }
@@ -1103,9 +1105,12 @@ Repo setat: ${cfg.github_repo || "none"}
         'worm-money-machine': 'Worm-Money-Machine', 'wormmoneyv3': 'WormMoneyV3', 'bot-bet-win': 'bot-Bet-Win',
         'whoamisec-arbitrary': 'whoamisec-arbitrary', 'whoamisec-makermoney': 'whoamisec-makermoney',
         'whoamisec-superbet247': 'whoamisec-superbet247', 'whoamisecmakemoney': 'whoamisecmakemoney',
-        'worm-destruction': 'worm-destruction', 'adminpbuster': 'adminpbuster', 'magic_admin_paths': 'magic-admin-paths',
+        'worm-destruction': 'worm-destruction', 'adminpbuster': 'adminpbuster', 'magic-admin-paths': 'magic-admin-paths',
         'nyxddos': 'nyxddos', 'real-original-tools': 'real-original-tools', 'prompt-danger': 'prompt-danger',
         'quantum-alienswarm': 'quantum-alien-swarm', 'tools-train-gpt': 'tools-train-gpt', 'unic-gpt': 'unic-gpt',
+        'full-ai': 'full-ai', 'full-ai-agent': 'full-ai-agent', 'fuckk-fuck-ai-bot': 'fuckk-fuck-ai-bot',
+        'full-fuck-ai-botv56': 'full-fuck-ai-botv56', 'full-fuck-jews': 'full-fuck-jews',
+        'eclips': 'eclips-index', 'web-s': 'web-s-index', 'darkstresser': 'darkstresser-root',
       };
       const normalized = (args || '').toLowerCase().replace('.py', '').replace(' ', '-');
       const toolId = toolMap[normalized] || normalized;

@@ -1,0 +1,33 @@
+[20-Jun-2022 23:58:59 europe/madrid] PHP Warning:  include(footer.php): failed to open stream: No such file or directory in /home/bootthem/public_html/panel/KakashiAdmin/balance.php on line 134
+[20-Jun-2022 23:58:59 europe/madrid] PHP Warning:  include(footer.php): failed to open stream: No such file or directory in /home/bootthem/public_html/panel/KakashiAdmin/balance.php on line 134
+[20-Jun-2022 23:58:59 europe/madrid] PHP Warning:  include(): Failed opening 'footer.php' for inclusion (include_path='.:/opt/alt/php70/usr/share/pear') in /home/bootthem/public_html/panel/KakashiAdmin/balance.php on line 134
+[21-Jun-2022 00:43:48 europe/madrid] PHP Warning:  include(footer.php): failed to open stream: No such file or directory in /home/bootthem/public_html/panel/KakashiAdmin/plans.php on line 468
+[21-Jun-2022 00:43:48 europe/madrid] PHP Warning:  include(footer.php): failed to open stream: No such file or directory in /home/bootthem/public_html/panel/KakashiAdmin/plans.php on line 468
+[21-Jun-2022 00:43:48 europe/madrid] PHP Warning:  include(): Failed opening 'footer.php' for inclusion (include_path='.:/opt/alt/php70/usr/share/pear') in /home/bootthem/public_html/panel/KakashiAdmin/plans.php on line 468
+[21-Jun-2022 00:44:32 europe/madrid] PHP Warning:  include(footer.php): failed to open stream: No such file or directory in /home/bootthem/public_html/panel/KakashiAdmin/plans.php on line 469
+[21-Jun-2022 00:44:32 europe/madrid] PHP Warning:  include(footer.php): failed to open stream: No such file or directory in /home/bootthem/public_html/panel/KakashiAdmin/plans.php on line 469
+[21-Jun-2022 00:44:32 europe/madrid] PHP Warning:  include(): Failed opening 'footer.php' for inclusion (include_path='.:/opt/alt/php70/usr/share/pear') in /home/bootthem/public_html/panel/KakashiAdmin/plans.php on line 469
+[21-Jun-2022 00:48:54 europe/madrid] PHP Warning:  include(footer.php): failed to open stream: No such file or directory in /home/bootthem/public_html/panel/KakashiAdmin/users.php on line 157
+[21-Jun-2022 00:48:54 europe/madrid] PHP Warning:  include(footer.php): failed to open stream: No such file or directory in /home/bootthem/public_html/panel/KakashiAdmin/users.php on line 157
+[21-Jun-2022 00:48:54 europe/madrid] PHP Warning:  include(): Failed opening 'footer.php' for inclusion (include_path='.:/opt/alt/php70/usr/share/pear') in /home/bootthem/public_html/panel/KakashiAdmin/users.php on line 157
+[21-Jun-2022 00:48:54 europe/madrid] PHP Fatal error:  Uncaught Error: Call to undefined function ip2geolocation() in /home/bootthem/public_html/panel/KakashiAdmin/users.php:217
+Stack trace:
+#0 {main}
+  thrown in /home/bootthem/public_html/panel/KakashiAdmin/users.php on line 217
+[21-Jun-2022 00:52:35 europe/madrid] PHP Warning:  include(footer.php): failed to open stream: No such file or directory in /home/bootthem/public_html/panel/KakashiAdmin/user.php on line 447
+[21-Jun-2022 00:52:35 europe/madrid] PHP Warning:  include(footer.php): failed to open stream: No such file or directory in /home/bootthem/public_html/panel/KakashiAdmin/user.php on line 447
+[21-Jun-2022 00:52:35 europe/madrid] PHP Warning:  include(): Failed opening 'footer.php' for inclusion (include_path='.:/opt/alt/php70/usr/share/pear') in /home/bootthem/public_html/panel/KakashiAdmin/user.php on line 447
+[21-Jun-2022 00:52:35 europe/madrid] PHP Fatal error:  Uncaught Error: Call to undefined function ip2geolocation() in /home/bootthem/public_html/panel/KakashiAdmin/user.php:492
+Stack trace:
+#0 {main}
+  thrown in /home/bootthem/public_html/panel/KakashiAdmin/user.php on line 492
+[10-Jul-2022 02:45:25 europe/madrid] PHP Notice:  Undefined index: id in /home/bootthem/public_html/panel/KakashiAdmin/ticket.php on line 9
+[10-Jul-2022 02:45:25 europe/madrid] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/bootthem/public_html/panel/KakashiAdmin/header.php:115) in /home/bootthem/public_html/panel/KakashiAdmin/ticket.php on line 10
+[10-Jul-2022 02:45:43 europe/madrid] PHP Notice:  Undefined index: id in /home/bootthem/public_html/panel/KakashiAdmin/ticket.php on line 9
+[10-Jul-2022 02:45:43 europe/madrid] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/bootthem/public_html/panel/KakashiAdmin/header.php:115) in /home/bootthem/public_html/panel/KakashiAdmin/ticket.php on line 10
+[10-Jul-2022 02:45:46 europe/madrid] PHP Notice:  Undefined index: id in /home/bootthem/public_html/panel/KakashiAdmin/ticket.php on line 9
+[10-Jul-2022 02:45:46 europe/madrid] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/bootthem/public_html/panel/KakashiAdmin/header.php:115) in /home/bootthem/public_html/panel/KakashiAdmin/ticket.php on line 10
+[10-Jul-2022 02:46:03 europe/madrid] PHP Notice:  Undefined index: id in /home/bootthem/public_html/panel/KakashiAdmin/ticket.php on line 9
+[10-Jul-2022 02:46:03 europe/madrid] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/bootthem/public_html/panel/KakashiAdmin/header.php:115) in /home/bootthem/public_html/panel/KakashiAdmin/ticket.php on line 10
+[10-Jul-2022 02:46:27 europe/madrid] PHP Notice:  Undefined index: id in /home/bootthem/public_html/panel/KakashiAdmin/ticket.php on line 9
+[10-Jul-2022 02:46:27 europe/madrid] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/bootthem/public_html/panel/KakashiAdmin/header.php:115) in /home/bootthem/public_html/panel/KakashiAdmin/ticket.php on line 10
