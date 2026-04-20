@@ -17,6 +17,7 @@ import {
   Lock, Unlock, Command, Crown, Star, Users, Sparkles, Play, ChevronDown, X
 } from 'lucide-react';
 import { safeJson } from '@/lib/utils';
+import { MODELS_BY_PROVIDER, MODELS_BY_CATEGORY, POPULAR_MODELS } from '@/lib/models';
 import Image from 'next/image';
 
 // ═══════════════════════════════════════════════
@@ -3116,31 +3117,20 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                     <div>
                       <label className="text-slate-400 text-xs font-medium mb-2 block">Model curent: <span className="text-blue-400">{glmModel}</span></label>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-48 overflow-y-auto">
-                        {[
-                          { provider: 'Queen', models: ['queen-ultra', 'queen-max'] },
-                          { provider: 'Nous Research', models: ['hermes-4-405B', 'hermes-4-70B'] },
-                          { provider: 'OpenAI', models: ['gpt-5.4-pro', 'gpt-5.4', 'gpt-5.2'] },
-                          { provider: 'Anthropic', models: ['claude-opus-4-6', 'claude-sonnet-4-6'] },
-                          { provider: 'DeepSeek', models: ['DeepSeek-3.2'] },
-                          { provider: 'Google', models: ['gemini-3.0-pro-preview', 'gemini-3-flash'] },
-                          { provider: 'Kimi', models: ['kimi-k2.5'] },
-                          { provider: 'MiniMax', models: ['minimax-m2.5'] },
-                          { provider: 'Qwen', models: ['qwen3.6-plus', 'qwen3.5'] },
-                          { provider: 'GLM AI', models: ['glm-5-turbo', 'glm-4.6', 'glm-4-flash'] },
-                        ].map(group => (
-                          <React.Fragment key={group.provider}>
-                            <div className="col-span-2 md:col-span-3 lg:col-span-4 text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-1">{group.provider}</div>
-                            {group.models.map(m => (
+                        {Object.entries(MODELS_BY_PROVIDER).map(([provider, models]) => (
+                          <React.Fragment key={provider}>
+                            <div className="col-span-2 md:col-span-3 lg:col-span-4 text-[10px] text-slate-500 font-semibold uppercase tracking-wider mt-1">{provider}</div>
+                            {models.map(m => (
                               <button
-                                key={m}
-                                onClick={() => { setGlmModel(m); saveConfig({ glm_model: m }); }}
+                                key={m.id}
+                                onClick={() => { setGlmModel(m.id); saveConfig({ glm_model: m.id }); }}
                                 className={`text-left px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
-                                  glmModel === m
+                                  glmModel === m.id
                                     ? 'bg-blue-500/20 border-blue-500/50 text-blue-300'
                                     : 'bg-[#0a0e1a] border-slate-700/50 text-slate-400 hover:border-slate-600 hover:text-slate-200'
                                 }`}
                               >
-                                {m === 'queen-ultra' ? '👑 ' : m === 'queen-max' ? '👑 ' : ''}{m}
+                                {m.icon} {m.name}
                               </button>
                             ))}
                           </React.Fragment>
