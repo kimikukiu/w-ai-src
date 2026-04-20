@@ -1096,6 +1096,108 @@ Repo setat: ${cfg.github_repo || "none"}
       break;
     }
 
+    // ═══ OPENCODE — OpenCode AI Agent ═══
+    case "/opencode": {
+      if (!args) {
+        await sendMessage({ chat_id: chatId, text: "📝 <code>/opencode cerinta</code>\n\n⚡ OpenCode AI Agent — executa cod live in sandbox.\nGenereaza, ruleaza si obtine rezultate instant." });
+      } else {
+        await sendMessage({ chat_id: chatId, text: "⚡ OpenCode Agent — QuantumSwarm... ⏳" });
+        try {
+          const opencodeResult = await callOpenCode(args);
+          await sendLongMsg(chatId, `⚡ <b>OpenCode Result:</b>\n\n${opencodeResult}`);
+        } catch (e: any) {
+          await sendMessage({ chat_id: chatId, text: `❌ OpenCode Error: ${e.message}` });
+        }
+      }
+      break;
+    }
+
+    // ═══ EXPO — Generate Expo Project ═══
+    case "/expo": {
+      if (!args) {
+        await sendMessage({ chat_id: chatId, text: "📝 <code>/expo descriere-proiect</code>\n\n📱 Genereaza proiect React Native/Expo complet cu fisiere." });
+      } else {
+        await sendMessage({ chat_id: chatId, text: "📱 Expo Generator — QuantumSwarm... ⏳" });
+        try {
+          const result = await scaffoldExpo(args);
+          await sendMessage({ chat_id: chatId, text: `✅ <b>Expo Project Generated:</b>\n\n${result}` });
+        } catch (e: any) {
+          await sendMessage({ chat_id: chatId, text: `❌ Expo Error: ${e.message}` });
+        }
+      }
+      break;
+    }
+
+    // ═══ LANGUAGES — Loop Coder Languages ═══
+    case "/languages": {
+      const langs = LOOP_LANGUAGES.join(', ');
+      await sendMessage({ chat_id: chatId, text: `🌍 <b>13 Limbi Loop Coder:</b>\n\n${langs}\n\nFoloseste <code>/loop [limba]</code> pentru un exercitiu.` });
+      break;
+    }
+
+    // ═══ PATTERNS — Loop Patterns ═══
+    case "/patterns": {
+      await sendMessage({ chat_id: chatId, text: `⚡ <b>6 Loop Patterns:</b>\n\n1. for basic — iteratie simpla\n2. while pre-test — condition before\n3. do-while post-test — condition after\n4. forEach array — parcurgere array\n5. recursive — recursivitate\n6. map-filter — functional operations\n\n<code>/loop [limba]</code> pentru exercitiu.` });
+      break;
+    }
+
+    // ═══ SPARK — Spark Prompts ═══
+    case "/spark": {
+      if (!args) {
+        await sendMessage({ chat_id: chatId, text: `📝 <code>/spark [limba]</code>\n\n🎯 Genereaza spark prompt pentru o limba.\nExemplu: <code>/spark python</code>` });
+      } else {
+        const lang = args.toLowerCase().trim();
+        const pattern = getSparkPattern(lang);
+        if (!pattern) {
+          await sendMessage({ chat_id: chatId, text: `❌ Limba necunoscuta: ${lang}. Foloseste <code>/languages</code> pentru lista.` });
+        } else {
+          await sendMessage({ chat_id: chatId, text: `🎯 <b>Spark Prompt — ${lang}:</b>\n\n<code>${pattern}</code>` });
+        }
+      }
+      break;
+    }
+
+    // ═══ LOOP — Loop Exercise ═══
+    case "/loop": {
+      if (!args) {
+        await sendMessage({ chat_id: chatId, text: `📝 <code>/loop [limba]</code>\n\n🔄 Exercitiu loop pentru o limba specifica.\nExemplu: <code>/loop javascript</code>` });
+      } else {
+        const lang = args.toLowerCase().trim();
+        const problem = LOOP_PROBLEMS[lang] || LOOP_PROBLEMS['python'];
+        await sendMessage({ chat_id: chatId, text: `🔄 <b>Loop Exercise — ${lang}:</b>\n\n${problem}` });
+      }
+      break;
+    }
+
+    // ═══ TIERS — DeepMind Tiers ═══
+    case "/tiers": {
+      let tiersMsg = `🏆 <b>5 Nivele DeepMind Tiers:</b>\n\n`;
+      for (const [tier, data] of Object.entries(HERMES_TIERS)) {
+        tiersMsg += `<b>${tier}</b>: ${data.models.join(', ')}\n`;
+      }
+      await sendMessage({ chat_id: chatId, text: tiersMsg + `\n<code>/train [tier]</code> pentru antrenare specifica.` });
+      break;
+    }
+
+    // ═══ CURRICULUM — Full Training Curriculum ═══
+    case "/curriculum": {
+      const prompts = TRAINING_PROMPTS.map((p, i) => `${i + 1}. ${p.slice(0, 80)}...`).join('\n');
+      await sendMessage({ chat_id: chatId, text: `📚 <b>Curriculum Complet — 20 Prompts:</b>\n\n${prompts}\n\n<code>/train</code> sau <code>/train_prompt</code> pentru antrenare.` });
+      break;
+    }
+
+    // ═══ PERFORMANCE — Loop Performance Reference ═══
+    case "/performance": {
+      await sendMessage({ chat_id: chatId, text: `⚙️ <b>Referinta Viteza Loops:</b>\n\n${Object.entries(LOOP_PERFORMANCE).map(([k, v]) => `${k}: ${v}`).join('\n')}\n\n` });
+      break;
+    }
+
+    // ═══ BEST PRACTICES ═══
+    case "/best_practices": {
+      await sendMessage({ chat_id: chatId, text: `🎯 <b>Bune Practici Curriculum:</b>\n\n1. Incepe cu basic loops inainte de recursive\n2. Creste complexitatea treptat\n3. Testeaza fiecare tip de loop\n4. Masoara performanta dupa optimizare\n5. Combina pattern-uri pentru solutii hibride` });
+      break;
+    }
+
     // ═══ HERMES — Redirected to Agentic Coder ═══
     case "/hermes": {
       if (!args) {

@@ -29,6 +29,16 @@ const ALL_COMMANDS = [
   { command: 'redteam', description: '🔴 RED TEAM safety testing' },
   { command: 'loop', description: '🔄 Exercițiu loop per limbă' },
   { command: 'clear', description: '🧹 Resetează sesiunea' },
+  { command: 'search', description: '🔍 Agentic Searcher' },
+  { command: 'think', description: '🧠 Deep Thinking' },
+  { command: 'copilot', description: '🤖 Full Co-Pilot' },
+  { command: 'deepmind', description: '🧬 WhoamisecDeepMind' },
+  { command: 'redgpt', description: '🔴 Red Team GPT' },
+  { command: 'admin', description: '🔐 Admin CPanel' },
+  { command: 'stats', description: '📊 Statistici sistem' },
+  { command: 'subscribers', description: '👥 Lista subscribers' },
+  { command: 'gen', description: '🎟️ Genereaza token' },
+  { command: 'revoke', description: '❌ Revoca token' },
 ];
 
 export async function POST(request: NextRequest) {
@@ -88,7 +98,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        short_description: '🤖 Agentic Coder — QuantumSwarm 999999999 · 19 modele AI · Loop Coder 13 limbi · RED TEAM · Co-Pilot. /start',
+        short_description: '🤖 WHOAMISec AI — QuantumSwarm 999999999 · 19 modele AI · Loop Coder 13 limbi · RED TEAM · Co-Pilot. /start',
       }),
     });
 
