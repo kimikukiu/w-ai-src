@@ -335,62 +335,56 @@ async function callWithRetry(messages: any[], model: string, maxRetries: number)
   const apiKey = config.glm_api_key || process.env.GLM_API_KEY;
   const endpoint = config.glm_endpoint || 'https://api.z.ai/api/coding/paas/v4/chat/completions';
 
-  let lastError = '';
+  const effectiveModel = model.includes('swarm') ? 'glm-5.1' : (model || 'glm-5.1');
 
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      // Rate limit backoff
-      if (attempt > 1) {
-        await sleep(attempt * 2000);
-      }
+  // Single call with AbortController timeout
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
 
-      const effectiveModel = model.includes('swarm') ? 'glm-5.1' : (model || 'glm-5.1');
+  try {
+    const completion = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'Accept-Language': 'en-US,en',
+      },
+      body: JSON.stringify({
+        model: effectiveModel,
+        messages,
+        temperature: 0.7,
+        max_tokens: 8192,
+      }),
+      signal: controller.signal,
+    });
 
-      const completion = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-          'Accept-Language': 'en-US,en',
-        },
-        body: JSON.stringify({
-          model: effectiveModel,
-          messages,
-          temperature: 0.7,
-          max_tokens: 131072,
-          thinking: { type: 'enabled', clear_thinking: true },
-        }),
-      });
+    clearTimeout(timeout);
 
-      if (completion.status === 429) {
-        lastError = 'Rate limited, retrying...';
-        console.log(`[AI Engine] Rate limited, attempt ${attempt}/${maxRetries}`);
-        continue;
-      }
-
-      if (completion.status === 503) {
-        lastError = 'Service unavailable, retrying...';
-        console.log(`[AI Engine] 503 Service Unavailable, attempt ${attempt}/${maxRetries}`);
-        continue;
-      }
-
-      if (!completion.ok) {
-        const text = await completion.text();
-        throw new Error(`API error ${completion.status}: ${text}`);
-      }
-
-      const data = await completion.json();
-      const content = data.choices?.[0]?.message?.content || '';
-      const reasoning = data.choices?.[0]?.message?.reasoning_content || '';
-      return reasoning ? `[Thinking] ${reasoning}\n\n[Response] ${content}` : content;
-
-    } catch (e: any) {
-      lastError = e.message;
-      console.error(`[AI Engine] Attempt ${attempt} failed:`, e.message);
+    if (completion.status === 429) {
+      throw new Error('Rate limited (429)');
     }
-  }
 
-  throw new Error(`AI unavailable after ${maxRetries} retries. Last error: ${lastError}`);
+    if (completion.status === 503) {
+      throw new Error('Service unavailable (503)');
+    }
+
+    if (!completion.ok) {
+      const text = await completion.text();
+      throw new Error(`API error ${completion.status}: ${text}`);
+    }
+
+    const data = await completion.json();
+    const content = data.choices?.[0]?.message?.content || '';
+    const reasoning = data.choices?.[0]?.message?.reasoning_content || '';
+    return reasoning ? `[Thinking] ${reasoning}\n\n[Response] ${content}` : content;
+
+  } catch (e: any) {
+    clearTimeout(timeout);
+    if (e.name === 'AbortError') {
+      throw new Error('Request timeout - API took too long');
+    }
+    throw e;
+  }
 }
 
 function sleep(ms: number): Promise<void> {
