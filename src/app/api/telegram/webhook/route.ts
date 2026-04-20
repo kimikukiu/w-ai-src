@@ -8,6 +8,7 @@ import {
   callOpenCode, callHermes, gitDeploy, scaffoldExpo, getOwnerId,
 } from '@/lib/bot-engine';
 import { loadConfig, saveConfig } from '@/lib/config';
+import { emitModelChange, emitEndpointChange, emitConfigUpdate } from '@/lib/sync-bus';
 import { existsSync, readdirSync, statSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import {
@@ -94,6 +95,7 @@ export async function POST(request: NextRequest) {
         if (m === 'cancel') { await tgEdit('❌ Anulat.'); }
         else if (AGENT_MODELS[m]) {
           config.glm_model = m; saveConfig(config);
+          emitModelChange('bot', m);
           const s = loadSession(chatId); s.agent_model = m; saveSess(chatId, s);
           await tgEdit(`✅ Model: <b>${m}</b>\n${AGENT_MODELS[m].provider} — ${AGENT_MODELS[m].desc}`);
         }
@@ -105,6 +107,7 @@ export async function POST(request: NextRequest) {
             ? 'https://api.z.ai/api/coding/paas/v4/chat/completions'
             : 'https://api.z.ai/api/paas/v4/chat/completions';
           saveConfig(config);
+          emitEndpointChange('bot', config.glm_endpoint);
           await tgEdit(`✅ Endpoint: <code>${k === 'coding' ? 'coding' : 'general'}</code>`);
         }
       } else if (cb.startsWith('redteam:')) {
@@ -281,6 +284,7 @@ export async function POST(request: NextRequest) {
         await tgKb(`📝 Curent: <b>${cm}</b>\nSelectează modelul:`, { inline_keyboard: btns });
       } else if (AGENT_MODELS[args]) {
         config.glm_model = args; saveConfig(config);
+        emitModelChange('bot', args);
         const s = loadSession(chatId); s.agent_model = args; saveSess(chatId, s);
         await tgSend(`✅ Model: <b>${args}</b>\n${AGENT_MODELS[args].provider} — ${AGENT_MODELS[args].desc}`);
       } else { await tgSend(`❌ Model inexistent. <code>/models</code>`); }
@@ -328,7 +332,7 @@ export async function POST(request: NextRequest) {
             [{ text: '❌ Cancel', callback_data: 'endpoint:cancel' }],
           ],
         });
-      } else { config.glm_endpoint = args.trim(); saveConfig(config); await tgSend(`✅ <code>${esc(args.trim())}</code>`); }
+      } else { config.glm_endpoint = args.trim(); saveConfig(config); emitEndpointChange('bot', args.trim()); await tgSend(`✅ <code>${esc(args.trim())}</code>`); }
     }
     // /setrepo
     else if (cmd === '/setrepo') {

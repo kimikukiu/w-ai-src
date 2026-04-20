@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { loadConfig, saveConfig, maskSecret } from '@/lib/config';
+import { emitModelChange, emitEndpointChange, emitConfigUpdate } from '@/lib/sync-bus';
 import type { HermesConfig } from '@/lib/config';
 
 const SECRET_FIELDS = ['glm_api_key', 'telegram_token'];
@@ -33,6 +34,10 @@ export async function POST(request: NextRequest) {
     };
 
     saveConfig(updatedConfig);
+
+    if (body.glm_model) emitModelChange('web', body.glm_model);
+    if (body.glm_endpoint) emitEndpointChange('web', body.glm_endpoint);
+    emitConfigUpdate('web', body);
 
     const masked: Record<string, any> = { ...updatedConfig };
     for (const field of SECRET_FIELDS) {
