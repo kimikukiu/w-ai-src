@@ -55,23 +55,19 @@ export class WhoamisecToolsSDK {
   }
 
   async openTool(id: string, target: '_blank' | '_self' = '_blank'): Promise<void> {
-    const tool = this.getTool(id);
-    if (!tool) throw new Error(`Tool ${id} not found`);
-    const url = `${this.baseUrl}/api/swarm/models?file=${encodeURIComponent(tool.file)}`;
+    const url = `${this.baseUrl}/tools/${id}`;
     if (target === '_blank') window.open(url, '_blank');
     else window.location.href = url;
   }
 
   getToolUrl(id: string): string {
-    const tool = this.getTool(id);
-    if (!tool) throw new Error(`Tool ${id} not found`);
-    return `${this.baseUrl}/api/swarm/models?file=${encodeURIComponent(tool.file)}`;
+    return `${this.baseUrl}/tools/${id}`;
   }
 
   async downloadTool(id: string): Promise<Blob> {
     const tool = this.getTool(id);
     if (!tool) throw new Error(`Tool ${id} not found`);
-    const url = this.getToolUrl(id);
+    const url = `${this.baseUrl}/api/tools/${encodeURIComponent(tool.file)}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Failed to download ${id}`);
     return res.blob();

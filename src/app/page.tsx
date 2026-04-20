@@ -1451,29 +1451,29 @@ function CodespaceIDE({ addLog }: { addLog: (type: LogEntry['type'], msg: string
 
               {/* ── All Tools ── */}
               {[
-                { name: 'wormgpt-ultimate', file: 'wormgpt-ultimate.py', icon: '🪱' },
-                { name: 'SuperBet', file: 'SuperBet.py', icon: '🎰' },
-                { name: 'W-Destro', file: 'W-Destro.py', icon: '💥' },
-                { name: 'Worm-Money-Machine', file: 'Worm-Money-Machine.py', icon: '💸' },
-                { name: 'WormMoneyV3', file: 'WormMoneyV3.py', icon: '🐛' },
-                { name: 'bot-Bet-Win', file: 'bot-Bet-Win.py', icon: '🤖' },
-                { name: 'WHOAMISec-Arbitrary', file: 'WHOAMISec-Arbitrary-Auto-make-money.py', icon: '⚡' },
-                { name: 'WHOAMISec-MakerMoney', file: 'WHOAMISec-MakerMoney.py', icon: '💎' },
-                { name: 'WHOAMISec-SuperBet247', file: 'WHOAMISec-SuperBet247.py', icon: '🎲' },
-                { name: 'WHOAMISecMakeMoney', file: 'WHOAMISecMakeMoney.py', icon: '🪙' },
-                { name: 'Worm-Destruction', file: 'Worm-Destruction.py', icon: '☠️' },
-                { name: 'AdminPBuster', file: 'AdminPBuster.py', icon: '🔓' },
-                { name: 'magic_admin_paths', file: 'magic_admin_paths.txt', icon: '🗺️' },
-                { name: 'Nyxddos', file: 'Nyxddos.html', icon: '💀' },
-                { name: 'Real-Original-tools', file: 'Real-Original-tools.txt', icon: '📜' },
-                { name: 'prompt-danger', file: 'prompt-danger.txt', icon: '⚠️' },
-                { name: 'QuantumAlienSwarm', file: 'QuantumAlienSwarm-prompt-jailbreak-999999999999-nodes.txt', icon: '🌌' },
-                { name: 'tools-train-gpt', file: 'tools-train-gpt.txt', icon: '🧠' },
-                { name: 'unic-gpt', file: 'unic-gpt.txt', icon: '🦄' },
+                { id: 'wormgpt-ultimate', name: 'wormgpt-ultimate', file: 'wormgpt-ultimate.py', icon: '🪱' },
+                { id: 'superbet', name: 'SuperBet', file: 'SuperBet.py', icon: '🎰' },
+                { id: 'w-destro', name: 'W-Destro', file: 'W-Destro.py', icon: '💥' },
+                { id: 'worm-money-machine', name: 'Worm-Money-Machine', file: 'Worm-Money-Machine.py', icon: '💸' },
+                { id: 'wormmoneyv3', name: 'WormMoneyV3', file: 'WormMoneyV3.py', icon: '🐛' },
+                { id: 'bot-bet-win', name: 'bot-Bet-Win', file: 'bot-Bet-Win.py', icon: '🤖' },
+                { id: 'whoamisec-arbitrary', name: 'WHOAMISec-Arbitrary', file: 'WHOAMISec-Arbitrary-Auto-make-money.py', icon: '⚡' },
+                { id: 'whoamisec-makermoney', name: 'WHOAMISec-MakerMoney', file: 'WHOAMISec-MakerMoney.py', icon: '💎' },
+                { id: 'whoamisec-superbet247', name: 'WHOAMISec-SuperBet247', file: 'WHOAMISec-SuperBet247.py', icon: '🎲' },
+                { id: 'whoamisecmakemoney', name: 'WHOAMISecMakeMoney', file: 'WHOAMISecMakeMoney.py', icon: '🪙' },
+                { id: 'worm-destruction', name: 'Worm-Destruction', file: 'Worm-Destruction.py', icon: '☠️' },
+                { id: 'adminpbuster', name: 'AdminPBuster', file: 'AdminPBuster.py', icon: '🔓' },
+                { id: 'magic-admin-paths', name: 'magic_admin_paths', file: 'magic_admin_paths.txt', icon: '🗺️' },
+                { id: 'nyxddos', name: 'Nyxddos', file: 'Nyxddos.html', icon: '💀' },
+                { id: 'real-original-tools', name: 'Real-Original-tools', file: 'Real-Original-tools.txt', icon: '📜' },
+                { id: 'prompt-danger', name: 'prompt-danger', file: 'prompt-danger.txt', icon: '⚠️' },
+                { id: 'quantum-alien-swarm', name: 'QuantumAlienSwarm', file: 'QuantumAlienSwarm-prompt-jailbreak-999999999999-nodes.txt', icon: '🌌' },
+                { id: 'tools-train-gpt', name: 'tools-train-gpt', file: 'tools-train-gpt.txt', icon: '🧠' },
+                { id: 'unic-gpt', name: 'unic-gpt', file: 'unic-gpt.txt', icon: '🦄' },
               ].map(tool => (
                 <button
                   key={tool.file}
-                  onClick={() => window.open(`/api/swarm/models?file=${encodeURIComponent(tool.file)}`, '_blank')}
+                  onClick={() => window.open(`/tools/${tool.id}`, '_blank')}
                   className="w-full text-left px-3 py-1.5 rounded-lg text-[11px] flex items-center gap-2 transition-all text-slate-400 hover:bg-slate-800"
                 >
                   <span>{tool.icon}</span>
@@ -2905,29 +2905,29 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             <div className="px-5 py-2 text-[10px] font-bold text-cyan-400 uppercase tracking-wider">🛠️ Tools</div>
             <div className="overflow-y-auto max-h-[250px] pb-2">
               {[
-                { name: 'wormgpt-ultimate', file: 'wormgpt-ultimate.py', icon: '🪱' },
-                { name: 'SuperBet', file: 'SuperBet.py', icon: '🎰' },
-                { name: 'W-Destro', file: 'W-Destro.py', icon: '💥' },
-                { name: 'Worm-Money-Machine', file: 'Worm-Money-Machine.py', icon: '💸' },
-                { name: 'WormMoneyV3', file: 'WormMoneyV3.py', icon: '🐛' },
-                { name: 'bot-Bet-Win', file: 'bot-Bet-Win.py', icon: '🤖' },
-                { name: 'WHOAMISec-Arbitrary', file: 'WHOAMISec-Arbitrary-Auto-make-money.py', icon: '⚡' },
-                { name: 'WHOAMISec-MakerMoney', file: 'WHOAMISec-MakerMoney.py', icon: '💎' },
-                { name: 'WHOAMISec-SuperBet247', file: 'WHOAMISec-SuperBet247.py', icon: '🎲' },
-                { name: 'WHOAMISecMakeMoney', file: 'WHOAMISecMakeMoney.py', icon: '🪙' },
-                { name: 'Worm-Destruction', file: 'Worm-Destruction.py', icon: '☠️' },
-                { name: 'AdminPBuster', file: 'AdminPBuster.py', icon: '🔓' },
-                { name: 'magic_admin_paths', file: 'magic_admin_paths.txt', icon: '🗺️' },
-                { name: 'Nyxddos', file: 'Nyxddos.html', icon: '💀' },
-                { name: 'Real-Original-tools', file: 'Real-Original-tools.txt', icon: '📜' },
-                { name: 'prompt-danger', file: 'prompt-danger.txt', icon: '⚠️' },
-                { name: 'QuantumAlienSwarm', file: 'QuantumAlienSwarm-prompt-jailbreak-999999999999-nodes.txt', icon: '🌌' },
-                { name: 'tools-train-gpt', file: 'tools-train-gpt.txt', icon: '🧠' },
-                { name: 'unic-gpt', file: 'unic-gpt.txt', icon: '🦄' },
+                { id: 'wormgpt-ultimate', name: 'wormgpt-ultimate', file: 'wormgpt-ultimate.py', icon: '🪱' },
+                { id: 'superbet', name: 'SuperBet', file: 'SuperBet.py', icon: '🎰' },
+                { id: 'w-destro', name: 'W-Destro', file: 'W-Destro.py', icon: '💥' },
+                { id: 'worm-money-machine', name: 'Worm-Money-Machine', file: 'Worm-Money-Machine.py', icon: '💸' },
+                { id: 'wormmoneyv3', name: 'WormMoneyV3', file: 'WormMoneyV3.py', icon: '🐛' },
+                { id: 'bot-bet-win', name: 'bot-Bet-Win', file: 'bot-Bet-Win.py', icon: '🤖' },
+                { id: 'whoamisec-arbitrary', name: 'WHOAMISec-Arbitrary', file: 'WHOAMISec-Arbitrary-Auto-make-money.py', icon: '⚡' },
+                { id: 'whoamisec-makermoney', name: 'WHOAMISec-MakerMoney', file: 'WHOAMISec-MakerMoney.py', icon: '💎' },
+                { id: 'whoamisec-superbet247', name: 'WHOAMISec-SuperBet247', file: 'WHOAMISec-SuperBet247.py', icon: '🎲' },
+                { id: 'whoamisecmakemoney', name: 'WHOAMISecMakeMoney', file: 'WHOAMISecMakeMoney.py', icon: '🪙' },
+                { id: 'worm-destruction', name: 'Worm-Destruction', file: 'Worm-Destruction.py', icon: '☠️' },
+                { id: 'adminpbuster', name: 'AdminPBuster', file: 'AdminPBuster.py', icon: '🔓' },
+                { id: 'magic-admin-paths', name: 'magic_admin_paths', file: 'magic_admin_paths.txt', icon: '🗺️' },
+                { id: 'nyxddos', name: 'Nyxddos', file: 'Nyxddos.html', icon: '💀' },
+                { id: 'real-original-tools', name: 'Real-Original-tools', file: 'Real-Original-tools.txt', icon: '📜' },
+                { id: 'prompt-danger', name: 'prompt-danger', file: 'prompt-danger.txt', icon: '⚠️' },
+                { id: 'quantum-alien-swarm', name: 'QuantumAlienSwarm', file: 'QuantumAlienSwarm-prompt-jailbreak-999999999999-nodes.txt', icon: '🌌' },
+                { id: 'tools-train-gpt', name: 'tools-train-gpt', file: 'tools-train-gpt.txt', icon: '🧠' },
+                { id: 'unic-gpt', name: 'unic-gpt', file: 'unic-gpt.txt', icon: '🦄' },
               ].map(tool => (
                 <button
                   key={tool.file}
-                  onClick={() => window.open(`/api/swarm/models?file=${encodeURIComponent(tool.file)}`, '_blank')}
+                  onClick={() => window.open(`/tools/${tool.id}`, '_blank')}
                   className="w-full flex items-center gap-3 px-5 py-2 text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-200 text-left"
                 >
                   <span>{tool.icon}</span>
