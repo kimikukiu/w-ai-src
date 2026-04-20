@@ -321,9 +321,9 @@ export async function callAI(messages: { role: string; content: string }[], mode
   const actualModel = isSwarmModel ? 'glm-5-turbo' : selectedModel;
 
   try {
-    // Skip SDK - use direct API with retry loop
-    console.log('[AI Engine] Using direct BigModel API with retry...');
-    return await callWithRetry(messages, isSwarmModel ? 'glm-5-turbo' : selectedModel, 3);
+    // Use multi-provider wrapper for all models
+    console.log('[AI Engine] Using multi-provider API...');
+    return await callWithRetry(messages, model || 'glm-5-turbo', 3);
   } catch (e: any) {
     console.error('[AI Engine] callAI failed after retries:', e.message);
     throw new Error(`AI temporarily unavailable: ${e.message}`);
@@ -331,60 +331,32 @@ export async function callAI(messages: { role: string; content: string }[], mode
 }
 
 async function callWithRetry(messages: any[], model: string, maxRetries: number): Promise<string> {
-  const config = loadConfig();
-  const apiKey = config.glm_api_key || process.env.GLM_API_KEY;
-  const endpoint = config.glm_endpoint || 'https://api.z.ai/api/coding/paas/v4/chat/completions';
+  const { multiProviderChat } = await import('@/lib/multi-provider');
 
-  const effectiveModel = model.includes('swarm') ? 'glm-5.1' : (model || 'glm-5.1');
+  let lastError = '';
 
-  // Single call with AbortController timeout
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      if (attempt > 1) {
+        await sleep(attempt * 1000);
+      }
+      return await multiProviderChat(messages, model);
+    } catch (e: any) {
+      lastError = e.message;
+      console.error(`[AI Engine] Attempt ${attempt} failed:`, e.message);
 
-  try {
-    const completion = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'Accept-Language': 'en-US,en',
-      },
-      body: JSON.stringify({
-        model: effectiveModel,
-        messages,
-        temperature: 0.7,
-        max_tokens: 8192,
-      }),
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeout);
-
-    if (completion.status === 429) {
-      throw new Error('Rate limited (429)');
+      // Don't retry on auth errors
+      if (e.message.includes('401') || e.message.includes('403') || e.message.includes('Invalid') || e.message.includes('No API key')) {
+        break;
+      }
     }
-
-    if (completion.status === 503) {
-      throw new Error('Service unavailable (503)');
-    }
-
-    if (!completion.ok) {
-      const text = await completion.text();
-      throw new Error(`API error ${completion.status}: ${text}`);
-    }
-
-    const data = await completion.json();
-    const content = data.choices?.[0]?.message?.content || '';
-    const reasoning = data.choices?.[0]?.message?.reasoning_content || '';
-    return reasoning ? `[Thinking] ${reasoning}\n\n[Response] ${content}` : content;
-
-  } catch (e: any) {
-    clearTimeout(timeout);
-    if (e.name === 'AbortError') {
-      throw new Error('Request timeout - API took too long');
-    }
-    throw e;
   }
+
+  throw new Error(`AI unavailable after ${maxRetries} retries. Last error: ${lastError}`);
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function sleep(ms: number): Promise<void> {
