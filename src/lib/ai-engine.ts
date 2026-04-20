@@ -295,6 +295,12 @@ export async function callAI(messages: { role: string; content: string }[], mode
 
   try {
     const zai = await getZAI();
+
+    if (!zai) {
+      console.log('[AI Engine] SDK not available, falling back to BigModel direct...');
+      return await callBigModelDirect(messages, selectedModel);
+    }
+
     const completion = await zai.chat.completions.create({
       model: selectedModel,
       messages: cleanMessages,
