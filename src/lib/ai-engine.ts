@@ -359,48 +359,6 @@ function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function callBigModelDirect(messages: { role: string; content: string }[], model: string): Promise<string> {
-  const config = loadConfig();
-  const apiKey = config.glm_api_key || process.env.GLM_API_KEY;
-  const endpoint = config.glm_endpoint || 'https://api.z.ai/api/paas/v4/chat/completions';
-
-  if (!apiKey) {
-    throw new Error('No GLM API key configured. Deploy to Vercel for z-ai SDK auto-auth, or set glm_api_key in config.');
-  }
-
-  const effectiveModel = model && !model.includes('swarm') ? model : 'glm-5.1';
-
-  const completion = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-      'Accept-Language': 'en-US,en',
-    },
-    body: JSON.stringify({
-      model: effectiveModel,
-      messages,
-      temperature: 0.7,
-      max_tokens: 131072,
-      thinking: { type: 'enabled', clear_thinking: true },
-    }),
-  });
-
-  if (!completion.ok) {
-    const text = await completion.text();
-    throw new Error(`BigModel API error ${completion.status}: ${text}`);
-  }
-
-  const data = await completion.json();
-  const content = data.choices?.[0]?.message?.content || '';
-  const reasoning = data.choices?.[0]?.message?.reasoning_content || '';
-  return reasoning ? `[Thinking] ${reasoning}\n\n[Response] ${content}` : content;
-}
-
 // ─── Web Search Co-Pilot (auto-searcher like Manus) ───
 export async function webSearch(query: string, numResults = 8): Promise<Array<{ url: string; name: string; snippet: string; rank: number }>> {
   try {
