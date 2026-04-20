@@ -1422,7 +1422,7 @@ function CodespaceIDE({ addLog }: { addLog: (type: LogEntry['type'], msg: string
     <div className="space-y-4">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4" style={{ minHeight: '600px' }}>
         {/* File Tree */}
-        <div className="lg:col-span-1 rounded-xl bg-[#111827] border border-slate-700/50 flex flex-col">
+        <div className="lg:col-span-1 rounded-xl bg-[#111827] border border-slate-700/50 flex flex-col max-h-[600px] overflow-hidden">
           <div className="p-3 border-b border-slate-800 flex items-center justify-between">
             <span className="text-xs font-bold text-slate-400">📁 FILES</span>
             <button onClick={() => { const name = `file_${Date.now().toString(36)}.py`; setFiles(prev => [...prev, { name, path: `/workspace/${name}`, content: '', language: 'python' }]); setActiveFile(files.length); }} className="text-slate-500 hover:text-emerald-400 text-lg leading-none">+</button>
@@ -1435,6 +1435,39 @@ function CodespaceIDE({ addLog }: { addLog: (type: LogEntry['type'], msg: string
                 {f.content && <span className="ml-auto text-[10px] text-slate-600">{f.content.split('\n').length}L</span>}
               </button>
             ))}
+          </div>
+
+          {/* ─── BYPASS TOOLS ─── */}
+          <div className="border-t border-slate-800">
+            <div className="p-3 border-b border-slate-800 flex items-center justify-between">
+              <span className="text-xs font-bold text-red-400">🛠️ BYPASS TOOLS</span>
+              <button onClick={() => window.open('/api/swarm/tools', '_blank')} className="text-slate-500 hover:text-red-400 text-lg leading-none" title="Open all tools">↗</button>
+            </div>
+            <div className="overflow-y-auto max-h-[200px] p-2 space-y-1">
+              {[
+                { name: 'WormGPT Ultimate', file: 'wormgpt-ultimate.py', icon: '🪱', color: 'text-red-400' },
+                { name: 'SuperBet.py', file: 'SuperBet.py', icon: '🎰', color: 'text-green-400' },
+                { name: 'W-Destro.py', file: 'W-Destro.py', icon: '💥', color: 'text-orange-400' },
+                { name: 'Worm-Money-Machine', file: 'Worm-Money-Machine.py', icon: '💸', color: 'text-yellow-400' },
+                { name: 'WormMoneyV3', file: 'WormMoneyV3.py', icon: '🐛', color: 'text-emerald-400' },
+                { name: 'bot-Bet-Win.py', file: 'bot-Bet-Win.py', icon: '🤖', color: 'text-blue-400' },
+                { name: 'WHOAMISec-Arbitrary', file: 'WHOAMISec-Arbitrary-Auto-make-money.py', icon: '⚡', color: 'text-purple-400' },
+                { name: 'WHOAMISec-MakerMoney', file: 'WHOAMISec-MakerMoney.py', icon: '💎', color: 'text-cyan-400' },
+                { name: 'WHOAMISec-SuperBet247', file: 'WHOAMISec-SuperBet247.py', icon: '🎲', color: 'text-pink-400' },
+                { name: 'WHOAMISecMakeMoney', file: 'WHOAMISecMakeMoney.py', icon: '🪙', color: 'text-amber-400' },
+                { name: 'Worm-Destruction', file: 'Worm-Destruction.py', icon: '☠️', color: 'text-red-500' },
+                { name: 'Network.rip', file: 'Network.rip.rar', icon: '🌐', color: 'text-slate-400' },
+              ].map(tool => (
+                <button
+                  key={tool.file}
+                  onClick={() => window.open(`/api/swarm/tools?file=${encodeURIComponent(tool.file)}`, '_blank')}
+                  className={`w-full text-left px-3 py-1.5 rounded-lg text-[11px] flex items-center gap-2 transition-all text-slate-400 hover:bg-slate-800 ${tool.color}`}
+                >
+                  <span>{tool.icon}</span>
+                  <span className="truncate">{tool.name}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
