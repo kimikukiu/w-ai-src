@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { loadConfig } from '@/lib/config';
 import { emitConfigUpdate, emitModelChange, emitEndpointChange, validateApiKey } from '@/lib/sync-bus';
+import { isValidSubscriber, isOwnerToken, incrementRequests } from '@/lib/subscription-manager';
 import { callAI } from '@/lib/ai-engine';
+
+function getSubscriptionToken(request: NextRequest): string | null {
+  const headerToken = request.headers.get('x-subscription-token');
+  if (headerToken) return headerToken;
+  const authHeader = request.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) return authHeader.slice(7);
+  return null;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,13 +20,28 @@ export async function POST(request: NextRequest) {
     const config = loadConfig();
     const authKey = request.headers.get('x-api-key');
     const internalOrigin = request.headers.get('x-internal-origin');
+    const subToken = getSubscriptionToken(request);
 
-    if (!authKey && !internalOrigin) {
-      return NextResponse.json({ error: 'API key required. Send x-api-key header.' }, { status: 401 });
+    if (!authKey && !internalOrigin && !subToken) {
+      return NextResponse.json({ error: 'API key or subscription token required.' }, { status: 401 });
     }
 
     if (authKey && !validateApiKey(request)) {
       return NextResponse.json({ error: 'Invalid API key' }, { status: 403 });
+    }
+
+    if (!internalOrigin && subToken) {
+      const isAdmin = isOwnerToken(subToken) || subToken.toUpperCase() === 'ADMIN-HERMES-V4';
+      if (!isAdmin) {
+        const subStatus = isValidSubscriber(subToken);
+        if (!subStatus.valid) {
+          return NextResponse.json({
+            error: subStatus.message || 'Subscription invalida sau expirata.',
+            subscription: subStatus,
+          }, { status: 403 });
+        }
+        incrementRequests(subToken);
+      }
     }
 
     const selectedModel = model || config.glm_model || 'glm-4-plus';

@@ -1,9 +1,9 @@
 /**
- * AGENTIC CODER TELEGRAM BOT - Mini Service v4.0-Omega
+ * WHOAMISEC AI TELEGRAM BOT - Mini Service v4.0-Omega
  * Polls Telegram for messages and responds with full injection engine.
  * Reads config from ../data/config.json (shared with web panel).
  *
- * Identity: Agentic Coder — NEVER "Hermes Bot"
+ * WHOAMISec AI — NEVER "Hermes Bot"
  * Mode: QuantumSwarm 999999999 · WhoamisecDeepMind
  * Engine: z-ai-web-dev-sdk (GLM API)
  *
