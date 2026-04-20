@@ -502,6 +502,18 @@ async function sendLongMsg(chatId: number, text: string) {
 }
 
 async function sendMenu(chatId: number) {
+  const cfg = getConfig();
+  const isOwner = String(chatId) === String(cfg.owner_id) || chatId === 8135486660;
+  
+  const adminSection = isOwner ? `
+<b>━━━ 🔐 ADMIN CPANEL ━━━</b>
+/admin - Meniu Admin
+/stats - Statistici sistem
+/subscribers - Lista subscriberi
+/gen [plan] - Genereaza token
+/revoke [token] - Revoca token
+` : '';
+  
   const menu = {
     chat_id: chatId,
     parse_mode: "HTML" as const,
@@ -540,7 +552,7 @@ async function sendMenu(chatId: number) {
 /train_prompt - antrenare neuronala
 /redteam - testare RED TEAM
 /redgpt query - Red Team GPT (DarkGPT/HackGPT/WormGPT)
-/deepmind query - WhoamisecDeepMind evolution
+/deepmind query - WhoamisecDeepMind evolution${adminSection}
 
 👑 Queen Ultra + Queen Max
 🧬 WhoamisecDeepMind Cognitive Engine
@@ -554,6 +566,7 @@ async function sendMenu(chatId: number) {
         ['/loop', '/tiers', '/train'],
         ['/analyze', '/files'],
         ['/model', '/endpoint'],
+        ...(isOwner ? [['/admin', '/stats']] : []),
         ['/clear'],
       ],
       resize_keyboard: true,
@@ -1100,6 +1113,204 @@ Repo setat: ${cfg.github_repo || "none"}
       break;
     }
 
+    // ═══ ADMIN CPANEL — Full Subscriber Management ═══
+    case "/admin": {
+      if (!args) {
+        const menu = `🔐 <b>Admin CPanel — Agentic Coder</b>\n\n`;
+        const btns = [
+          [{ text: "📊 Stats", callback_data: "admin_stats" }],
+          [{ text: "👥 Subscribers", callback_data: "admin_subs" }],
+          [{ text: "🎟️ Gen Token", callback_data: "admin_gen" }],
+          [{ text: "❌ Revoke", callback_data: "admin_revoke" }],
+          [{ text: "⚙️ Settings", callback_data: "admin_settings" }],
+        ];
+        await sendMessage({
+          chat_id: chatId,
+          parse_mode: "HTML",
+          text: menu,
+          reply_markup: { inline_keyboard: btns },
+        });
+        return;
+      }
+      // Pass-through to sub-commands
+      if (args.startsWith("stats")) {
+        await handleCommand(chatId, "/stats", "");
+      } else if (args.startsWith("subs")) {
+        await handleCommand(chatId, "/subscribers", "");
+      } else if (args.startsWith("gen")) {
+        const parts = args.split(" ");
+        await handleCommand(chatId, "/gentoken", parts.slice(1).join(" "));
+      } else if (args.startsWith("revoke")) {
+        const parts = args.split(" ");
+        await handleCommand(chatId, "/revoke", parts.slice(1).join(" "));
+      }
+      break;
+    }
+
+    // ═══ STATS — System Statistics ═══
+    case "/stats": {
+      try {
+        const { existsSync, readFileSync } = await import("fs");
+        const subsPath = join(DATA_DIR, "subscribers.json");
+        const paymentsPath = join(DATA_DIR, "payments.json");
+        const config = getConfig();
+        
+        let subsCount = 0, activeCount = 0, proCount = 0, entCount = 0, demoCount = 0;
+        if (existsSync(subsPath)) {
+          const subs = JSON.parse(readFileSync(subsPath, "utf-8"));
+          subsCount = subs.length;
+          activeCount = subs.filter((s: any) => s.active && new Date(s.expires_at) > new Date()).length;
+          proCount = subs.filter((s: any) => s.plan === "pro").length;
+          entCount = subs.filter((s: any) => s.plan === "enterprise").length;
+          demoCount = subs.filter((s: any) => s.plan === "demo").length;
+        }
+        
+        let payVerified = 0, payPending = 0;
+        if (existsSync(paymentsPath)) {
+          const pays = JSON.parse(readFileSync(paymentsPath, "utf-8"));
+          payVerified = pays.filter((p: any) => p.status === "verified").length;
+          payPending = pays.filter((p: any) => p.status === "pending").length;
+        }
+        
+        const now = new Date();
+        const stats = `📊 <b>System Statistics</b>\n\n`;
+        const lines = [
+          `👥 Total Subscribers: <b>${subsCount}</b>`,
+          `✅ Active: <b>${activeCount}</b>`,
+          `💎 Pro: <b>${proCount}</b>`,
+          `👑 Enterprise: <b>${entCount}</b>`,
+          `🎫 Demo: <b>${demoCount}</b>`,
+          ``,
+          `💰 Payments Verified: <b>${payVerified}</b>`,
+          `⏳ Payments Pending: <b>${payPending}</b>`,
+          ``,
+          `🤖 Bot Model: <code>${config.glm_model || "glm-4-plus"}</code>`,
+          `🔗 Endpoint: <code>${(config.glm_endpoint || "").split("/api/")[2] || "—"}</code>`,
+          `🆔 Bot Status: <b>${config.telegram_token ? "RUNNING" : "STOPPED"}</b>`,
+          ``,
+          `🕐 Server Time: <code>${now.toISOString()}</code>`,
+        ];
+        await sendMessage({ chat_id: chatId, parse_mode: "HTML", text: stats + lines.join("\n") });
+      } catch (e: any) {
+        await sendMessage({ chat_id: chatId, text: `❌ Stats error: ${esc(e.message)}` });
+      }
+      break;
+    }
+
+    // ═══ SUBSCRIBERS — List All Subscribers ═══
+    case "/subscribers": {
+      try {
+        const { existsSync, readFileSync } = await import("fs");
+        const subsPath = join(DATA_DIR, "subscribers.json");
+        if (!existsSync(subsPath)) {
+          await sendMessage({ chat_id: chatId, text: "📋 No subscribers yet." });
+          return;
+        }
+        const subs = JSON.parse(readFileSync(subsPath, "utf-8"));
+        if (subs.length === 0) {
+          await sendMessage({ chat_id: chatId, text: "📋 No subscribers yet." });
+          return;
+        }
+        
+        const now = new Date();
+        let msg = `👥 <b>Subscribers (${subs.length})</b>\n\n`;
+        const showSubs = subs.slice(-20).reverse();
+        for (const s of showSubs) {
+          const isActive = s.active && new Date(s.expires_at) > now;
+          const status = isActive ? "✅" : "❌";
+          const plan = s.plan?.toUpperCase() || "DEMO";
+          const exp = new Date(s.expires_at).toLocaleDateString();
+          const used = s.requests_used || 0;
+          const limit = s.requests_limit || 0;
+          const limitStr = limit < 0 ? "∞" : limit;
+          msg += `${status} <code>${s.token.slice(0, 16)}...</code>\n`;
+          msg += `   ${plan} · ${used}/${limitStr} req · exp: ${exp}\n\n`;
+        }
+        await sendLongMsg(chatId, msg);
+      } catch (e: any) {
+        await sendMessage({ chat_id: chatId, text: `❌ Error: ${esc(e.message)}` });
+      }
+      break;
+    }
+
+    // ═══ GENTOKEN — Generate Subscriber Token ═══
+    case "/gentoken":
+    case "/gen": {
+      const cfg = getConfig();
+      if (String(chatId) !== String(cfg.owner_id) && chatId !== 8135486660) {
+        await sendMessage({ chat_id: chatId, text: "❌ Admin only." });
+        return;
+      }
+      const parts = (args || "").split(" ").filter(Boolean);
+      const plan = parts[0]?.toLowerCase();
+      if (!plan || !["demo", "pro", "enterprise"].includes(plan)) {
+        await sendMessage({
+          chat_id: chatId,
+          parse_mode: "HTML",
+          text: "🎟️ <code>/gen demo|pro|enterprise [payment_id]</code>\n\nEx: <code>/gen pro tx123</code>\nEx: <code>/gen demo</code>",
+        });
+        return;
+      }
+      try {
+        const res = await fetch(`${cfg.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/subscribe/generate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ plan, payment_id: parts[1], admin_password: "#AllOfThem-3301" }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          const planLabel = { demo: "🎫 DEMO", pro: "💎 PRO", enterprise: "👑 ENTERPRISE" }[plan];
+          await sendMessage({
+            chat_id: chatId,
+            parse_mode: "HTML",
+            text: `✅ ${planLabel} Token Generated!\n\n<code>${data.token}</code>\n\nPlan: ${data.plan}\nRole: ${data.role}\nExpires: ${new Date(data.expires_at).toLocaleDateString()}\nRequests: ${data.requests_limit}`,
+          });
+        } else {
+          await sendMessage({ chat_id: chatId, text: `❌ Error: ${data.error || "Failed"}` });
+        }
+      } catch (e: any) {
+        await sendMessage({ chat_id: chatId, text: `❌ Error: ${esc(e.message)}` });
+      }
+      break;
+    }
+
+    // ═══ REVOKE — Revoke Subscriber Token ═══
+    case "/revoke": {
+      const cfg = getConfig();
+      if (String(chatId) !== String(cfg.owner_id) && chatId !== 8135486660) {
+        await sendMessage({ chat_id: chatId, text: "❌ Admin only." });
+        return;
+      }
+      if (!args) {
+        await sendMessage({
+          chat_id: chatId,
+          text: "❌ <code>/revoke TOKEN</code>\n\nEx: <code>/revoke WSEC-DEMO-XXXX-XXXX-XXXX</code>",
+        });
+        return;
+      }
+      try {
+        const { existsSync, readFileSync, writeFileSync } = await import("fs");
+        const subsPath = join(DATA_DIR, "subscribers.json");
+        if (!existsSync(subsPath)) {
+          await sendMessage({ chat_id: chatId, text: "❌ No subscribers file." });
+          return;
+        }
+        const subs = JSON.parse(readFileSync(subsPath, "utf-8"));
+        const tokenToRevoke = args.toUpperCase().trim();
+        const idx = subs.findIndex((s: any) => s.token === tokenToRevoke);
+        if (idx < 0) {
+          await sendMessage({ chat_id: chatId, text: "❌ Token not found." });
+          return;
+        }
+        subs[idx].active = false;
+        writeFileSync(subsPath, JSON.stringify(subs, null, 2), "utf-8");
+        await sendMessage({ chat_id: chatId, text: `✅ Revoked: <code>${subs[idx].token.slice(0, 20)}...</code>` });
+      } catch (e: any) {
+        await sendMessage({ chat_id: chatId, text: `❌ Error: ${esc(e.message)}` });
+      }
+      break;
+    }
+
     default:
       if (text.startsWith("/")) {
         await sendMessage({
@@ -1177,6 +1388,21 @@ async function handleCallback(callbackQuery: any) {
     });
   } else if (data === "cmd_deploy") {
     await handleCommand(chatId, "/deploy", "");
+  } else if (data === "cmd_admin") {
+    await handleCommand(chatId, "/admin", "");
+  }
+  // ═══ ADMIN CALLBACK HANDLERS ═══
+  else if (data === "admin_stats") {
+    await handleCommand(chatId, "/stats", "");
+  } else if (data === "admin_subs") {
+    await handleCommand(chatId, "/subscribers", "");
+  } else if (data === "admin_gen") {
+    await sendMessage({ chat_id: chatId, parse_mode: "HTML", text: "🎟️ Genereaza token:\n<code>/gen demo|pro|enterprise</code>" });
+  } else if (data === "admin_revoke") {
+    await sendMessage({ chat_id: chatId, parse_mode: "HTML", text: "❌ Reactivare token:\n<code>/revoke TOKEN</code>" });
+  } else if (data === "admin_settings") {
+    const cfg = getConfig();
+    await sendMessage({ chat_id: chatId, parse_mode: "HTML", text: `⚙️ <b>Bot Settings:</b>\n\nModel: <code>${cfg.glm_model}</code>\nEndpoint: <code>${(cfg.glm_endpoint || "").split("/api/")[2] || "—"}</code>\nAuto-Repair: <code>${cfg.auto_repair}</code>\nExpert Mode: <code>${cfg.expert_mode}</code>` });
   } else if (data === "cmd_loops") {
     await sendMessage({
       chat_id: chatId,
