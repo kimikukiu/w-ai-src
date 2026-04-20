@@ -299,7 +299,19 @@ export async function callAI(messages: { role: string; content: string }[], mode
     'hermes-swarm', 'huggingface-swarm', 'kimi-swarm', 'manus-swarm', 'meta-llama-swarm',
     'modal-swarm', 'replicate-swarm', 'universal-swarm', 'wormgpt-ultimate', 'darkgpt',
     'kligpt', 'hackgpt', 'redgpt', 'ghostgpt', 'nanogpt', 'cryptogpt', 'sexgpt',
-    'evilgpt', 'madgpt', 'queen-swarm'
+    'evilgpt', 'madgpt', 'queen-swarm',
+    'allin-one-swarm-unic', 'all-swarm', 'alpaca-swarm', 'chatglm-swarm', 'anyscale-swarm',
+    'ai21-swarm', 'all-in-one-unic2', 'aleph-alpha-swarm', 'deepseek-coder-swarm', 'command-r-swarm',
+    'dolphin-swarm', 'falcon-swarm', 'claude-opus-swarm', 'claude-haiku-swarm', 'claude-sonnet-swarm',
+    'codestral-swarm', 'codellama-swarm', 'qwen-72b-swarm', 'qwen-32b-swarm', 'qwen-7b-swarm',
+    'qwen-14b-swarm', 'qwen-1.8b-swarm', 'qwen-0.5b-swarm', 'qwen-swarm', 'reka-swarm',
+    'phind-swarm', 'phi-swarm', 'vicuna-swarm', 'zhipu-swarm', 'wizardcoder-swarm',
+    'stepfun-swarm', 'starcoder-swarm', 'together-swarm', 'together-m1-swarm', 'swarm-universal-all-models',
+    'swarm-universal-all-models2', 'perplexity-sonar-swarm', 'llama2-swarm', 'granite-swarm',
+    'llama3-70b-swarm', 'llama3-8b-swarm', 'magicoder-swarm', 'gemini-ultra-swarm', 'gemini-pro-swarm',
+    'got4o-swarm', 'gpt3.5-swarm', 'gpt-turbo-swarm', 'moinshot-swarm', 'mistral-swarm',
+    'mistral-7b-swarm', 'mistral-large-swarm', 'mistral-8x22b-swarm', 'nomic-swarm',
+    'o1-preview-swarm', 'o1-mini-swarm', 'minimax-swarm', 'merlinite-swarm',
   ];
 
   const isSwarmModel = SWARM_MODELS.includes(selectedModel);
