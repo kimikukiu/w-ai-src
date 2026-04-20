@@ -29,40 +29,7 @@ function ensureDataPath(): string {
   return path;
 }
 
-// ─── OpenAI-compatible client for z.ai ───
-import OpenAI from 'openai';
-
-function createZaiClient() {
-  const config = loadConfig();
-  const apiKey = config.glm_api_key || process.env.GLM_API_KEY || '';
-  return new OpenAI({
-    apiKey,
-    baseURL: 'https://api.z.ai/api/paas/v4/',
-    dangerouslyAllowBrowser: true,
-  });
-}
-
-export async function zaiChat(messages: any[], model = 'glm-5.1') {
-  const client = createZaiClient();
-  const response = await client.chat.completions.create({
-    model,
-    messages,
-    temperature: 0.7,
-    max_tokens: 131072,
-  });
-  return response.choices[0]?.message?.content || '';
-}
-
-export async function zaiStreamChat(messages: any[], model = 'glm-5.1') {
-  const client = createZaiClient();
-  return client.chat.completions.create({
-    model,
-    messages,
-    temperature: 0.7,
-    max_tokens: 131072,
-    stream: true,
-  });
-}
+// ─── Direct z.ai API calls via fetch ───
 
 let _zaiInstance: any = null;
 let _zaiPromise: Promise<any> | null = null;
