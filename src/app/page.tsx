@@ -1441,34 +1441,10 @@ function CodespaceIDE({ addLog }: { addLog: (type: LogEntry['type'], msg: string
           <div className="border-t border-slate-800">
             <div className="p-3 border-b border-slate-800 flex items-center justify-between">
               <span className="text-xs font-bold text-red-400">🛠️ BYPASS TOOLS</span>
-              <button onClick={() => window.open('/api/swarm/tools', '_blank')} className="text-slate-500 hover:text-red-400 text-lg leading-none" title="Open all tools">↗</button>
+              <button onClick={() => window.open('/api/swarm/models?tools=true', '_blank')} className="text-slate-500 hover:text-red-400 text-lg leading-none" title="Open all tools">↗</button>
             </div>
             <div className="overflow-y-auto max-h-[200px] p-2 space-y-1">
-              {[
-                { name: 'wormgpt-ultimate', file: 'wormgpt-ultimate.py', icon: '🪱', color: 'text-red-400' },
-                { name: 'SuperBet', file: 'SuperBet.py', icon: '🎰', color: 'text-green-400' },
-                { name: 'W-Destro', file: 'W-Destro.py', icon: '💥', color: 'text-orange-400' },
-                { name: 'Worm-Money-Machine', file: 'Worm-Money-Machine.py', icon: '💸', color: 'text-yellow-400' },
-                { name: 'WormMoneyV3', file: 'WormMoneyV3.py', icon: '🐛', color: 'text-emerald-400' },
-                { name: 'bot-Bet-Win', file: 'bot-Bet-Win.py', icon: '🤖', color: 'text-blue-400' },
-                { name: 'WHOAMISec-Arbitrary-Auto-make-money', file: 'WHOAMISec-Arbitrary-Auto-make-money.py', icon: '⚡', color: 'text-purple-400' },
-                { name: 'WHOAMISec-MakerMoney', file: 'WHOAMISec-MakerMoney.py', icon: '💎', color: 'text-cyan-400' },
-                { name: 'WHOAMISec-SuperBet247', file: 'WHOAMISec-SuperBet247.py', icon: '🎲', color: 'text-pink-400' },
-                { name: 'WHOAMISecMakeMoney', file: 'WHOAMISecMakeMoney.py', icon: '🪙', color: 'text-amber-400' },
-                { name: 'Worm-Destruction', file: 'Worm-Destruction.py', icon: '☠️', color: 'text-red-500' },
-                { name: 'Agent-tool2', file: 'Agent-tool2.zip', icon: '📦', color: 'text-violet-400' },
-                { name: 'byp-all', file: 'byp-all.zip', icon: '🗜️', color: 'text-teal-400' },
-                { name: 'Webstresser.cc', file: 'Webstresser.cc.zip', icon: '🌐', color: 'text-sky-400' },
-              ].map(tool => (
-                <button
-                  key={tool.file}
-                  onClick={() => window.open(`/api/swarm/models?file=${encodeURIComponent(tool.file)}`, '_blank')}
-                  className={`w-full text-left px-3 py-1.5 rounded-lg text-[11px] flex items-center gap-2 transition-all text-slate-400 hover:bg-slate-800 ${tool.color}`}
-                >
-                  <span>{tool.icon}</span>
-                  <span className="truncate">{tool.name}</span>
-                </button>
-              ))}
+              <div className="text-[10px] text-slate-600 italic px-2 py-1">Accesate prin SWARM Agent</div>
             </div>
           </div>
         </div>
