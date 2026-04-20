@@ -2834,6 +2834,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     { id: 'quantum', label: 'Quantum Swarm', icon: Cpu },
     { id: 'glm', label: 'Agentic Coder', icon: Brain },
     { id: 'copilot', label: 'Co-Pilot', icon: Zap },
+    { id: 'redteam', label: 'Red Team', icon: Shield },
     { id: 'codespace', label: 'IDE Coder', icon: Terminal },
     { id: 'files', label: 'Files', icon: FolderOpen },
     { id: 'deploy', label: 'Deploy', icon: Rocket },
