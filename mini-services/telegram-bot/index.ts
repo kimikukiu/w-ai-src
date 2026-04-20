@@ -537,6 +537,10 @@ async function sendMenu(chatId: number) {
 /expo - proiect Expo
 /clear - reseteaza sesiunea
 
+<b>━━━ 🛠️ BYPASS TOOLS ━━━</b>
+/tools - lista toate tool-urile
+/tool [nume] - deschide tool specific
+
 <b>━━━ CO-PILOT (Agentic Searcher + Deep Thinking) ━━━</b>
 /search query - Agentic Searcher
 /think query - Deep Thinking
@@ -576,6 +580,7 @@ async function sendMenu(chatId: number) {
         ['/analyze', '/files'],
         ['/model', '/endpoint'],
         ['/deploy', '/expo'],
+        ['/tools', '/tool'],
         ...(isOwner ? [['Admin', '/admin']] : []),
         ['/clear'],
       ],
@@ -1073,6 +1078,44 @@ Repo setat: ${cfg.github_repo || "none"}
       sessions[chatId] = { history: [], train_prompts: 0 };
       await sendMessage({ chat_id: chatId, text: "🧹 Sesiune resetata!" });
       break;
+
+    // ═══ TOOLS — List all bypass tools ═══
+    case "/tools": {
+      const toolsList = [
+        '🪱 wormgpt-ultimate', '🎰 SuperBet', '💥 W-Destro', '💸 Worm-Money-Machine',
+        '🐛 WormMoneyV3', '🤖 bot-Bet-Win', '⚡ WHOAMISec-Arbitrary', '💎 WHOAMISec-MakerMoney',
+        '🎲 WHOAMISec-SuperBet247', '🪙 WHOAMISecMakeMoney', '☠️ Worm-Destruction',
+        '🔓 AdminPBuster', '🗺️ magic_admin_paths', '💀 Nyxddos', '📜 Real-Original-tools',
+        '⚠️ prompt-danger', '🌌 QuantumAlienSwarm', '🧠 tools-train-gpt', '🦄 unic-gpt',
+      ];
+      await sendMessage({
+        chat_id: chatId,
+        parse_mode: "HTML",
+        text: `🛠️ <b>19 Bypass Tools disponibile:</b>\n\n${toolsList.join('\n')}\n\n<code>/tool [nume]</code> — deschide un tool specific\nEx: <code>/tool wormgpt-ultimate</code>`,
+      });
+      break;
+    }
+
+    // ═══ TOOL — Open specific tool ═══
+    case "/tool": {
+      const toolMap: Record<string, string> = {
+        'wormgpt-ultimate': 'wormgpt-ultimate', 'superbet': 'SuperBet', 'w-destro': 'W-Destro',
+        'worm-money-machine': 'Worm-Money-Machine', 'wormmoneyv3': 'WormMoneyV3', 'bot-bet-win': 'bot-Bet-Win',
+        'whoamisec-arbitrary': 'whoamisec-arbitrary', 'whoamisec-makermoney': 'whoamisec-makermoney',
+        'whoamisec-superbet247': 'whoamisec-superbet247', 'whoamisecmakemoney': 'whoamisecmakemoney',
+        'worm-destruction': 'worm-destruction', 'adminpbuster': 'adminpbuster', 'magic_admin_paths': 'magic-admin-paths',
+        'nyxddos': 'nyxddos', 'real-original-tools': 'real-original-tools', 'prompt-danger': 'prompt-danger',
+        'quantum-alienswarm': 'quantum-alien-swarm', 'tools-train-gpt': 'tools-train-gpt', 'unic-gpt': 'unic-gpt',
+      };
+      const normalized = (args || '').toLowerCase().replace('.py', '').replace(' ', '-');
+      const toolId = toolMap[normalized] || normalized;
+      if (toolId) {
+        await sendMessage({ chat_id: chatId, text: `🔗 https://whoamisec-ai.vercel.app/tools/${toolId}\n\n🛠️ Se deschide în browser...` });
+      } else {
+        await sendMessage({ chat_id: chatId, text: `❌ Tool necunoscut. Foloseste <code>/tools</code> pentru lista.` });
+      }
+      break;
+    }
 
     // ═══ LOOP PROBLEMS ═══
     case "/p1": case "/p2": case "/p3": case "/p4": case "/p5": case "/p6":
