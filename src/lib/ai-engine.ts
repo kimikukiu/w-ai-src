@@ -294,10 +294,12 @@ export async function callAI(messages: { role: string; content: string }[], mode
   const selectedModel = model || 'glm-4-plus';
 
   const SWARM_MODELS = [
-    'glm-5-turbo-swarm', 'glm-4-plus-swarm', 'wormgpt-ultimate', 'darkgpt', 'kligpt',
-    'hackgpt', 'redgpt', 'ghostgpt', 'nanogpt', 'cryptogpt', 'sexgpt', 'evilgpt',
-    'madgpt', 'queen-swarm', 'hermes-swarm', 'deepseek-swarm', 'kimi-swarm',
-    'actai-swarm', 'banana-swarm', 'fireworks-swarm', 'groq-swarm', 'meta-llama-swarm', 'universal-swarm'
+    'glm5turbo-swarm', 'actai-swarm', 'actoaai-swarm', 'banana-swarm', 'baseten-swarm',
+    'claude-swarm', 'deepseek-swarm', 'fireworks-swarm', 'gemini-swarm', 'groq-swarm',
+    'hermes-swarm', 'huggingface-swarm', 'kimi-swarm', 'manus-swarm', 'meta-llama-swarm',
+    'modal-swarm', 'replicate-swarm', 'universal-swarm', 'wormgpt-ultimate', 'darkgpt',
+    'kligpt', 'hackgpt', 'redgpt', 'ghostgpt', 'nanogpt', 'cryptogpt', 'sexgpt',
+    'evilgpt', 'madgpt', 'queen-swarm'
   ];
 
   const isSwarmModel = SWARM_MODELS.includes(selectedModel);
