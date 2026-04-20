@@ -2038,6 +2038,8 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     deepmind: { label: 'DEEPMIND COGNITIVE', icon: '🧬', color: 'text-fuchsia-400', text: '', status: 'pending', ms: 0, firstTokenMs: 0 },
     redteam: { label: 'RED TEAM', icon: '🛡️', color: 'text-red-400', text: '', status: 'pending', ms: 0, firstTokenMs: 0 },
   });
+  const swarmResponsesRef = useRef(swarmResponses);
+  useEffect(() => { swarmResponsesRef.current = swarmResponses; }, [swarmResponses]);
   const [swarmPrompt, setSwarmPrompt] = useState('');
 
   const sendSwarmGLM = async () => {
@@ -2098,8 +2100,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
               setTerminalLines(prev => [...prev, `[${event.agentId.toUpperCase()}] ❌ Error: ${event.error}`]);
             } else if (event.type === 'complete') {
               setGlmLoading(false);
-              const allResponses = Object.values(swarmResponses).map(r => r.text).filter(Boolean);
-              const summary = `[⚡ SWARM COMPLETE — All 5 agents responded in parallel]\n\n${Object.entries(swarmResponses).map(([k, r]) => `[${r.label}] ${r.icon}\n${r.text || 'Pending...'}`).join('\n\n')}`;
+              const currentResponses = swarmResponsesRef.current;
+              const allResponses = Object.values(currentResponses).map(r => r.text).filter(Boolean);
+              const summary = `[⚡ SWARM COMPLETE — All 5 agents responded]\n\n${Object.entries(currentResponses).map(([k, r]) => `[${r.label}] ${r.icon}\n${r.text || 'Pending...'}`).join('\n\n')}`;
               setGlmMessages(prev => [...prev, { role: 'assistant', content: summary }]);
               setTerminalLines(prev => [...prev, ``, `=== SWARM COMPLETE in ${Date.now() - startTime}ms ===`]);
               addLog('ok', `Swarm: all 5 agents done in ${Date.now() - startTime}ms`);
@@ -3272,13 +3275,13 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       {swarmParallel ? '⚡ PARA' : '🔁 SEQ'}
                     </button>
                     <button
-                      onClick={() => swarmMode ? sendCoPilotGLM() : sendSwarmGLM()}
+                      onClick={() => { if (!swarmMode) setSwarmMode(true); }}
                       className={`px-3 py-1.5 rounded text-[11px] font-black uppercase tracking-wider transition-all border ${
                         swarmMode
                           ? 'bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 border-yellow-400/50 text-white shadow-lg shadow-orange-500/40 animate-pulse'
                           : 'bg-red-600/50 border-red-500/50 text-white hover:bg-red-500/60'
                       }`}
-                      title={swarmMode ? 'SWARM: 5 agents parallel — click to activate' : 'Click to activate SWARM MODE: 5 AI agents respond simultaneously'}
+                      title={swarmMode ? 'SWARM: Active — press Enter to send' : 'Click to activate SWARM MODE: 5 AI agents respond simultaneously'}
                     >
                       {swarmMode ? '⚡ SWARM ON 🚀' : '🚀 SWARM'}
                     </button>
@@ -3585,11 +3588,11 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                       id="glmInput"
                       placeholder={copilotMode === 'terminal_execute' ? '$ Execute command or code...' : copilotMode === 'agentic_searcher' ? '🔍 Search anything...' : copilotMode === 'deep_thinking' ? '🧬 Deep thinking query...' : glmMode === 'redteam' ? 'Red Team query...' : 'Cu ce te pot ajuta astazi?'}
                       className="bg-[#0f0505] border-red-500/20 text-white placeholder:text-red-400/40 flex-1 focus:border-red-500/50 focus:ring-red-500/20"
-                      onKeyDown={e => { if (e.key === 'Enter') sendCoPilotGLM(); }}
+                      onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); swarmMode ? sendSwarmGLM() : sendCoPilotGLM(); } }}
                       disabled={glmLoading}
                     />
                     <button
-                      onClick={sendCoPilotGLM}
+                      onClick={swarmMode ? sendSwarmGLM : sendCoPilotGLM}
                       disabled={glmLoading}
                       className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-500 text-white flex items-center justify-center transition-all shadow-lg shadow-red-600/30 disabled:opacity-50"
                     >
