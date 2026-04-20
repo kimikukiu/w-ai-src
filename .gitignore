@@ -86,3 +86,6 @@ skills/
 
 test
 prompt
+
+.vercel
+.env*.local
