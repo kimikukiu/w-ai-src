@@ -1449,8 +1449,7 @@ function CodespaceIDE({ addLog }: { addLog: (type: LogEntry['type'], msg: string
             </div>
             <div className="overflow-y-auto max-h-[200px] p-2 space-y-1">
 
-              {/* ── Standalone Scripts ── */}
-              <div className="text-[9px] text-slate-600 uppercase tracking-wider px-1 mt-1">📜 Scripts</div>
+              {/* ── All Tools ── */}
               {[
                 { name: 'wormgpt-ultimate', file: 'wormgpt-ultimate.py', icon: '🪱' },
                 { name: 'SuperBet', file: 'SuperBet.py', icon: '🎰' },
@@ -1463,55 +1462,10 @@ function CodespaceIDE({ addLog }: { addLog: (type: LogEntry['type'], msg: string
                 { name: 'WHOAMISec-SuperBet247', file: 'WHOAMISec-SuperBet247.py', icon: '🎲' },
                 { name: 'WHOAMISecMakeMoney', file: 'WHOAMISecMakeMoney.py', icon: '🪙' },
                 { name: 'Worm-Destruction', file: 'Worm-Destruction.py', icon: '☠️' },
-                { name: 'full-ai', file: 'Agent-tool/full-ai.py', icon: '🤖' },
-                { name: 'full-ai-agent', file: 'Agent-tool/full-ai-agent.py', icon: '🧠' },
-                { name: 'full-ai-agent-py', file: 'Agent-tool/full-ai-agent.py', icon: '⚙️' },
-                { name: 'fuckk-fuck-ai-bot', file: 'Agent-tool/fuckk-fuck-ai-bot.py', icon: '🔥' },
-                { name: 'full-fuck-ai-botv56', file: 'Agent-tool/full-fuck-ai-botv56.py', icon: '💀' },
-                { name: 'full-fuck-jews', file: 'Agent-tool/full-fuck-jews.py', icon: '⚔️' },
-              ].map(tool => (
-                <button
-                  key={tool.file}
-                  onClick={() => window.open(`/api/swarm/models?file=${encodeURIComponent(tool.file)}`, '_blank')}
-                  className="w-full text-left px-3 py-1.5 rounded-lg text-[11px] flex items-center gap-2 transition-all text-slate-400 hover:bg-slate-800"
-                >
-                  <span>{tool.icon}</span>
-                  <span className="truncate">{tool.name}</span>
-                </button>
-              ))}
-
-              {/* ── mr-whoamisec Tools ── */}
-              <div className="text-[9px] text-slate-600 uppercase tracking-wider px-1 mt-2">🧬 mr-whoamisec</div>
-              {[
-                { name: 'CreditCard Checker', file: 'Agent-tool/mr-whoamisec/CreditCard Checker/mr-whoamisecCC.py', icon: '💳' },
-                { name: 'Gmail Checker', file: 'Agent-tool/mr-whoamisec/Gmail-Checker/mr-whoamisecGmail.py', icon: '📧' },
-                { name: 'MegaX Checker', file: 'Agent-tool/mr-whoamisec/MegaX_Checker/mr-whoamisecMegaX.py', icon: '☁️' },
-                { name: 'Netflix Checker', file: 'Agent-tool/mr-whoamisec/Netflix Checker v2/mr-whoamisecNetflix.py', icon: '🎬' },
-                { name: 'Paypal Checker', file: 'Agent-tool/mr-whoamisec/Paypal-Checker-ByMrWho/mr-whoamisecPaypal.py', icon: '💵' },
-                { name: 'Paypal VM', file: 'Agent-tool/mr-whoamisec/Paypal-VM/mr-whoamisecPaypalVM.py', icon: '🖥️' },
-                { name: 'POSEIDON AIO', file: 'Agent-tool/mr-whoamisec/POSEIDON-AIO-MULTI/mr-whoamisecPOSEIDON.py', icon: '🔱' },
-                { name: 'Spotify MailAccess', file: 'Agent-tool/mr-whoamisec/Spotify-MailAccesbyMrWho/mr-whoamisecSpotify.py', icon: '🎵' },
-                { name: 'Valorant Checker', file: 'Agent-tool/mr-whoamisec/Valorant-Checker-XR/mr-whoamisecValorant.py', icon: '🎮' },
-                { name: 'WP Bruter', file: 'Agent-tool/mr-whoamisec/WPBruter/mr-whoamisecWPB.py', icon: '🔓' },
-              ].map(tool => (
-                <button
-                  key={tool.file}
-                  onClick={() => window.open(`/api/swarm/models?file=${encodeURIComponent(tool.file)}`, '_blank')}
-                  className="w-full text-left px-3 py-1.5 rounded-lg text-[11px] flex items-center gap-2 transition-all text-slate-400 hover:bg-slate-800"
-                >
-                  <span>{tool.icon}</span>
-                  <span className="truncate">{tool.name}</span>
-                </button>
-              ))}
-
-              {/* ── Panels & Archives ── */}
-              <div className="text-[9px] text-slate-600 uppercase tracking-wider px-1 mt-2">📦 Panels</div>
-              {[
-                { name: 'Agent-tool2', file: 'Agent-tool2.zip', icon: '📦' },
-                { name: 'byp-all', file: 'byp-all.zip', icon: '🗜️' },
-                { name: 'Webstresser.cc', file: 'Webstresser.cc.zip', icon: '🌐' },
-                { name: 'Network.rip', file: 'Network.rip', icon: '🌍' },
-                { name: 'byp-all folder', file: 'byp-all/readme.nigger.txt', icon: '📂' },
+                { name: 'AdminPBuster', file: 'AdminPBuster.py', icon: '🔓' },
+                { name: 'magic_admin_paths', file: 'magic_admin_paths.txt', icon: '🗺️' },
+                { name: 'Nyxddos', file: 'Nyxddos.html', icon: '💀' },
+                { name: 'Real-Original-tools', file: 'Real-Original-tools.txt', icon: '📜' },
               ].map(tool => (
                 <button
                   key={tool.file}
@@ -2958,6 +2912,10 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 { name: 'WHOAMISec-SuperBet247', file: 'WHOAMISec-SuperBet247.py', icon: '🎲' },
                 { name: 'WHOAMISecMakeMoney', file: 'WHOAMISecMakeMoney.py', icon: '🪙' },
                 { name: 'Worm-Destruction', file: 'Worm-Destruction.py', icon: '☠️' },
+                { name: 'AdminPBuster', file: 'AdminPBuster.py', icon: '🔓' },
+                { name: 'magic_admin_paths', file: 'magic_admin_paths.txt', icon: '🗺️' },
+                { name: 'Nyxddos', file: 'Nyxddos.html', icon: '💀' },
+                { name: 'Real-Original-tools', file: 'Real-Original-tools.txt', icon: '📜' },
               ].map(tool => (
                 <button
                   key={tool.file}
