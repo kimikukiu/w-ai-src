@@ -10,6 +10,7 @@ export interface HermesConfig {
   glm_model: string;
   glm_endpoint: string;
   github_repo: string;
+  github_token: string;
   auto_repair: string;
   max_repair_iterations: number;
   expert_mode: string;
@@ -27,12 +28,13 @@ export function loadConfig(): HermesConfig {
       return JSON.parse(readFileSync(CONFIG_FILE, 'utf-8'));
     }
   } catch {}
-  return { ...process.env.GITHUB_TOKEN \&\& { github_token: process.env.GITHUB_TOKEN },
+  return {
     glm_api_key: '',
     telegram_token: '',
     glm_model: 'glm-4.6',
     glm_endpoint: 'https://api.z.ai/api/coding/paas/v4/chat/completions',
     github_repo: '',
+    github_token: process.env.GITHUB_TOKEN || '',
     auto_repair: 'true',
     max_repair_iterations: 3,
     expert_mode: 'false',
