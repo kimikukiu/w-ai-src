@@ -37,10 +37,16 @@ const PROVIDERS = {
     defaultModel: 'moonshot-v1-8k',
     models: ['kimi-k2.5', 'kimi-k2', 'kimi-k1.5', 'moonshot-v1-8k', 'moonshot-v1-32k', 'moonshot-v1-128k']
   },
+  'github': {
+    endpoint: 'https://models.github.ai/inference/chat/completions',
+    apiKeyEnv: 'GITHUB_TOKEN',
+    defaultModel: 'openai/gpt-4o',
+    models: ['openai/gpt-4o', 'openai/gpt-4o-mini', 'meta-llama/Llama-3.3-70B-Instruct', 'deepseek-ai/DeepSeek-R1', 'anthropic/claude-3.5-sonnet', 'mistralai/Mixtral-8x7B-Instruct-v0.1']
+  },
   'swarm': {
-    endpoint: 'https://api.z.ai/api/coding/paas/v4/chat/completions',
-    apiKeyEnv: 'GLM_API_KEY',
-    defaultModel: 'glm-5.1',
+    endpoint: 'https://models.github.ai/inference/chat/completions',
+    apiKeyEnv: 'GITHUB_TOKEN',
+    defaultModel: 'openai/gpt-4o',
     models: [] // All SWARM models route here
   }
 };
@@ -48,14 +54,14 @@ const PROVIDERS = {
 function detectProvider(modelId: string): { provider: string; mappedModel: string } {
   const modelLower = modelId.toLowerCase();
 
-  // SWARM models
+  // SWARM models - route to GitHub Models (free)
   if (modelLower.includes('swarm') || modelLower.includes('wormgpt') || modelLower.includes('redgpt') || modelLower.includes('darkgpt') || modelLower.includes('queen-swarm')) {
-    return { provider: 'swarm', mappedModel: 'glm-5.1' };
+    return { provider: 'swarm', mappedModel: 'openai/gpt-4o' };
   }
 
-  // GLM models
+  // GLM models - route to GitHub Models (free) since z.ai has no balance
   if (modelLower.startsWith('glm')) {
-    return { provider: 'glm', mappedModel: modelId };
+    return { provider: 'github', mappedModel: 'meta-llama/Llama-3.3-70B-Instruct' };
   }
 
   // OpenAI models
@@ -83,8 +89,8 @@ function detectProvider(modelId: string): { provider: string; mappedModel: strin
     return { provider: 'kimi', mappedModel: modelId };
   }
 
-  // Default to GLM
-  return { provider: 'glm', mappedModel: 'glm-5.1' };
+  // Default to GitHub Models (free)
+  return { provider: 'github', mappedModel: 'openai/gpt-4o' };
 }
 
 function getApiKey(provider: string): string | null {
@@ -92,8 +98,11 @@ function getApiKey(provider: string): string | null {
 
   switch (provider) {
     case 'glm':
-    case 'swarm':
       return config.glm_api_key || process.env.GLM_API_KEY || null;
+    case 'github':
+      return config.github_token || process.env.GITHUB_TOKEN || null;
+    case 'swarm':
+      return config.github_token || process.env.GITHUB_TOKEN || config.glm_api_key || process.env.GLM_API_KEY || null;
     case 'openai':
       return process.env.OPENAI_API_KEY || null;
     case 'anthropic':
@@ -101,7 +110,7 @@ function getApiKey(provider: string): string | null {
     case 'deepseek':
       return process.env.DEEPSEEK_API_KEY || null;
     case 'google':
-      return process.env.GOOGLE_API_KEY || null;
+      return process.env.GEMINI_API_KEY || null;
     case 'kimi':
       return process.env.KIMI_API_KEY || null;
     default:
