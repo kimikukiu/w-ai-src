@@ -7,6 +7,15 @@ const PROVIDERS = {
     defaultModel: 'glm-5.1',
     models: ['glm-5.1', 'glm-5', 'glm-5-turbo', 'glm-4.7', 'glm-4.6', 'glm-4.5', 'glm-4', 'glm-4-plus', 'glm-4-flash']
   },
+  // GitHub Models — free API via GitHub Personal Access Token (models:read scope)
+  // Endpoint: https://models.inference.ai.azure.com (OpenAI-compatible)
+  // Get your token at: https://github.com/settings/tokens
+  'github': {
+    endpoint: 'https://models.inference.ai.azure.com/chat/completions',
+    apiKeyEnv: 'GITHUB_TOKEN',
+    defaultModel: 'gpt-4o-mini',
+    models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4.1', 'gpt-4.1-mini', 'gpt-4.1-nano', 'o1', 'o1-mini', 'o3', 'o3-mini', 'o4-mini', 'Llama-4-Scout-17B-16E-Instruct', 'Llama-4-Maverick-17B-128E-Instruct', 'Meta-Llama-3.3-70B-Instruct', 'Mistral-large', 'Mistral-small', 'mistral-large-2411', 'AI21-Jamba-1.5-Large', 'AI21-Jamba-1.5-Mini', 'Phi-4', 'Phi-4-mini', 'Phi-3.5-MoE-instruct']
+  },
   'openai': {
     endpoint: 'https://api.openai.com/v1/chat/completions',
     apiKeyEnv: 'OPENAI_API_KEY',
@@ -58,9 +67,32 @@ function detectProvider(modelId: string): { provider: string; mappedModel: strin
     return { provider: 'glm', mappedModel: modelId };
   }
 
-  // OpenAI models
-  if (modelLower.startsWith('gpt')) {
-    return { provider: 'openai', mappedModel: modelId };
+  // OpenAI / GPT models — use GitHub Models (free) if GITHUB_TOKEN is set, else OpenAI
+  if (modelLower.startsWith('gpt') || modelLower.startsWith('o1') || modelLower.startsWith('o3') || modelLower.startsWith('o4')) {
+    const hasGithubToken = !!(process.env.GITHUB_TOKEN);
+    const hasOpenaiKey = !!(process.env.OPENAI_API_KEY);
+    if (hasGithubToken) {
+      // Map to a GitHub Models-supported model name
+      const githubModelMap: Record<string, string> = {
+        'gpt-4o': 'gpt-4o',
+        'gpt-4o-mini': 'gpt-4o-mini',
+        'gpt-4-turbo': 'gpt-4o',
+        'gpt-4': 'gpt-4o',
+        'gpt-3.5-turbo': 'gpt-4o-mini',
+        'o1': 'o1',
+        'o1-mini': 'o4-mini',
+        'o3': 'o3',
+        'o3-mini': 'o3-mini',
+        'o4-mini': 'o4-mini',
+      };
+      const mapped = githubModelMap[modelId] || 'gpt-4o-mini';
+      return { provider: 'github', mappedModel: mapped };
+    }
+    if (hasOpenaiKey) {
+      return { provider: 'openai', mappedModel: modelId };
+    }
+    // Default to GitHub Models even without token — will fail with clear error
+    return { provider: 'github', mappedModel: 'gpt-4o-mini' };
   }
 
   // Claude models
@@ -94,6 +126,10 @@ function getApiKey(provider: string): string | null {
     case 'glm':
     case 'swarm':
       return config.glm_api_key || process.env.GLM_API_KEY || null;
+    case 'github':
+      // GitHub Personal Access Token with models:read scope — free to use
+      // Create at: https://github.com/settings/tokens (classic or fine-grained with models:read)
+      return process.env.GITHUB_TOKEN || process.env.GITHUB_MODELS_TOKEN || null;
     case 'openai':
       return process.env.OPENAI_API_KEY || null;
     case 'anthropic':
@@ -143,6 +179,7 @@ export async function multiProviderChat(messages: any[], modelId: string): Promi
       headers['Accept-Language'] = 'en-US,en';
       break;
 
+    case 'github':
     case 'openai':
     case 'deepseek':
       headers['Authorization'] = `Bearer ${apiKey}`;
@@ -203,6 +240,7 @@ export async function multiProviderChat(messages: any[], modelId: string): Promi
     switch (provider) {
       case 'glm':
       case 'swarm':
+      case 'github':
       case 'openai':
       case 'deepseek':
       case 'kimi':
