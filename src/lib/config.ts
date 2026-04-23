@@ -27,7 +27,7 @@ export function loadConfig(): HermesConfig {
       return JSON.parse(readFileSync(CONFIG_FILE, 'utf-8'));
     }
   } catch {}
-  return {
+  return { ...process.env.GITHUB_TOKEN \&\& { github_token: process.env.GITHUB_TOKEN },
     glm_api_key: '',
     telegram_token: '',
     glm_model: 'glm-4.6',
