@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pyodide Tools Runner - WHOAMISEC AI</title>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    .header { text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 16px; border: 1px solid #333; }
+    .header h1 { color: #00ff88; text-shadow: 0 0 20px rgba(0,255,136,0.5); font-size: 2rem; }
+    .header p { color: #888; margin-top: 10px; }
+    .status { display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; margin-top: 15px; }
+    .status.loading { background: rgba(255,193,7,0.2); color: #ffc107; border: 1px solid #ffc107; }
+    .status.ready { background: rgba(0,255,136,0.2); color: #00ff88; border: 1px solid #00ff88; }
+    .status.error { background: rgba(255,68,68,0.2); color: #ff4444; border: 1px solid #ff4444; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+    .tool-card { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; padding: 20px; border: 1px solid #333; transition: transform 0.2s, border-color 0.2s; }
+    .tool-card:hover { transform: translateY(-4px); border-color: #00ff88; }
+    .tool-name { color: #00ff88; font-size: 1.2rem; font-weight: bold; margin-bottom: 8px; }
+    .tool-desc { color: #aaa; font-size: 0.9rem; margin-bottom: 15px; min-height: 40px; }
+    .tool-meta { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+    .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; }
+    .badge-python { background: rgba(55,118,171,0.2); color: #3776ab; border: 1px solid #3776ab; }
+    .badge-js { background: rgba(247,223,30,0.2); color: #f7df1e; border: 1px solid #f7df1e; }
+    .badge-size { background: rgba(255,255,255,0.1); color: #888; border: 1px solid #444; }
+    .run-btn { width: 100%; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+    .run-btn.python { background: linear-gradient(135deg, #3776ab, #2e6a91); color: white; }
+    .run-btn.python:hover { background: linear-gradient(135deg, #2e6a91, #245578); }
+    .run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .output { margin-top: 15px; padding: 12px; background: #000; border-radius: 8px; font-family: monospace; font-size: 0.85rem; max-height: 200px; overflow-y: auto; color: #0f0; }
+    .console-log { color: #0f0; }
+    .console-warn { color: #ffc107; }
+    .console-error { color: #ff4444; }
+    .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #333; border-top-color: #00ff88; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .search-box { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #333; background: #1a1a2e; color: white; font-size: 1rem; margin-bottom: 20px; }
+    .search-box:focus { outline: none; border-color: #00ff88; }
+    .filter-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-tab { padding: 8px 16px; border-radius: 8px; border: 1px solid #333; background: transparent; color: #888; cursor: pointer; transition: all 0.2s; }
+    .filter-tab:hover { border-color: #00ff88; color: #fff; }
+    .filter-tab.active { background: #00ff88; color: #000; border-color: #00ff88; }
+    .progress-bar { width: 100%; height: 4px; background: #333; border-radius: 2px; overflow: hidden; margin-top: 10px; display: none; }
+    .progress-bar.active { display: block; }
+    .progress-fill { height: 100%; background: #00ff88; width: 0%; transition: width 0.3s; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🐍 Pyodide Tools Runner</h1>
+      <p>Execute Python tools directly in your browser with WebAssembly</p>
+      <div id="status" class="status loading">
+        <span class="loading-spinner"></span> Loading Pyodide...
+      </div>
+      <div id="progress" class="progress-bar">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+    </div>
+
+    <input type="text" id="searchBox" class="search-box" placeholder="Search tools..." oninput="filterTools()">
+
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterByType('all')">All</button>
+      <button class="filter-tab" onclick="filterByType('python')">Python</button>
+      <button class="filter-tab" onclick="filterByType('security')">Security</button>
+      <button class="filter-tab" onclick="filterByType('ai')">AI/ML</button>
+      <button class="filter-tab" onclick="filterByType('automation')">Automation</button>
+    </div>
+
+    <div id="toolsGrid" class="grid"></div>
+  </div>
+
+  <script>
+    let pyodide = null;
+    let tools = [];
+    let filteredTools = [];
+
+    const TOOLS_DATA = [
+      {
+        id: 'adminbuster',
+        name: 'AdminPBuster',
+        desc: 'Admin path scanner and buster',
+        type: 'python',
+        category: 'security',
+        file: 'swarm-models/byp-all-tools/AdminPBuster.py',
+        size: '8.4 KB'
+      },
+      {
+        id: 'botbetwin',
+        name: 'Bot-Bet-Win',
+        desc: 'Betting automation bot',
+        type: 'python',
+        category: 'automation',
+        file: 'swarm-models/byp-all-tools/bot-Bet-Win.py',
+        size: '63 KB'
+      },
+      {
+        id: 'superbet',
+        name: 'SuperBet',
+        desc: 'SuperBet automation script',
+        type: 'python',
+        category: 'automation',
+        file: 'swarm-models/byp-all-tools/SuperBet.py',
+        size: '20.4 KB'
+      },
+      {
+        id: 'wormgpt',
+        name: 'WormGPT Ultimate',
+        desc: 'WormGPT automation tool',
+        type: 'python',
+        category: 'ai',
+        file: 'swarm-models/byp-all-tools/wormgpt-ultimate.py',
+        size: '32.6 KB'
+      },
+      {
+        id: 'wormdestruction',
+        name: 'Worm-Destruction',
+        desc: 'Worm destruction framework',
+        type: 'python',
+        category: 'security',
+        file: 'swarm-models/byp-all-tools/Worm-Destruction.py',
+        size: '51.9 KB'
+      },
+      {
+        id: 'wheremakermoney',
+        name: 'WHOAMISec MakerMoney',
+        desc: 'Money making automation',
+        type: 'python',
+        category: 'automation',
+        file: 'swarm-models/byp-all-tools/WHOAMISec-MakerMoney.py',
+        size: '26.8 KB'
+      },
+      {
+        id: 'wormmoneymachine',
+        name: 'Worm-Money-Machine',
+        desc: 'Automated money machine',
+        type: 'python',
+        category: 'automation',
+        file: 'swarm-models/byp-all-tools/Worm-Money-Machine.py',
+        size: '38.9 KB'
+      },
+      {
+        id: 'nyxddos',
+        name: 'Nyxddos',
+        desc: 'DDoS simulation tool (educational)',
+        type: 'html',
+        category: 'security',
+        file: 'swarm-models/byp-all-tools/Nyxddos.html',
+        size: '15.9 KB'
+      },
+      {
+        id: 'whoisecarbitrary',
+        name: 'WHOAMISec Arbitrary Auto',
+        desc: 'Arbitrary command automation',
+        type: 'python',
+        category: 'automation',
+        file: 'swarm-models/byp-all-tools/WHOAMISec-Arbitrary-Auto-make-money.py',
+        size: '45.9 KB'
+      },
+      {
+        id: 'whoisecsuprbet',
+        name: 'WHOAMISec SuperBet247',
+        desc: 'SuperBet247 automation',
+        type: 'python',
+        category: 'automation',
+        file: 'swarm-models/byp-all-tools/WHOAMISec-SuperBet247.py',
+        size: '43.3 KB'
+      }
+    ];
+
+    async function initPyodide() {
+      const statusEl = document.getElementById('status');
+      const progressEl = document.getElementById('progress');
+      const progressFill = document.getElementById('progressFill');
+      
+      try {
+        progressEl.classList.add('active');
+        progressFill.style.width = '10%';
+        
+        pyodide = await loadPyodide({
+          indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/'
+        });
+        
+        progressFill.style.width = '80%';
+        
+        await pyodide.loadPackage(['requests', 'beautifulsoup4', 'numpy', 'pandas']);
+        
+        progressFill.style.width = '100%';
+        
+        statusEl.className = 'status ready';
+        statusEl.innerHTML = '✓ Pyodide Ready - Python 3.11';
+        
+        setTimeout(() => {
+          progressEl.classList.remove('active');
+        }, 1000);
+        
+        renderTools();
+      } catch (error) {
+        statusEl.className = 'status error';
+        statusEl.innerHTML = '✗ Error loading Pyodide: ' + error.message;
+        console.error(error);
+      }
+    }
+
+    function renderTools() {
+      const grid = document.getElementById('toolsGrid');
+      grid.innerHTML = filteredTools.map(tool => `
+        <div class="tool-card" data-id="${tool.id}" data-type="${tool.type}" data-category="${tool.category}">
+          <div class="tool-name">${tool.name}</div>
+          <div class="tool-desc">${tool.desc}</div>
+          <div class="tool-meta">
+            <span class="badge badge-${tool.type === 'python' ? 'python' : 'js'}">${tool.type.toUpperCase()}</span>
+            <span class="badge badge-size">${tool.size}</span>
+          </div>
+          <button class="run-btn ${tool.type}" onclick="runTool('${tool.id}')" ${!pyodide ? 'disabled' : ''}>
+            ${pyodide ? '▶ Run Tool' : 'Loading...'}
+          </button>
+          <div id="output-${tool.id}" class="output" style="display:none;"></div>
+        </div>
+      `).join('');
+    }
+
+    async function runTool(toolId) {
+      const tool = TOOLS_DATA.find(t => t.id === toolId);
+      if (!tool || !pyodide) return;
+
+      const outputEl = document.getElementById(`output-${toolId}`);
+      outputEl.style.display = 'block';
+      outputEl.innerHTML = '<span class="console-log">Loading source...</span>';
+
+      try {
+        const response = await fetch(tool.file);
+        const code = await response.text();
+
+        outputEl.innerHTML = '<span class="console-log">Executing Python code...</span>\n';
+
+        pyodide.runPython(`
+import sys
+from io import StringIO
+sys.stdout = StringIO()
+sys.stderr = StringIO()
+`);
+
+        await pyodide.runPythonAsync(code);
+
+        const stdout = pyodide.runPython('sys.stdout.getvalue()');
+        const stderr = pyodide.runPython('sys.stderr.getvalue()');
+
+        outputEl.innerHTML = '';
+        if (stdout) {
+          outputEl.innerHTML += `<span class="console-log">${escapeHtml(stdout)}</span>\n`;
+        }
+        if (stderr) {
+          outputEl.innerHTML += `<span class="console-warn">${escapeHtml(stderr)}</span>\n`;
+        }
+        if (!stdout && !stderr) {
+          outputEl.innerHTML += '<span class="console-log">Tool executed successfully (no output)</span>\n';
+        }
+      } catch (error) {
+        outputEl.innerHTML += `<span class="console-error">Error: ${escapeHtml(error.message)}</span>\n`;
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML.replace(/\n/g, '<br>');
+    }
+
+    function filterTools() {
+      const search = document.getElementById('searchBox').value.toLowerCase();
+      filteredTools = TOOLS_DATA.filter(tool => 
+        tool.name.toLowerCase().includes(search) || 
+        tool.desc.toLowerCase().includes(search)
+      );
+      renderTools();
+    }
+
+    function filterByType(type) {
+      document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      if (type === 'all') {
+        filteredTools = TOOLS_DATA;
+      } else {
+        filteredTools = TOOLS_DATA.filter(tool => tool.category === type);
+      }
+      renderTools();
+    }
+
+    tools = TOOLS_DATA;
+    filteredTools = TOOLS_DATA;
+    initPyodide();
+  </script>
+</body>
+</html>
