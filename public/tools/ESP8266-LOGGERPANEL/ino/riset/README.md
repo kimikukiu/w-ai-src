@@ -1,0 +1,16 @@
+# RESET
+
+## Method 1
+
+Buka Reset_Sketch.ino dan unggah dengan pengaturan yang benar.  
+
+## Method 2
+
+Flash salah satu file `reset_`.  
+
+## Method 3
+
+Flash `blank_1MB.bin` ke 0x000000 untuk modul 1MB. 
+Flash ke 0x000000, 0x100000, 0x200000 dan 0x300000 untuk modul 4MB.  
+
+## riset credit (https://github.com/spacehuhntech/esp8266_deauther)

@@ -1,0 +1,288 @@
+/* ─── File Explorer Panel ───────────────────────────────────────────── */
+
+.file-explorer {
+  width: var(--sidebar-w);
+  min-width: 200px;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-1);
+  border-right: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-1);
+  overflow: hidden;
+}
+
+.file-explorer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.file-explorer-title {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text-0);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.file-explorer-actions {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.file-explorer-toggle {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  padding: 2px 6px;
+  border-radius: var(--radius);
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+}
+.file-explorer-toggle:hover {
+  background: var(--bg-hover);
+  color: var(--text-1);
+}
+.file-explorer-toggle-active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.file-explorer-toggle-active:hover {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.file-explorer-search {
+  width: 100%;
+  background: var(--bg-0);
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-0);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  padding: var(--space-1) var(--space-3);
+  outline: none;
+  box-sizing: border-box;
+}
+.file-explorer-search:focus {
+  border-bottom-color: var(--accent);
+}
+.file-explorer-search::placeholder {
+  color: var(--text-3);
+}
+
+.file-explorer-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ─── Project Section ──────────────────────────────────────────────── */
+
+.file-explorer-project {
+  border-bottom: 1px solid var(--border);
+}
+
+.file-explorer-project-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.file-explorer-project-name {
+  color: var(--text-0);
+  font-weight: 500;
+  font-size: var(--text-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Tree Node ────────────────────────────────────────────────────── */
+
+.file-tree-node {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  min-height: 24px;
+  user-select: none;
+}
+.file-tree-node:hover {
+  background: var(--bg-hover);
+}
+
+.file-tree-chevron {
+  color: var(--text-3);
+  font-size: var(--text-sm);
+  transition: transform 0.15s;
+  flex-shrink: 0;
+  width: 12px;
+  text-align: center;
+}
+.file-tree-chevron-open {
+  transform: rotate(90deg);
+}
+.file-tree-chevron-spacer {
+  width: 12px;
+  flex-shrink: 0;
+}
+
+.file-tree-icon {
+  font-size: var(--text-md);
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+}
+
+.file-tree-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-1);
+  font-size: var(--text-xs);
+}
+
+.file-tree-git-badge {
+  font-weight: 700;
+  font-size: var(--text-xs);
+  width: 14px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.file-tree-hidden {
+  opacity: 0.5;
+}
+
+/* ─── File Type Icon Badges ───────────────────────────────────────── */
+
+.file-tree-icon-badge {
+  font-size: 8px;
+  font-weight: 700;
+  flex-shrink: 0;
+  width: 18px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  letter-spacing: -0.02em;
+  background: var(--bg-2);
+  color: var(--text-2);
+}
+
+.file-icon-blue { background: color-mix(in srgb, var(--blue, #61afef) 20%, transparent); color: var(--blue, #61afef); }
+.file-icon-yellow { background: color-mix(in srgb, var(--yellow, #e5c07b) 20%, transparent); color: var(--yellow, #e5c07b); }
+.file-icon-green { background: color-mix(in srgb, var(--green, #98c379) 20%, transparent); color: var(--green, #98c379); }
+.file-icon-orange { background: color-mix(in srgb, var(--orange, #d19a66) 20%, transparent); color: var(--orange, #d19a66); }
+.file-icon-red { background: color-mix(in srgb, var(--red, #e06c75) 20%, transparent); color: var(--red, #e06c75); }
+.file-icon-purple { background: color-mix(in srgb, var(--magenta, #c678dd) 20%, transparent); color: var(--magenta, #c678dd); }
+.file-icon-cyan { background: color-mix(in srgb, var(--cyan, #56b6c2) 20%, transparent); color: var(--cyan, #56b6c2); }
+.file-icon-pink { background: color-mix(in srgb, var(--magenta, #c678dd) 20%, transparent); color: var(--magenta, #c678dd); }
+.file-icon-dim { background: var(--bg-2); color: var(--text-3); }
+
+/* ─── File Explorer State Classes ─────────────────────────────────────── */
+
+.file-explorer-refresh {
+  background: none;
+  border: none;
+  color: var(--text-2);
+  cursor: pointer;
+  font-size: var(--text-md);
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+}
+.file-explorer-refresh:hover {
+  color: var(--text-0);
+  background: var(--bg-hover);
+}
+
+.file-explorer-error {
+  color: var(--red);
+  font-size: var(--text-xs);
+  padding: var(--space-1) var(--space-2);
+  background: var(--red-dim);
+  border-radius: var(--radius-sm);
+  margin: var(--space-1) var(--space-2);
+  word-break: break-word;
+}
+
+.file-explorer-empty {
+  color: var(--text-3);
+  font-size: var(--text-xs);
+  padding: var(--space-2) var(--space-1);
+  text-align: center;
+}
+
+.file-explorer-empty-state {
+  color: var(--text-3);
+  font-size: var(--text-sm);
+  padding: var(--space-4) var(--space-3);
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ─── SSH File Transfer ──────────────────────────────────── */
+
+.file-explorer-drop-active {
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+.file-explorer-drop-overlay {
+  background: var(--accent-dim, rgba(88, 166, 255, 0.08));
+  color: var(--accent);
+  text-align: center;
+  padding: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  margin: 4px 8px;
+}
+
+.file-explorer-upload-status {
+  background: var(--bg-0);
+  color: var(--text-1);
+  font-size: 11px;
+  padding: 4px 8px;
+  margin: 2px 8px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.file-tree-download-btn {
+  background: none;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 0 2px;
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity 0.1s;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.file-tree-node:hover .file-tree-download-btn {
+  opacity: 1;
+}
+
+.file-tree-download-btn:hover {
+  color: var(--accent);
+}

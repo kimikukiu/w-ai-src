@@ -1,0 +1,38 @@
+{
+  "name": "skill-audit",
+  "version": "1.0.0",
+  "description": "Audit agent skill definitions for security, completeness, and compatibility",
+  "main": "dist/index.js",
+  "bin": {
+    "skill-audit": "./dist/cli.js"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "dev": "tsx src/cli.ts"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "skills",
+    "audit",
+    "security",
+    "codex",
+    "claude",
+    "opencode"
+  ],
+  "author": "dabit3",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0",
+    "glob": "^10.3.10",
+    "yaml": "^2.3.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XSS Scan Report - Team BD Cyber Ninja</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #0b0f14;
+            color: #e0e0e0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 230px;
+            height: 100%;
+            background: #05080d;
+            border-right: 2px solid #00ff88;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .sidebar img {
+            width: 140px;
+            margin-bottom: 15px;
+        }
+
+        .sidebar h2 {
+            color: #00ff88;
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        .sidebar p {
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        /* Main Content */
+        .content {
+            margin-left: 250px;
+            padding: 25px;
+        }
+
+        h1 {
+            color: #00ff88;
+            border-bottom: 2px solid #ff0033;
+            padding-bottom: 8px;
+        }
+
+        h2 {
+            color: #ff0033;
+            margin-top: 30px;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .info-box {
+            background: #121821;
+            padding: 15px;
+            border-left: 4px solid #00ff88;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .vuln {
+            background: #121821;
+            border: 1px solid #222;
+            border-left: 4px solid #ff0033;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0,255,136,0.05);
+        }
+
+        .vuln h3 {
+            margin-top: 0;
+            color: #ff4444;
+        }
+
+        .url {
+            word-break: break-all;
+            background: #000;
+            padding: 8px;
+            border-radius: 4px;
+            color: #00ff88;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Replace src with your logo path -->
+        <img src="https://d.top4top.io/p_3674aetq11.jpg" alt="Team BD Cyber Ninja Logo">
+        <h2>Team BD Cyber Ninja</h2>
+        <p>Offensive Security<br>Red Team • Bug Hunting</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <h1>🕷️ XSS Scan Report</h1>
+        <p>Generated on: {{ scan_date }}</p>
+
+        <div class="info-box">
+            <p><span class="label">Target:</span> {{ target_url }}</p>
+            <p><span class="label">Method:</span> {{ method }}</p>
+            <p><span class="label">WAF:</span> {{ waf_type or 'None detected' }}</p>
+        </div>
+
+        <h2>⚠️ Detected Vulnerabilities</h2>
+
+        {% if vulnerabilities %}
+            {% for vuln in vulnerabilities %}
+                <div class="vuln">
+                    <h3>{{ vuln.type }} via {{ vuln.method }}</h3>
+
+                    {% if vuln.complete_url %}
+                        <p><span class="label">Exploit URL:</span></p>
+                        <div class="url">{{ vuln.complete_url }}</div>
+                    {% endif %}
+
+                    <p><span class="label">Payload:</span> {{ vuln.payload }}</p>
+
+                    {% if vuln.context %}
+                        <p><span class="label">Context:</span> {{ vuln.context }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>✅ No vulnerabilities found.</p>
+        {% endif %}
+
+        <footer>
+            © {{ scan_date[:4] }} Team BD Cyber Ninja — Automated XSS Scanner
+        </footer>
+    </div>
+
+</body>
+</html>

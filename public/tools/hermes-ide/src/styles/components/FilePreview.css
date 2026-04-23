@@ -1,0 +1,462 @@
+/* ─── File Preview Panel ───────────────────────────────────────────── */
+
+.file-preview {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.file-preview-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  min-height: 32px;
+}
+
+.file-preview-back {
+  background: none;
+  border: none;
+  color: var(--text-2);
+  cursor: pointer;
+  font-size: var(--text-md);
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+.file-preview-back:hover {
+  color: var(--text-0);
+  background: var(--bg-hover);
+}
+
+.file-preview-filename {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-0);
+  font-weight: 500;
+  font-size: var(--text-sm);
+}
+
+.file-preview-lang {
+  color: var(--text-3);
+  font-size: var(--text-xs);
+  flex-shrink: 0;
+}
+
+.file-preview-open-btn {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-1);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: 2px 8px;
+  border-radius: var(--radius);
+  flex-shrink: 0;
+  transition: background 0.1s, border-color 0.1s;
+}
+.file-preview-open-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent);
+  color: var(--text-0);
+}
+
+/* ─── Content Area ─────────────────────────────────────────────────── */
+
+.file-preview-content {
+  flex: 1;
+  overflow: auto;
+  background: var(--bg-0);
+}
+
+.file-preview-code {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  tab-size: 4;
+}
+
+.file-preview-line-numbers {
+  padding: var(--space-2) 0;
+  text-align: right;
+  color: var(--text-3);
+  user-select: none;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  min-width: 40px;
+}
+
+.file-preview-line-number {
+  padding: 0 var(--space-2);
+  display: block;
+}
+
+.file-preview-lines {
+  flex: 1;
+  padding: var(--space-2) 0;
+  overflow-x: auto;
+  min-width: 0;
+}
+
+.file-preview-line {
+  padding: 0 var(--space-3);
+  white-space: pre;
+  color: var(--text-1);
+}
+
+/* ─── Syntax Tokens ────────────────────────────────────────────────── */
+
+.syn-keyword { color: var(--magenta, #c678dd); }
+.syn-string { color: var(--green, #98c379); }
+.syn-comment { color: var(--text-3); font-style: italic; }
+.syn-number { color: var(--yellow, #e5c07b); }
+.syn-function { color: var(--blue, #61afef); }
+.syn-type { color: var(--cyan, #56b6c2); }
+.syn-operator { color: var(--text-2); }
+.syn-punctuation { color: var(--text-2); }
+.syn-property { color: var(--red, #e06c75); }
+.syn-tag { color: var(--red, #e06c75); }
+.syn-attribute { color: var(--yellow, #e5c07b); }
+
+/* ─── States ───────────────────────────────────────────────────────── */
+
+/* ─── Main Area Container ──────────────────────────────────────────── */
+
+.file-preview-main-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 0;
+}
+
+.file-preview-main-container .file-preview {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ─── States ───────────────────────────────────────────────────────── */
+
+.file-preview-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--text-3);
+  font-size: var(--text-sm);
+  padding: var(--space-4);
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ─── Editor Mode ─────────────────────────────────────────────────── */
+
+.file-editor-content {
+  position: relative;
+  overflow: hidden;
+}
+
+.file-editor-code {
+  height: 100%;
+}
+
+.file-editor-line-numbers {
+  overflow: hidden;
+}
+
+.file-editor-textarea-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.file-editor-highlight-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  tab-size: 4;
+  padding: var(--space-2) var(--space-3);
+  white-space: pre;
+  overflow: hidden;
+  color: transparent;
+  z-index: 1;
+}
+
+.file-editor-highlight-overlay mark {
+  color: transparent;
+  border-radius: 2px;
+}
+
+.file-editor-match {
+  background: rgba(255, 176, 0, 0.25);
+}
+
+.file-editor-match-current {
+  background: rgba(255, 176, 0, 0.55);
+  outline: 1px solid var(--yellow);
+}
+
+.file-editor-textarea {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  color: var(--text-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  tab-size: 4;
+  padding: var(--space-2) var(--space-3);
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow: auto;
+  caret-color: var(--accent);
+}
+
+.file-editor-textarea::selection {
+  background: var(--accent-dim);
+}
+
+.file-editor-dirty-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--yellow);
+  flex-shrink: 0;
+}
+
+.file-editor-saving {
+  font-size: var(--text-xs);
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+
+.file-editor-error {
+  font-size: var(--text-xs);
+  color: var(--red);
+  flex-shrink: 0;
+}
+
+.file-preview-open-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ─── Close Confirmation Dialog ───────────────────────────────────── */
+
+.file-editor-confirm-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+}
+
+.file-editor-confirm-dialog {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.file-editor-confirm-title {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--text-0);
+}
+
+.file-editor-confirm-desc {
+  font-size: var(--text-sm);
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
+.file-editor-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.file-editor-confirm-btn {
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+
+.file-editor-confirm-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-0);
+}
+
+.file-editor-confirm-discard {
+  color: var(--red);
+}
+
+.file-editor-confirm-discard:hover {
+  background: var(--red-dim);
+  color: var(--red);
+}
+
+.file-editor-confirm-save {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-0);
+  font-weight: 600;
+}
+
+.file-editor-confirm-save:hover {
+  opacity: 0.85;
+}
+
+/* ─── Editor Status Bar ──────────────────────────────────────────── */
+
+.editor-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 24px;
+  padding: 0 var(--space-3);
+  border-top: 1px solid var(--border);
+  background: var(--bg-1);
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-2);
+  user-select: none;
+}
+
+.editor-statusbar-left,
+.editor-statusbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.editor-statusbar-item {
+  white-space: nowrap;
+}
+
+.editor-statusbar-dim {
+  color: var(--text-3);
+}
+
+.editor-statusbar-accent {
+  color: var(--accent);
+}
+
+.editor-statusbar-divider {
+  width: 1px;
+  height: 10px;
+  background: var(--border-light);
+}
+
+.editor-statusbar-btn {
+  background: none;
+  border: none;
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.editor-statusbar-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-0);
+}
+
+.editor-statusbar-btn-active {
+  color: var(--accent);
+}
+
+.editor-statusbar-btn-active:hover {
+  color: var(--accent);
+}
+
+/* ─── Indent Picker Menu ─────────────────────────────────────────── */
+
+.editor-statusbar-indent-wrap {
+  position: relative;
+}
+
+.editor-indent-menu {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  right: 0;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-1) 0;
+  min-width: 120px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 20;
+}
+
+.editor-indent-menu-section {
+  padding: 4px 10px 2px;
+  font-size: var(--text-xs);
+  color: var(--text-3);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.editor-indent-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.editor-indent-menu-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-0);
+}
+
+.editor-indent-menu-item-active {
+  color: var(--accent);
+}

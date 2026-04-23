@@ -1,0 +1,35 @@
+<task_context>
+  <instruction>Generate optimized subtasks to solve the user's task efficiently</instruction>
+  
+  <user_task>
+    <input>{{.Task.Input}}</input>
+  </user_task>
+  
+  {{if .Tasks}}
+  <previous_tasks>
+    {{range .Tasks}}
+    <task>
+      <id>{{.ID}}</id>
+      <input>{{.Input}}</input>
+      <status>{{.Status}}</status>
+      <result>{{.Result}}</result>
+    </task>
+    {{end}}
+  </previous_tasks>
+  {{end}}
+  
+  {{if .Subtasks}}
+  <previous_subtasks>
+    {{range .Subtasks}}
+    <subtask>
+      <task_id>{{.TaskID}}</task_id>
+      <id>{{.ID}}</id>
+      <title>{{.Title}}</title>
+      <description>{{.Description}}</description>
+      <status>{{.Status}}</status>
+      <result>{{.Result}}</result>
+    </subtask>
+    {{end}}
+  </previous_subtasks>
+  {{end}}
+</task_context>

@@ -1,0 +1,42 @@
+{
+  "name": "hping",
+  "version": "0.2.1",
+  "description": "HTTP ping CLI with Node.js that sends HEAD or GET or POST requests to web or api servers and checks if they alive",
+  "main": "lib/cli.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kurdin/hping.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node ./bin/hping",
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage"
+  },
+  "keywords": [
+    "http ping",
+    "http get request ping",
+    "nodejs http ping",
+    "cli http ping",
+    "javascript http ping",
+    "hping",
+    "hping cli",
+    "ping http servers",
+    "ping servers over http"
+  ],
+  "bin": {
+    "hping": "./bin/hping"
+  },
+  "author": {
+    "name": "Sergey Kurdin",
+    "email": "sergey@anothervision.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^14.0.2",
+    "js-yaml": "^4.1.1",
+    "picocolors": "^1.1.1"
+  }
+}

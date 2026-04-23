@@ -1,0 +1,59 @@
+[package]
+name = "hermes-ide"
+version = "0.6.11"
+description = "AI-native terminal"
+authors = ["Gabriel Anhaia"]
+edition = "2021"
+[lib]
+name = "hermes_ide_lib"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+[[bin]]
+name = "hermes-ide"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["macos-private-api"] }
+tauri-plugin-shell = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
+tauri-plugin-aptabase = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+portable-pty = "0.9"
+rusqlite = { version = "0.39", features = ["bundled"] }
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+strip-ansi-escapes = "0.2"
+libc = "0.2"
+log = "0.4"
+env_logger = "0.11"
+walkdir = "2"
+base64 = "0.22"
+regex = "1"
+lazy_static = "1"
+sysinfo = { version = "0.38", features = ["system", "user"] }
+git2 = { version = "0.20", features = ["vendored-openssl"] }
+ignore = "0.4"
+dirs = "6"
+tokio = { version = "1", features = ["rt-multi-thread"] }
+arboard = { version = "3", features = ["image-data"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "gif", "webp", "bmp", "tiff"] }
+flate2 = "1"
+reqwest = { version = "0.12", features = ["rustls-tls"], default-features = false }
+tar = "0.4"
+anyhow = "1"
+notify = "8"
+
+[dev-dependencies]
+tempfile = "3"
+criterion = { version = "0.8", features = ["html_reports"] }
+
+[[bench]]
+name = "analyzer"
+harness = false

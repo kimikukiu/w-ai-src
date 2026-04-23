@@ -1,0 +1,16 @@
+ESP8266 Core
+   - ESP8266WiFi.h
+   - ESP8266HTTPClient.h
+   - ESP8266WebServer.h
+   
+Display OLED (SSD1306)
+   - Wire.h (I2C communication)
+   - Adafruit_GFX.h (Grafik dasar)
+   - Adafruit_SSD1306.h (Driver OLED)
+   
+//ofc
+   - ESP8266WiFi (Official ESP8266)
+   - ESP8266HTTPClient (Official ESP8266)
+   - ESP8266WebServer (Official ESP8266)
+   - Adafruit GFX Library
+   - Adafruit SSD1306

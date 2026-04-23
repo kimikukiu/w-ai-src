@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RealVideo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            height: 80vh;
+        }
+
+        .video-section {
+            flex: 2;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .control-section {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-display {
+            width: 100%;
+            height: 512px;
+            background: #000;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .video-display img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .control-section .control-group:last-child {
+            margin-bottom: 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .button-group button {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .mode-selector label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .mode-selector label:hover {
+            border-color: #007bff;
+            background-color: #f0f8ff;
+        }
+
+        .mode-selector input[type="radio"]:checked + span {
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .mode-selector label:has(input:checked) {
+            border-color: #007bff;
+            background-color: #e7f3ff;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .status {
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .message-log {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .message {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+        .message.text {
+            background: #d1ecf1;
+        }
+
+        .message.audio {
+            background: #d4edda;
+        }
+
+        .message.error {
+            background: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+    <h1>RealVideo</h1>
+
+    <div class="container">
+        <div class="video-section">
+            <h2>Video display</h2>
+            <div class="video-display" id="videoDisplay">
+                <span>Waiting for connection...</span>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <h2>Control panel</h2>
+
+            <div class="control-group">
+                <label>Status:</label>
+                <div class="status" id="connectionStatus">Disconnected</div>
+                <button id="connectBtn" onclick="connectWebSocket()">Connect</button>
+                <button id="disconnectBtn" onclick="disconnectWebSocket()" disabled>Disconnect</button>
+            </div>
+
+            <div class="control-group">
+                <label>Character profile:</label>
+                <input type="text" id="characterProfile" value="You are a helpful assistant.">
+                <label>Text input:</label>
+                <input type="text" id="textInput" placeholder="Type a message..." onkeypress="handleTextKeyPress(event)" oninput="updateContentStatus()">
+                <button onclick="sendContent()" id="sendBtn" disabled>Send</button>
+            </div>
+
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="fileInput" class="file-input" accept="image/*,.mp3,.wav">
+            </div>
+
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
+
+            <button class="upload-btn" id="uploadBtn" disabled>Upload</button>
+
+            <div class="status-message" id="statusMessage"></div>
+
+            <p>Upload image (jpg, jpeg, png) to set the avatar, or upload audio (mp3, wav) to clone a voice, maximum 10MB.</p>
+            <div class="footer">
+            </div>
+
+            <div class="control-group">
+                <label>Image path:</label>
+                <input type="text" id="imagePath" value="resources/cat.png">
+            </div>
+
+            <div class="control-group">
+                <label>Voice ID:</label>
+                <select name="voiceID" id="voiceID">
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Message log:</label>
+                <div class="message-log" id="messageLog"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let websocket = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let audioContext = null;
+        let analyser = null;
+        let microphone = null;
+        let currentAudio = null;
+        let recordedAudio = null;
+
+        let audioQueue = [];
+        let isPlayingAudio = false;
+        let audioQueueMaxLength = 50;
+        let audioPlayCount = 0;
+        let maxAudioPlays = 1000;
+
+        let audioMonitorInterval = null;
+        let lastAudioTime = Date.now();
+        let audioStallCount = 0;
+        let maxAudioStalls = 3;
+
+        let videoFrameQueue = [];
+        let videoFrameBuffer = [];
+        let isVideoPlaying = false;
+        let videoFrameInterval = null;
+        const TARGET_FPS = 16;
+        const FRAME_INTERVAL = 1000 / TARGET_FPS;
+        let lastFrameTime = 0;
+        let frameCounter = 0;
+        let maxFrameQueueLength = 6;
+        let minFrameQueueLength = 5;
+
+        let connectionStartTime = 0;
+        let lastMessageTime = 0;
+        let frameReceived = 0;
+        let currentDisplayFrameNumber = 0;
+        let audioTimeoutDuration = 128 * 1000 / TARGET_FPS;
+        let currentAudioStopFrameNumber = 0;
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const pathInput = document.getElementById('imagePath');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+
+        const API_BASE_URL = `${window.location.hostname}:8003`
+
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                handleFileSelection(this.files[0]);
+            }
+        });
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            uploadArea.classList.add('highlight');
+        }
+
+        function unhighlight() {
+            uploadArea.classList.remove('highlight');
+        }
+
+        uploadArea.addEventListener('drop', function(e) {
+            const dt = e.dataTransfer;
+            const file = dt.files[0];
+            handleFileSelection(file);
+        });
+
+        function handleFileSelection(file) {
+            if (!file.type.match(/^(image|audio)\//)) {
+                showStatus('Please select image (jpg, jpeg, png) or audio (mp3, wav)', 'error');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                showStatus('File size cannot exceed 10MB', 'error');
+                return;
+            }
+
+            uploadBtn.disabled = false;
+            hideStatus();
+        }
+
+        uploadBtn.addEventListener('click', function() {
+            if (!fileInput.files[0]) {
+                showStatus('Please select a file', 'error');
+                return;
+            }
+            const file = fileInput.files[0]
+            console.log(file)
+
+            if (file.type.match('image.*')) {
+                console.log('Uploading image')
+                uploadImage(fileInput.files[0]);
+            } else if (file.type.match('audio.*')) {
+                console.log('Uploading audio')
+                uploadAudio(fileInput.files[0])
+            }
+        });
+
+        async function uploadImage(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressText.textContent = '0%';
+
+            uploadBtn.disabled = true;
+
+            try {
+                const response = await fetch(`/upload_image`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                simulateProgress();
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    const fullImageUrl = `${data.image_path}`;
+                    pathInput.value = fullImageUrl;
+                    showStatus('Image uploaded successfully!', 'success');
+
+                } else {
+                    showStatus('Upload failed: ' + (data.detail || data.message), 'error');
+                }
+            } catch (error) {
+                showStatus('Upload failed, network error: ' + error.message, 'error');
+            } finally {
+                progressContainer.style.display = 'none';
+                uploadBtn.disabled = false;
+            }
+        }
+
+        async function uploadAudio(file) {
+            const formData = new FormData();
+            formData.append('audio', file);
+
+            uploadBtn.disabled = true;
+
+            fetch('/upload_audio', {method: 'POST', body: formData})
+            .then(response => response.json())
+            .then(data => {
+                showStatus('Audio uploaded successfully!', 'success');
+                const selectElement = document.getElementById('voiceID');
+                selectElement.length = 0;
+                voice_list = data.voice_list
+
+                voice_list.forEach(pair => {
+                    const text = pair[0];
+                    const value = pair[1];
+                    const option = new Option(text, value);
+
+                    selectElement.add(option);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        async function getVoiceList() {
+            const elementId = 'voiceID'
+            const selectElement = document.getElementById(elementId);
+            try {
+                const response = await fetch('/get_voice_list');
+                const data = await response.json();
+
+                if (data.success) {
+                    selectElement.length = 0;
+
+                    const listData = data.voice_list;
+
+                    listData.forEach(item => {
+                        selectElement.add(new Option(item[0], item[1]));
+                    });
+
+                    console.log(`[${elementId}] Loaded`);
+                } else {
+                    console.error(`[${elementId}] Failed:`, data.message);
+                    selectElement.options[0].text = "Loading failed: " + data.message;
+                }
+            } catch (error) {
+                console.error(`[${elementId}] Network error:`, error);
+            }
+        }
+
+        function simulateProgress() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                }
+                progressBar.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '%';
+            }, 200);
+        }
+
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = 'status-message ' + type;
+            statusMessage.style.display = 'block';
+        }
+
+        function hideStatus() {
+            statusMessage.style.display = 'none';
+        }
+
+        function connectWebSocket() {
+            const clientId = Math.floor(Math.random() * 1000);
+            const wsUrl = `ws://${window.location.hostname}:8003/ws/${clientId}`;
+            console.log(wsUrl)
+
+            websocket = new WebSocket(wsUrl);
+
+            websocket.onopen = function(event) {
+                connectionStartTime = Date.now();
+                lastMessageTime = Date.now();
+                updateConnectionStatus('Connected');
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('disconnectBtn').disabled = false;
+                addMessage('System', 'WebSocket connected', 'text');
+
+                sendImageConfig();
+
+                resetAudioSystem();
+                resetVideoSystem();
+            };
+            console.log(`websocket init done`)
+
+            websocket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            };
+
+            websocket.onclose = function(event) {
+                updateConnectionStatus('Disconnected');
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+                addMessage('System', 'WebSocket disconnected', 'text');
+
+                resetAudioSystem();
+                resetVideoSystem();
+            };
+
+            websocket.onerror = function(error) {
+                addMessage('System', 'WebSocket error: ' + error, 'error');
+                console.log(error.data)
+            };
+        }
+
+        function disconnectWebSocket() {
+            if (websocket) {
+                websocket.close();
+            }
+        }
+
+        function updateConnectionStatus(status) {
+            document.getElementById('connectionStatus').textContent = status;
+        }
+
+        function updateContentStatus() {
+            const textInput = document.getElementById('textInput');
+            const text = textInput.value.trim();
+            const hasText = text.length > 0;
+            const sendBtn = document.getElementById('sendBtn');
+
+            if (hasText) {
+                sendBtn.disabled = false;
+            } else {
+                sendBtn.disabled = true;
+            }
+        }
+
+        function addMessage(sender, content, type) {
+            const messageLog = document.getElementById('messageLog');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = `<strong>${sender}:</strong> ${content}`;
+            messageLog.appendChild(messageDiv);
+            messageLog.scrollTop = messageLog.scrollHeight;
+        }
+
+        function handleWebSocketMessage(data) {
+            const timestamp = new Date(data.timestamp).toLocaleTimeString();
+            lastMessageTime = Date.now();
+            console.log(`websocket received ${data.type}`)
+
+            if (data.type === 'text') {
+                addMessage('AI', data.content, 'text');
+            } else if (data.type === 'audio_image') {
+                if (data.audio && data.audio.length > 0) {
+                    console.log(`Received audio data, size: ${data.audio.length}`);
+
+                    addAudioToQueue([data.frame_index, data.audio, data.audio_finish_frame]);
+                } else {
+                    console.log('Received video frame only (no audio data)');
+                }
+
+                if (data.image && data.image.length > 0) {
+                    console.log(`Received image data, size: ${data.image.length}, frame: ${data.frame_index || 0}/${data.total_frames || 1}`);
+                    addVideoFrameToQueue(data.image);
+                } else {
+                    console.warn('Received empty image data');
+                }
+            } else if (data.type === 'error') {
+                addMessage('System', data.message, 'error');
+            } else if (data.type == 'processing_status') {
+                addMessage('System', data.message, 'text')
+            }
+        }
+
+        function sendImageConfig() {
+            const imagePath = document.getElementById('imagePath');
+            let message = {
+                type: 'image_config',
+                image_path: imagePath.value.trim()
+            };
+            websocket.send(JSON.stringify(message));
+            addMessage('System', 'Image config sent')
+        }
+
+        function sendContent() {
+            const characterProfile = document.getElementById('characterProfile');
+            const profile = characterProfile.value.trim();
+            const textInput = document.getElementById('textInput');
+            const text = textInput.value.trim();
+            const hasText = text.length > 0;
+            const voiceID = document.getElementById('voiceID');
+
+            if (!hasText) {
+                addMessage('System', 'Please input text.', 'error');
+                return;
+            }
+
+            if (websocket) {
+                let message;
+                let messageType;
+
+                message = {
+                    type: 'text',
+                    profile: profile,
+                    text: text,
+                    voice_id: voiceID.value.trim(),
+                    timestamp: new Date().toISOString()
+                };
+                    messageType = 'text';
+
+                websocket.send(JSON.stringify(message));
+
+                textInput.value = '';
+                updateContentStatus();
+
+            }
+        }
+
+        function handleTextKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendContent();
+            }
+        }
+
+        function addAudioToQueue(audioItem) {
+            let [frame_index, audioBase64, audio_finish_frame] = audioItem
+            if (!audioBase64 || audioBase64.length < 100) {
+                console.warn('Invalid audio data received');
+                return;
+            }
+
+            lastAudioTime = Date.now();
+
+            if (audioPlayCount >= maxAudioPlays) {
+                console.warn('Audio play limit reached, resetting audio system');
+                resetAudioSystem();
+                audioPlayCount = 0;
+            }
+
+            if (audioQueue.length >= audioQueueMaxLength) {
+                console.warn('Audio queue full, clearing oldest items');
+                audioQueue.splice(0, Math.floor(audioQueueMaxLength * 0.3));
+            }
+
+            console.log(`Adding audio to queue, size: ${audioBase64.length}, queue length: ${audioQueue.length}`);
+            audioQueue.push([frame_index, audioBase64, audio_finish_frame]);
+
+            if (!isPlayingAudio) {
+                processAudioQueue();
+            }
+        }
+
+        const waitUntil = (condition, checkInterval=FRAME_INTERVAL) => {
+            return new Promise(resolve => {
+                let interval = setInterval(() => {
+                    if (!condition()) return;
+                    clearInterval(interval);
+                    resolve();
+                }, checkInterval)
+            })
+        }
+
+        async function processAudioQueue() {
+            if (audioQueue.length === 0 || isPlayingAudio) {
+                return;
+            }
+
+            isPlayingAudio = true;
+            let processedCount = 0;
+            const maxProcessPerBatch = 100;
+
+            try {
+                while (audioQueue.length > 0 && processedCount < maxProcessPerBatch) {
+                    const audioItem = audioQueue.shift();
+                    console.log('audio pair:', audioItem);
+                    const [frameIndex, audioBase64, audio_finish_frame] = audioItem;
+                    await waitUntil(() => (currentDisplayFrameNumber >= frameIndex));
+                    console.log('playing:', frameIndex, audio_finish_frame, 'current_display frame:', currentDisplayFrameNumber);
+                    currentAudioStopFrameNumber = audio_finish_frame
+                    await playAudioSequentially(audioBase64);
+                    processedCount++;
+                    audioPlayCount++;
+
+                }
+            } catch (error) {
+                console.error('Error processing audio queue:', error);
+            }
+
+            isPlayingAudio = false;
+
+            if (audioQueue.length > 0) {
+                setTimeout(() => {
+                    if (!isPlayingAudio) {
+                        processAudioQueue();
+                    }
+                }, 20000);
+            }
+        }
+
+        async function playAudioSequentially(audioBase64) {
+            return new Promise((resolve) => {
+                console.log(`Playing audio sequentially, size: ${audioBase64.length}`);
+
+                if (currentAudio) {
+                    currentAudio.onended = null;
+                    currentAudio.onerror = null;
+                    currentAudio.onloadeddata = null;
+                    currentAudio.pause();
+                    currentAudio.src = '';
+                    currentAudio = null;
+                }
+
+                try {
+                    const audioSrc = `data:audio/wav;base64,${audioBase64}`;
+                    currentAudio = new Audio(audioSrc);
+
+                    const loadTimeout = setTimeout(() => {
+                        console.warn('Audio loading timeout, skipping');
+                        cleanupAudio();
+                        resolve();
+                    }, 15000);
+
+                    currentAudio.onloadeddata = function() {
+                        clearTimeout(loadTimeout);
+                        console.log(`Audio loaded successfully, duration: ${currentAudio.duration}s`);
+
+                        const durationTimeout = setTimeout(() => {
+                            console.log('Audio playback completed by duration timeout');
+                            cleanupAudio();
+                            resolve();
+                        }, Math.min((currentAudio.duration || 10), audioTimeoutDuration) * 1000);
+
+                        currentAudio._durationTimeout = durationTimeout;
+                    };
+
+                    currentAudio.onended = function() {
+                        cleanupAudio();
+                        console.log('Audio playback finished');
+                        resolve();
+                    };
+
+                    currentAudio.onerror = function(error) {
+                        cleanupAudio();
+                        console.error('Audio playback error:', error);
+                        resolve();
+                    };
+
+                    const playPromise = currentAudio.play();
+
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            console.log('Audio playback started successfully');
+                        }).catch(error => {
+                            console.warn('Audio play warning:', error);
+                            cleanupAudio();
+                            resolve();
+                        });
+                    }
+
+                } catch (error) {
+                    console.error('Error creating audio object:', error);
+                    cleanupAudio();
+                    resolve();
+                }
+            });
+        }
+
+        function cleanupAudio() {
+            if (currentAudio) {
+                currentAudio.onended = null;
+                currentAudio.onerror = null;
+                currentAudio.onloadeddata = null;
+
+                if (currentAudio._durationTimeout) {
+                    clearTimeout(currentAudio._durationTimeout);
+                    currentAudio._durationTimeout = null;
+                }
+
+                currentAudio.pause();
+                currentAudio.src = '';
+                currentAudio = null;
+            }
+        }
+
+
+        function addVideoFrameToQueue(imageBase64) {
+            if (!imageBase64 || imageBase64.length < 100) {
+                console.warn('Invalid image data received');
+                return;
+            }
+
+            const frameData = {
+                image: imageBase64,
+                timestamp: Date.now(),
+                frameNumber: frameCounter++
+            };
+
+            console.log(`Adding video frame to queue, frame #${frameData.frameNumber}, size: ${imageBase64.length}`);
+            videoFrameQueue.push(frameData);
+            frameReceived++;
+
+            if (!isVideoPlaying) {
+                startVideoPlayback();
+            }
+
+            if (videoFrameQueue.length > maxFrameQueueLength) {
+                if (websocket) {
+                    let message = {
+                        type: 'control',
+                        text: 'stop decode',
+                        timestamp: new Date().toISOString()
+                    }
+                    websocket.send(JSON.stringify(message));
+                }
+            }
+        }
+
+        function startVideoPlayback() {
+            if (isVideoPlaying) {
+                return;
+            }
+
+            console.log('Starting video playback at 16fps');
+            isVideoPlaying = true;
+
+            displayNextFrame();
+
+            videoFrameInterval = setInterval(() => {
+                displayNextFrame();
+            }, FRAME_INTERVAL);
+        }
+
+        function displayNextFrame() {
+            const currentTime = Date.now();
+
+            let frameToDisplay = null;
+
+            if (videoFrameQueue.length > 0) {
+                frameToDisplay = videoFrameQueue.shift();
+                videoFrameBuffer.push(frameToDisplay);
+
+                if (videoFrameBuffer.length > 2) {
+                    videoFrameBuffer.shift();
+                }
+
+                if (videoFrameQueue.length <= minFrameQueueLength) {
+                if (websocket) {
+                    let message = {
+                        type: 'control',
+                        text: 'do decode',
+                        timestamp: new Date().toISOString()
+                    }
+                    websocket.send(JSON.stringify(message));
+                }
+            }
+
+                console.log(`Displaying frame #${frameToDisplay.frameNumber} from queue`);
+            } else if (videoFrameBuffer.length > 0) {
+                frameToDisplay = videoFrameBuffer[videoFrameBuffer.length - 1];
+                console.log(`No new frames, using last buffered frame #${frameToDisplay.frameNumber}`);
+            } else {
+                console.log('No frames available, showing placeholder');
+                const videoDisplay = document.getElementById('videoDisplay');
+                videoDisplay.innerHTML = '<div style="color: white; font-size: 18px;">Waiting for frames...</div>';
+                return;
+            }
+            currentDisplayFrameNumber = frameToDisplay.frameNumber;
+            if ((currentDisplayFrameNumber > currentAudioStopFrameNumber) && (currentAudio != null)) {
+                console.log('Cleaning audio:', currentDisplayFrameNumber, currentAudioStopFrameNumber);
+                cleanupAudio();
+                isPlayingAudio = false;
+                processAudioQueue();
+            }
+
+            const videoDisplay = document.getElementById('videoDisplay');
+            const currentTimeStr = new Date().toLocaleTimeString();
+            videoDisplay.innerHTML = `<img src="data:image/jpeg;base64,${frameToDisplay.image}" alt="Frame #${frameToDisplay.frameNumber} at ${currentTimeStr}">`;
+
+            const img = videoDisplay.querySelector('img');
+            if (img) {
+                img.onload = function() {
+                    console.log(`Frame #${frameToDisplay.frameNumber} loaded successfully`);
+                };
+                img.onerror = function() {
+                    console.error(`Failed to load frame #${frameToDisplay.frameNumber}`);
+                };
+            }
+
+            lastFrameTime = currentTime;
+        }
+
+        function stopVideoPlayback() {
+            if (videoFrameInterval) {
+                clearInterval(videoFrameInterval);
+                videoFrameInterval = null;
+            }
+            isVideoPlaying = false;
+            console.log('Video playback stopped');
+        }
+
+        function resetAudioSystem() {
+            console.log('Resetting audio system...');
+
+            cleanupAudio();
+
+            audioQueue = [];
+
+            isPlayingAudio = false;
+            audioPlayCount = 0;
+
+            if (window.gc) {
+                window.gc();
+            }
+
+            console.log('Audio system reset completed');
+        }
+
+        function resetVideoSystem() {
+            console.log('Resetting video system...');
+            stopVideoPlayback();
+            videoFrameQueue = [];
+            videoFrameBuffer = [];
+            frameCounter = 0;
+            lastFrameTime = 0;
+
+            const videoDisplay = document.getElementById('videoDisplay');
+            videoDisplay.innerHTML = '<div style="color: white; font-size: 18px;">Video reset</div>';
+        }
+
+        window.addEventListener('beforeunload', function() {
+            if (websocket) {
+                websocket.close();
+            }
+            resetAudioSystem();
+        });
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                if (currentAudio) {
+                    currentAudio.pause();
+                }
+            } else {
+                if (currentAudio && !isPlayingAudio) {
+                    currentAudio.play().catch(() => {
+                    });
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            getVoiceList();
+        });
+    </script>
+</body>
+</html>
