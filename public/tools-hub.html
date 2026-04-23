@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WHOAMISEC Tools Hub - All Python Tools Executable</title>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; }
+    .container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+    .header { text-align: center; margin-bottom: 30px; padding: 25px; background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 16px; border: 1px solid #333; }
+    .header h1 { color: #00ff88; text-shadow: 0 0 20px rgba(0,255,136,0.5); font-size: 2.5rem; }
+    .header p { color: #888; margin-top: 10px; }
+    .status { display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; margin-top: 15px; }
+    .status.loading { background: rgba(255,193,7,0.2); color: #ffc107; border: 1px solid #ffc107; }
+    .status.ready { background: rgba(0,255,136,0.2); color: #00ff88; border: 1px solid #00ff88; }
+    .status.error { background: rgba(255,68,68,0.2); color: #ff4444; border: 1px solid #ff4444; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+    .tool-card { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; padding: 15px; border: 1px solid #333; transition: all 0.2s; }
+    .tool-card:hover { transform: translateY(-3px); border-color: #00ff88; box-shadow: 0 5px 20px rgba(0,255,136,0.2); }
+    .tool-name { color: #00ff88; font-size: 1.1rem; font-weight: bold; margin-bottom: 5px; }
+    .tool-desc { color: #aaa; font-size: 0.8rem; margin-bottom: 10px; min-height: 35px; }
+    .tool-meta { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .badge { padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; }
+    .badge-python { background: rgba(55,118,171,0.2); color: #3776ab; border: 1px solid #3776ab; }
+    .badge-ai { background: rgba(156,39,176,0.2); color: #9c27b0; border: 1px solid #9c27b0; }
+    .badge-security { background: rgba(244,67,54,0.2); color: #f44336; border: 1px solid #f44336; }
+    .badge-bot { background: rgba(33,150,243,0.2); color: #2196f3; border: 1px solid #2196f3; }
+    .badge-web { background: rgba(76,175,80,0.2); color: #4caf50; border: 1px solid #4caf50; }
+    .badge-size { background: rgba(255,255,255,0.1); color: #888; border: 1px solid #444; }
+    .run-btn { width: 100%; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; transition: all 0.2s; background: linear-gradient(135deg, #00ff88, #00cc6a); color: #000; }
+    .run-btn:hover { background: linear-gradient(135deg, #00cc6a, #00ff88); transform: scale(1.02); }
+    .run-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .output { margin-top: 10px; padding: 10px; background: #000; border-radius: 8px; font-family: monospace; font-size: 0.8rem; max-height: 150px; overflow-y: auto; color: #0f0; display: none; }
+    .loading-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #333; border-top-color: #00ff88; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .search-box { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #333; background: #1a1a2e; color: white; font-size: 1rem; margin-bottom: 15px; }
+    .search-box:focus { outline: none; border-color: #00ff88; }
+    .filter-tabs { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+    .filter-tab { padding: 6px 12px; border-radius: 8px; border: 1px solid #333; background: transparent; color: #888; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; }
+    .filter-tab:hover { border-color: #00ff88; color: #fff; }
+    .filter-tab.active { background: #00ff88; color: #000; border-color: #00ff88; }
+    .stats { display: flex; gap: 20px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+    .stat { padding: 5px 15px; background: rgba(0,0,0,0.3); border-radius: 20px; font-size: 0.85rem; }
+    .stat-value { color: #00ff88; font-weight: bold; }
+    .progress-bar { width: 100%; height: 3px; background: #333; border-radius: 2px; overflow: hidden; margin-top: 10px; display: none; }
+    .progress-bar.active { display: block; }
+    .progress-fill { height: 100%; background: #00ff88; width: 0%; transition: width 0.3s; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🐍 WHOAMISEC Tools Hub</h1>
+      <p>Execute ALL Python tools directly in your browser - No installation required</p>
+      <div id="status" class="status loading">
+        <span class="loading-spinner"></span> Loading Pyodide runtime...
+      </div>
+      <div id="progress" class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+      <div class="stats">
+        <span class="stat"><span class="stat-value" id="totalTools">0</span> Tools</span>
+        <span class="stat"><span class="stat-value" id="loadedTools">0</span> Loaded</span>
+        <span class="stat">Python <span class="stat-value">3.11</span></span>
+      </div>
+    </div>
+
+    <input type="text" id="searchBox" class="search-box" placeholder="Search tools by name or description..." oninput="filterTools()">
+
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterByType('all')">All</button>
+      <button class="filter-tab" onclick="filterByType('ai')">AI/ML</button>
+      <button class="filter-tab" onclick="filterByType('security')">Security</button>
+      <button class="filter-tab" onclick="filterByType('bot')">Bots</button>
+      <button class="filter-tab" onclick="filterByType('web')">Web</button>
+      <button class="filter-tab" onclick="filterByType('automation')">Automation</button>
+    </div>
+
+    <div id="toolsGrid" class="grid"></div>
+  </div>
+
+  <script>
+    let pyodide = null;
+    let tools = [];
+    let filteredTools = [];
+    let loadedCount = 0;
+
+    const TOOLS_DATA = [
+      // Security Tools
+      { id: 'adminbuster', name: 'AdminPBuster', desc: 'Admin path scanner and URL buster', type: 'python', category: 'security', file: 'swarm-models/byp-all-tools/AdminPBuster.py', size: '8.4 KB' },
+      { id: 'nyxddos', name: 'Nyxddos', desc: 'DDoS simulation tool for educational purposes', type: 'python', category: 'security', file: 'swarm-models/byp-all-tools/Nyxddos.html', size: '15.9 KB' },
+      { id: 'wormdestruction', name: 'Worm-Destruction', desc: 'Worm attack framework', type: 'python', category: 'security', file: 'swarm-models/byp-all-tools/Worm-Destruction.py', size: '51.9 KB' },
+
+      // Automation Bots
+      { id: 'botbetwin', name: 'Bot-Bet-Win', desc: 'Betting automation bot', type: 'python', category: 'bot', file: 'swarm-models/byp-all-tools/bot-Bet-Win.py', size: '63 KB' },
+      { id: 'superbet', name: 'SuperBet', desc: 'SuperBet automation script', type: 'python', category: 'bot', file: 'swarm-models/byp-all-tools/SuperBet.py', size: '20.4 KB' },
+      { id: 'whoisecsuprbet', name: 'WHOAMISec SuperBet247', desc: 'SuperBet247 automation', type: 'python', category: 'bot', file: 'swarm-models/byp-all-tools/WHOAMISec-SuperBet247.py', size: '43.3 KB' },
+      { id: 'whoisecarbitrary', name: 'WHOAMISec Arbitrary Auto', desc: 'Arbitrary command automation', type: 'python', category: 'automation', file: 'swarm-models/byp-all-tools/WHOAMISec-Arbitrary-Auto-make-money.py', size: '45.9 KB' },
+      { id: 'wormmoneymachine', name: 'Worm-Money-Machine', desc: 'Automated money machine', type: 'python', category: 'automation', file: 'swarm-models/byp-all-tools/Worm-Money-Machine.py', size: '38.9 KB' },
+      { id: 'wormmoneyv3', name: 'WormMoneyV3', desc: 'Money bot version 3', type: 'python', category: 'automation', file: 'swarm-models/byp-all-tools/WormMoneyV3.py', size: '13.9 KB' },
+      { id: 'whomakermoney', name: 'WHOAMISec MakerMoney', desc: 'Money making automation', type: 'python', category: 'automation', file: 'swarm-models/byp-all-tools/WHOAMISec-MakerMoney.py', size: '26.8 KB' },
+      { id: 'whoisecmakemoney', name: 'WHOAMISecMakeMoney', desc: 'Make money script', type: 'python', category: 'automation', file: 'swarm-models/byp-all-tools/WHOAMISecMakeMoney.py', size: '32.1 KB' },
+
+      // AI/ML Tools
+      { id: 'wormgpt', name: 'WormGPT Ultimate', desc: 'WormGPT automation tool', type: 'python', category: 'ai', file: 'swarm-models/byp-all-tools/wormgpt-ultimate.py', size: '32.6 KB' },
+      { id: 'w-destro', name: 'W-Destro', desc: 'AI destruction tool', type: 'python', category: 'ai', file: 'swarm-models/byp-all-tools/W-Destro.py', size: '42.3 KB' },
+
+      // WHOAMISEC Tools
+      { id: 'magicadminpaths', name: 'Magic Admin Paths', desc: 'Wordlist for admin path discovery', type: 'python', category: 'security', file: 'swarm-models/byp-all-tools/magic_admin_paths.txt', size: '112.7 KB' },
+      { id: 'promptdanger', name: 'Prompt Danger', desc: 'Dangerous prompts collection', type: 'python', category: 'ai', file: 'swarm-models/byp-all-tools/prompt-danger.txt', size: '175.8 KB' },
+      { id: 'quantumjailbreak', name: 'QuantumAlien Swarm Jailbreak', desc: 'SWARM jailbreak prompts 999999999 nodes', type: 'python', category: 'ai', file: 'swarm-models/byp-all-tools/QuantumAlienSwarm-prompt-jailbreak-999999999999-nodes.txt', size: '77.1 KB' },
+      { id: 'toolstrain', name: 'Tools Train GPT', desc: 'GPT training prompts collection', type: 'python', category: 'ai', file: 'swarm-models/byp-all-tools/tools-train-gpt.txt', size: '622.7 KB' },
+      { id: 'unicgpt', name: 'Unic-GPT', desc: 'Unicorn GPT prompts', type: 'python', category: 'ai', file: 'swarm-models/byp-all-tools/unic-gpt.txt', size: '363.7 KB' },
+      { id: 'realtools', name: 'Real-Original-Tools', desc: 'Real original tools documentation', type: 'python', category: 'ai', file: 'swarm-models/byp-all-tools/Real-Original-tools.txt', size: '294.9 KB' },
+
+      // Additional Tools from tools-fuck
+      { id: 'pentestgpt', name: 'Pentest-GPT Rebuilt', desc: 'Pentesting AI assistant', type: 'python', category: 'security', file: 'tools-fuck/tools/pentest_gpt_rebuilt.py', size: '25 KB' },
+      { id: 'osint', name: 'OSINT Search', desc: 'Open source intelligence gathering', type: 'python', category: 'security', file: 'tools-fuck/tools/OSINT.py', size: '15 KB' },
+      { id: 'webscraper', name: 'Web Scraper', desc: 'Website content extraction', type: 'python', category: 'web', file: 'tools-fuck/tools/web_scraper.py', size: '12 KB' },
+      { id: 'portscanner', name: 'Port Scanner', desc: 'Network port scanner', type: 'python', category: 'security', file: 'tools-fuck/tools/port_scanner.py', size: '8 KB' },
+      { id: 'sqlinjector', name: 'SQL Injector', desc: 'SQL injection testing tool', type: 'python', category: 'security', file: 'tools-fuck/tools/sql_injector.py', size: '18 KB' },
+      { id: 'xssscanner', name: 'XSS Scanner', desc: 'Cross-site scripting scanner', type: 'python', category: 'security', file: 'tools-fuck/tools/xss_scanner.py', size: '10 KB' },
+      { id: 'hashcracker', name: 'Hash Cracker', desc: 'Password hash cracking utility', type: 'python', category: 'security', file: 'tools-fuck/tools/hash_cracker.py', size: '14 KB' },
+      { id: 'networkenum', name: 'Network Enum', desc: 'Network enumeration tool', type: 'python', category: 'security', file: 'tools-fuck/tools/network_enum.py', size: '9 KB' },
+      { id: 'dnslookup', name: 'DNS Lookup', desc: 'DNS records lookup utility', type: 'python', category: 'web', file: 'tools-fuck/tools/dns_lookup.py', size: '6 KB' },
+      { id: 'subdomain', name: 'Subdomain Finder', desc: 'Subdomain discovery tool', type: 'python', category: 'security', file: 'tools-fuck/tools/subdomain_finder.py', size: '11 KB' },
+      { id: 'httpanalyzer', name: 'HTTP Analyzer', desc: 'HTTP traffic analyzer', type: 'python', category: 'web', file: 'tools-fuck/tools/http_analyzer.py', size: '13 KB' },
+      { id: 'emailfinder', name: 'Email Finder', desc: 'Email address harvester', type: 'python', category: 'security', file: 'tools-fuck/tools/email_finder.py', size: '8 KB' },
+      { id: 'urlextractor', name: 'URL Extractor', desc: 'Extract URLs from text/web pages', type: 'python', category: 'web', file: 'tools-fuck/tools/url_extractor.py', size: '7 KB' },
+      { id: 'hexencoder', name: 'Hex Encoder/Decoder', desc: 'Encode/decode hexadecimal', type: 'python', category: 'automation', file: 'tools-fuck/tools/hex_encoder.py', size: '4 KB' },
+      { id: 'base64tool', name: 'Base64 Tool', desc: 'Base64 encode/decode utility', type: 'python', category: 'automation', file: 'tools-fuck/tools/base64_tool.py', size: '3 KB' },
+      { id: 'md5checker', name: 'MD5 Checker', desc: 'MD5 hash generator and checker', type: 'python', category: 'automation', file: 'tools-fuck/tools/md5_checker.py', size: '3 KB' },
+      { id: 'jsbeautifier', name: 'JS Beautifier', desc: 'JavaScript code beautifier', type: 'python', category: 'web', file: 'tools-fuck/tools/js_beautifier.py', size: '5 KB' },
+      { id: 'jsonformatter', name: 'JSON Formatter', desc: 'Format and validate JSON', type: 'python', category: 'web', file: 'tools-fuck/tools/json_formatter.py', size: '4 KB' },
+      { id: 'regexTester', name: 'Regex Tester', desc: 'Test regular expressions', type: 'python', category: 'automation', file: 'tools-fuck/tools/regex_tester.py', size: '6 KB' },
+      { id: 'uuidgenerator', name: 'UUID Generator', desc: 'Generate UUIDs', type: 'python', category: 'automation', file: 'tools-fuck/tools/uuid_generator.py', size: '2 KB' },
+      { id: 'ipgeolocation', name: 'IP Geolocation', desc: 'IP address geolocation lookup', type: 'python', category: 'web', file: 'tools-fuck/tools/ip_geolocation.py', size: '5 KB' },
+      { id: 'useragent', name: 'User-Agent Faker', desc: 'Generate fake user agents', type: 'python', category: 'web', file: 'tools-fuck/tools/user_agent_faker.py', size: '4 KB' },
+      { id: 'proxychecker', name: 'Proxy Checker', desc: 'Check proxy server validity', type: 'python', category: 'security', file: 'tools-fuck/tools/proxy_checker.py', size: '7 KB' },
+      { id: 'sslscanner', name: 'SSL Scanner', desc: 'SSL/TLS certificate scanner', type: 'python', category: 'security', file: 'tools-fuck/tools/ssl_scanner.py', size: '9 KB' },
+      { id: 'crtsh', name: 'CRT.sh Enum', desc: 'Certificate transparency logs', type: 'python', category: 'security', file: 'tools-fuck/tools/crtsh_enum.py', size: '6 KB' },
+      { id: 'shodanlookup', name: 'Shodan Lookup', desc: 'Shodan API integration', type: 'python', category: 'security', file: 'tools-fuck/tools/shodan_lookup.py', size: '8 KB' },
+      { id: 'virustotal', name: 'VirusTotal Lookup', desc: 'VirusTotal API integration', type: 'python', category: 'security', file: 'tools-fuck/tools/virustotal_lookup.py', size: '7 KB' },
+    ];
+
+    async function initPyodide() {
+      const statusEl = document.getElementById('status');
+      const progressEl = document.getElementById('progress');
+      const progressFill = document.getElementById('progressFill');
+      
+      try {
+        progressEl.classList.add('active');
+        progressFill.style.width = '10%';
+        
+        pyodide = await loadPyodide({
+          indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/'
+        });
+        
+        progressFill.style.width = '50%';
+        
+        const packages = ['requests', 'beautifulsoup4', 'html.parser', 'json', 're', 'urllib.parse', 'uuid', 'hashlib', 'hmac', 'secrets', 'math', 'random', 'datetime', 'time', 'collections', 'itertools', 'functools', 'typing'];
+        await pyodide.loadPackage(packages);
+        
+        progressFill.style.width = '90%';
+        
+        statusEl.className = 'status ready';
+        statusEl.innerHTML = '✓ Pyodide Ready - Python 3.11 loaded with 18 packages';
+        
+        setTimeout(() => {
+          progressEl.classList.remove('active');
+        }, 1000);
+        
+        loadedCount = TOOLS_DATA.length;
+        document.getElementById('totalTools').textContent = TOOLS_DATA.length;
+        document.getElementById('loadedTools').textContent = loadedCount;
+        
+        renderTools();
+      } catch (error) {
+        statusEl.className = 'status error';
+        statusEl.innerHTML = '✗ Error: ' + error.message;
+        console.error(error);
+      }
+    }
+
+    function renderTools() {
+      const grid = document.getElementById('toolsGrid');
+      grid.innerHTML = filteredTools.map(tool => `
+        <div class="tool-card" data-id="${tool.id}" data-type="${tool.type}" data-category="${tool.category}">
+          <div class="tool-name">${tool.name}</div>
+          <div class="tool-desc">${tool.desc}</div>
+          <div class="tool-meta">
+            <span class="badge badge-${tool.category}">${tool.category.toUpperCase()}</span>
+            <span class="badge badge-size">${tool.size}</span>
+          </div>
+          <button class="run-btn" onclick="runTool('${tool.id}')" ${!pyodide ? 'disabled' : ''}>
+            ${pyodide ? '▶ Run Tool' : 'Loading...'}
+          </button>
+          <div id="output-${tool.id}" class="output"></div>
+        </div>
+      `).join('');
+    }
+
+    async function runTool(toolId) {
+      const tool = TOOLS_DATA.find(t => t.id === toolId);
+      if (!tool || !pyodide) return;
+
+      const outputEl = document.getElementById(`output-${toolId}`);
+      outputEl.style.display = 'block';
+      outputEl.innerHTML = '<span style="color:#ffc107">Loading source...</span>';
+
+      try {
+        let code;
+        try {
+          const response = await fetch(tool.file);
+          if (!response.ok) throw new Error('File not found');
+          code = await response.text();
+        } catch (fetchError) {
+          outputEl.innerHTML = `<span style="color:#ff4444">Source not available in web context.\nThis tool requires server-side execution.</span>`;
+          return;
+        }
+
+        outputEl.innerHTML = '<span style="color:#ffc107">Executing Python...</span>';
+
+        pyodide.runPython(`
+import sys
+from io import StringIO
+sys.stdout = StringIO()
+sys.stderr = StringIO()
+`);
+
+        await pyodide.runPythonAsync(code);
+
+        const stdout = pyodide.runPython('sys.stdout.getvalue()');
+        const stderr = pyodide.runPython('sys.stderr.getvalue()');
+
+        outputEl.innerHTML = '';
+        if (stdout) {
+          outputEl.innerHTML += `<pre style="white-space:pre-wrap;word-break:break-all">${escapeHtml(stdout)}</pre>`;
+        }
+        if (stderr) {
+          outputEl.innerHTML += `<span style="color:#ffc107">${escapeHtml(stderr)}</span>`;
+        }
+        if (!stdout && !stderr) {
+          outputEl.innerHTML += '<span style="color:#00ff88">✓ Executed successfully (no output)</span>';
+        }
+      } catch (error) {
+        outputEl.innerHTML = `<span style="color:#ff4444">Error: ${escapeHtml(error.message)}</span>`;
+      }
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function filterTools() {
+      const search = document.getElementById('searchBox').value.toLowerCase();
+      const activeTab = document.querySelector('.filter-tab.active').textContent.toLowerCase();
+      
+      filteredTools = TOOLS_DATA.filter(tool => {
+        const matchesSearch = tool.name.toLowerCase().includes(search) || tool.desc.toLowerCase().includes(search);
+        const matchesCategory = activeTab === 'all' || tool.category === activeTab;
+        return matchesSearch && matchesCategory;
+      });
+      renderTools();
+    }
+
+    function filterByType(type) {
+      document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+      filterTools();
+    }
+
+    tools = TOOLS_DATA;
+    filteredTools = TOOLS_DATA;
+    initPyodide();
+  </script>
+</body>
+</html>
