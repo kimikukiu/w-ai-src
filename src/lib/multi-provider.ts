@@ -70,8 +70,8 @@ const PROVIDERS = {
   'huggingface': {
     endpoint: 'https://api-inference.huggingface.co/v1/chat/completions',
     apiKeyEnv: 'HF_API_KEY',
-    defaultModel: 'meta-llama/Llama-3.3-70B-Instruct',
-    models: ['meta-llama/Llama-3.3-70B-Instruct', 'meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo', 'mistralai/Mixtral-8x7B-Instruct-v0.1', 'Qwen/Qwen2.5-72B-Instruct-Turbo', 'deepseek-ai/DeepSeek-V3', 'nvidia/Llama-3.1-Nemotron-70B-Instruct-Hero', 'custom-uncensored-models']
+    defaultModel: 'cloudbjorn/Qwen3.6-27B_Samantha-Uncensored',
+    models: ['cloudbjorn/Qwen3.6-27B_Samantha-Uncensored', 'meta-llama/Llama-3.3-70B-Instruct', 'mistralai/Mixtral-8x7B-Instruct-v0.1', 'Qwen/Qwen2.5-72B-Instruct-Turbo']
   },
   'swarm': {
     endpoint: 'https://models.github.ai/inference/chat/completions',
