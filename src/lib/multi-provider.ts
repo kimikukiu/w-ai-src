@@ -49,6 +49,24 @@ const PROVIDERS = {
     defaultModel: 'hermes3:8b',
     models: ['hermes3:8b', 'hermes3:70b', 'llama3:8b', 'llama3.2:8b', 'mistral', 'codellama', 'phi3', 'qwen2.5:14b', 'deepseek-coder:33b', 'huihui-ai/qwen3-abliterated:8b-v2', 'mannix/llama3.1-8b-abliterated', 'slimaki-24b']
   },
+  'groq': {
+    endpoint: 'https://api.groq.com/openai/v1/chat/completions',
+    apiKeyEnv: 'GROQ_API_KEY',
+    defaultModel: 'llama-3.3-70b-versatile',
+    models: ['llama-3.3-70b-versatile', 'llama-3.3-70b-instruct', 'mixtral-8x7b-32768', 'llama3-70b-8192', 'llama3-8b-8192', 'gemma2-9b-it']
+  },
+  'together': {
+    endpoint: 'https://api.together.ai/v1/chat/completions',
+    apiKeyEnv: 'TOGETHER_API_KEY',
+    defaultModel: 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+    models: ['meta-llama/Llama-3.3-70B-Instruct-Turbo', 'meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo', 'mistralai/Mixtral-8x7B-Instruct-v0.1', 'Qwen/Qwen2.5-72B-Instruct-Turbo', 'deepseek-ai/DeepSeek-V3', 'nvidia/Llama-3.1-Nemotron-70B-Instruct-Hero']
+  },
+  'lepton': {
+    endpoint: 'https://api.lepton.ai/api/v1/chat/completions',
+    apiKeyEnv: 'LEPTON_API_KEY',
+    defaultModel: 'llama-3.3-70b',
+    models: ['llama-3.3-70b', 'llama-3.1-8b', 'mixtral-8x7b']
+  },
   'swarm': {
     endpoint: 'https://models.github.ai/inference/chat/completions',
     apiKeyEnv: 'GITHUB_TOKEN',
@@ -100,6 +118,21 @@ function detectProvider(modelId: string): { provider: string; mappedModel: strin
     return { provider: 'ollama', mappedModel: modelId };
   }
 
+  // Groq models (fast, free tier)
+  if (modelLower.includes('groq') || modelLower.includes('llama-3.3') || modelLower.includes('mixtral') || modelLower.includes('gemma')) {
+    return { provider: 'groq', mappedModel: modelId };
+  }
+
+  // Together.ai models
+  if (modelLower.includes('together') || modelLower.includes('qwen') || modelLower.includes('nemotron')) {
+    return { provider: 'together', mappedModel: modelId };
+  }
+
+  // Lepton models
+  if (modelLower.includes('lepton')) {
+    return { provider: 'lepton', mappedModel: modelId };
+  }
+
   // Default to GitHub Models (free)
   return { provider: 'github', mappedModel: 'openai/gpt-4o' };
 }
@@ -126,6 +159,12 @@ function getApiKey(provider: string): string | null {
       return process.env.GEMINI_API_KEY || null;
     case 'kimi':
       return process.env.KIMI_API_KEY || null;
+    case 'groq':
+      return process.env.GROQ_API_KEY || null;
+    case 'together':
+      return process.env.TOGETHER_API_KEY || null;
+    case 'lepton':
+      return process.env.LEPTON_API_KEY || null;
     default:
       return null;
   }
@@ -197,6 +236,12 @@ export async function multiProviderChat(messages: any[], modelId: string): Promi
       break;
 
     case 'kimi':
+      headers['Authorization'] = `Bearer ${apiKey}`;
+      break;
+
+    case 'groq':
+    case 'together':
+    case 'lepton':
       headers['Authorization'] = `Bearer ${apiKey}`;
       break;
 
