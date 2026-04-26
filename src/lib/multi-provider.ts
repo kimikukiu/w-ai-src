@@ -67,6 +67,12 @@ const PROVIDERS = {
     defaultModel: 'llama-3.3-70b',
     models: ['llama-3.3-70b', 'llama-3.1-8b', 'mixtral-8x7b']
   },
+  'huggingface': {
+    endpoint: 'https://api-inference.huggingface.co/v1/chat/completions',
+    apiKeyEnv: 'HF_API_KEY',
+    defaultModel: 'meta-llama/Llama-3.3-70B-Instruct',
+    models: ['meta-llama/Llama-3.3-70B-Instruct', 'meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo', 'mistralai/Mixtral-8x7B-Instruct-v0.1', 'Qwen/Qwen2.5-72B-Instruct-Turbo', 'deepseek-ai/DeepSeek-V3', 'nvidia/Llama-3.1-Nemotron-70B-Instruct-Hero', 'custom-uncensored-models']
+  },
   'swarm': {
     endpoint: 'https://models.github.ai/inference/chat/completions',
     apiKeyEnv: 'GITHUB_TOKEN',
@@ -133,6 +139,11 @@ function detectProvider(modelId: string): { provider: string; mappedModel: strin
     return { provider: 'lepton', mappedModel: modelId };
   }
 
+  // Hugging Face models (Pro account)
+  if (modelLower.includes('hf') || modelLower.includes('hugging') || modelLower.startsWith('meta-') || modelLower.startsWith('mistral') || modelLower.startsWith('qwen') || modelLower.startsWith('deepseek')) {
+    return { provider: 'huggingface', mappedModel: modelId };
+  }
+
   // Default to GitHub Models (free)
   return { provider: 'github', mappedModel: 'openai/gpt-4o' };
 }
@@ -165,6 +176,8 @@ function getApiKey(provider: string): string | null {
       return process.env.TOGETHER_API_KEY || null;
     case 'lepton':
       return process.env.LEPTON_API_KEY || null;
+    case 'huggingface':
+      return process.env.HF_API_KEY || null;
     default:
       return null;
   }
@@ -242,6 +255,7 @@ export async function multiProviderChat(messages: any[], modelId: string): Promi
     case 'groq':
     case 'together':
     case 'lepton':
+    case 'huggingface':
       headers['Authorization'] = `Bearer ${apiKey}`;
       break;
 
