@@ -43,6 +43,12 @@ const PROVIDERS = {
     defaultModel: 'openai/gpt-4o',
     models: ['openai/gpt-4o', 'openai/gpt-4o-mini', 'meta-llama/Llama-3.3-70B-Instruct', 'deepseek-ai/DeepSeek-R1', 'anthropic/claude-3.5-sonnet', 'mistralai/Mixtral-8x7B-Instruct-v0.1']
   },
+  'ollama': {
+    endpoint: 'http://localhost:11434/api/chat',
+    apiKeyEnv: '',
+    defaultModel: 'llama3',
+    models: ['llama3', 'llama3.2', 'mistral', 'codellama', 'phi3', 'qwen2.5', 'deepseek-coder', 'nemotron']
+  },
   'swarm': {
     endpoint: 'https://models.github.ai/inference/chat/completions',
     apiKeyEnv: 'GITHUB_TOKEN',
@@ -101,6 +107,8 @@ function getApiKey(provider: string): string | null {
       return config.glm_api_key || process.env.GLM_API_KEY || null;
     case 'github':
       return config.github_token || process.env.GITHUB_TOKEN || null;
+    case 'ollama':
+      return ''; // No API key needed for local Ollama
     case 'swarm':
       return config.github_token || process.env.GITHUB_TOKEN || config.glm_api_key || process.env.GLM_API_KEY || null;
     case 'openai':
