@@ -44,10 +44,10 @@ const PROVIDERS = {
     models: ['openai/gpt-4o', 'openai/gpt-4o-mini', 'meta-llama/Llama-3.3-70B-Instruct', 'deepseek-ai/DeepSeek-R1', 'anthropic/claude-3.5-sonnet', 'mistralai/Mixtral-8x7B-Instruct-v0.1']
   },
   'ollama': {
-    endpoint: 'http://localhost:11434/api/chat',
+    endpoint: process.env.OLLAMA_URL || 'http://localhost:11434/api/chat',
     apiKeyEnv: '',
-    defaultModel: 'llama3',
-    models: ['llama3', 'llama3.2', 'mistral', 'codellama', 'phi3', 'qwen2.5', 'deepseek-coder', 'nemotron']
+    defaultModel: 'hermes3:8b',
+    models: ['hermes3:8b', 'hermes3:70b', 'llama3:8b', 'llama3.2:8b', 'mistral', 'codellama', 'phi3', 'qwen2.5:14b', 'deepseek-coder:33b', 'huihui-ai/qwen3-abliterated:8b-v2', 'mannix/llama3.1-8b-abliterated', 'slimaki-24b']
   },
   'swarm': {
     endpoint: 'https://models.github.ai/inference/chat/completions',
@@ -95,6 +95,11 @@ function detectProvider(modelId: string): { provider: string; mappedModel: strin
     return { provider: 'kimi', mappedModel: modelId };
   }
 
+  // Ollama uncensored models
+  if (modelLower.includes('hermes') || modelLower.includes('slimaki') || modelLower.includes('huihui') || modelLower.includes('abliterated') || modelLower.includes('mistral') || modelLower.includes('codellama') || modelLower.includes('phi3')) {
+    return { provider: 'ollama', mappedModel: modelId };
+  }
+
   // Default to GitHub Models (free)
   return { provider: 'github', mappedModel: 'openai/gpt-4o' };
 }
@@ -135,7 +140,7 @@ export async function multiProviderChat(messages: any[], modelId: string): Promi
   }
 
   const apiKey = getApiKey(provider);
-  if (!apiKey) {
+  if (!apiKey && provider !== 'ollama') {
     throw new Error(`No API key configured for provider: ${provider}`);
   }
 
@@ -194,6 +199,19 @@ export async function multiProviderChat(messages: any[], modelId: string): Promi
     case 'kimi':
       headers['Authorization'] = `Bearer ${apiKey}`;
       break;
+
+    case 'ollama':
+      // No auth needed for Ollama local
+      body = {
+        model: mappedModel,
+        messages,
+        stream: false,
+        options: {
+          temperature: 0.7,
+          num_predict: 8192,
+        },
+      };
+      break;
   }
 
   const controller = new AbortController();
@@ -230,6 +248,9 @@ export async function multiProviderChat(messages: any[], modelId: string): Promi
 
       case 'google':
         return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+      case 'ollama':
+        return data.message?.content || data.response || '';
 
       default:
         return JSON.stringify(data);
