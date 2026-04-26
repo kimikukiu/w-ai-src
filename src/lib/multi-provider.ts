@@ -71,7 +71,14 @@ const PROVIDERS = {
     endpoint: 'https://api-inference.huggingface.co/v1/chat/completions',
     apiKeyEnv: 'HF_API_KEY',
     defaultModel: 'cloudbjorn/Qwen3.6-27B_Samantha-Uncensored',
-    models: ['cloudbjorn/Qwen3.6-27B_Samantha-Uncensored', 'meta-llama/Llama-3.3-70B-Instruct', 'mistralai/Mixtral-8x7B-Instruct-v0.1', 'Qwen/Qwen2.5-72B-Instruct-Turbo']
+    models: [
+      'cloudbjorn/Qwen3.6-27B_Samantha-Uncensored',
+      'huihui-ai/Huihui-Qwen3.5-35B-A3B-abliterated',
+      'paperscarecrow/Gemma-4-31B-it-abliterated',
+      'meta-llama/Llama-3.3-70B-Instruct',
+      'mistralai/Mixtral-8x7B-Instruct-v0.1',
+      'Qwen/Qwen2.5-72B-Instruct-Turbo'
+    ]
   },
   'swarm': {
     endpoint: 'https://models.github.ai/inference/chat/completions',
@@ -139,8 +146,8 @@ function detectProvider(modelId: string): { provider: string; mappedModel: strin
     return { provider: 'lepton', mappedModel: modelId };
   }
 
-  // Hugging Face models (Pro account)
-  if (modelLower.includes('hf') || modelLower.includes('hugging') || modelLower.startsWith('meta-') || modelLower.startsWith('mistral') || modelLower.startsWith('qwen') || modelLower.startsWith('deepseek')) {
+  // Hugging Face models (Pro account) - uncensored & abliterated
+  if (modelLower.includes('hf') || modelLower.includes('hugging') || modelLower.includes('samantha') || modelLower.includes('huihui') || modelLower.includes('abliterated') || modelLower.includes('gemma') || modelLower.startsWith('meta-') || modelLower.startsWith('mistral') || modelLower.startsWith('qwen') || modelLower.startsWith('deepseek')) {
     return { provider: 'huggingface', mappedModel: modelId };
   }
 
