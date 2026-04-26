@@ -1505,6 +1505,9 @@ function CodespaceIDE({ addLog }: { addLog: (type: LogEntry['type'], msg: string
                 { id: 'full-fuck-jews', name: 'full-fuck-jews', file: 'Agent-tool/full-fuck-jews.py', icon: '⚔️' },
                 { id: 'eclips-index', name: 'ECLIPS Panel', file: 'eclips/ECLIPS/Owner/index.html', icon: '🌑' },
                 { id: 'web-s-index', name: 'Web-Stresser', file: 'web-s/index.html', icon: '🌐' },
+                { id: 'wormgpt-complete', name: 'WormGPT v53.0 Complete', file: 'wormgpt-complete', icon: '☠️' },
+                { id: 'api-ob-complete', name: 'API-OB v2.0 Complete', file: 'api-ob-complete', icon: '🔥' },
+                { id: 'email-extractors-pro-complete', name: 'Email Extractors Pro Complete', file: 'email-extractors-pro-complete', icon: '📧' },
               ].map(tool => (
                 <button
                   key={tool.file}
@@ -2966,6 +2969,9 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                 { id: 'full-fuck-jews', name: 'full-fuck-jews', file: 'Agent-tool/full-fuck-jews.py', icon: '⚔️' },
                 { id: 'eclips-index', name: 'ECLIPS Panel', file: 'eclips/ECLIPS/Owner/index.html', icon: '🌑' },
                 { id: 'web-s-index', name: 'Web-Stresser', file: 'web-s/index.html', icon: '🌐' },
+                { id: 'wormgpt-complete', name: 'WormGPT v53.0 Complete', file: 'wormgpt-complete', icon: '☠️' },
+                { id: 'api-ob-complete', name: 'API-OB v2.0 Complete', file: 'api-ob-complete', icon: '🔥' },
+                { id: 'email-extractors-pro-complete', name: 'Email Extractors Pro Complete', file: 'email-extractors-pro-complete', icon: '📧' },
               ].map(tool => (
                 <button
                   key={tool.file}

@@ -9,15 +9,28 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const fileName = decodeURIComponent(params.id);
-    const filePath = join(BYP_ALL_TOOLS, fileName);
+    const toolId = decodeURIComponent(params.id);
+    
+    // Handle complete tools
+    if (toolId === 'wormgpt-complete') {
+      return NextResponse.redirect(new URL('/wormgpt-complete', request.url));
+    }
+    if (toolId === 'api-ob-complete') {
+      return NextResponse.redirect(new URL('/api-ob-complete', request.url));
+    }
+    if (toolId === 'email-extractors-pro-complete') {
+      return NextResponse.redirect(new URL('/email-extractors-pro-complete', request.url));
+    }
+    
+    // Handle file-based tools
+    const filePath = join(BYP_ALL_TOOLS, toolId);
 
     if (!existsSync(filePath)) {
       return new NextResponse('Tool not found', { status: 404 });
     }
 
     const content = readFileSync(filePath);
-    const ext = fileName.split('.').pop()?.toLowerCase();
+    const ext = toolId.split('.').pop()?.toLowerCase();
 
     const contentTypes: Record<string, string> = {
       'py': 'text/plain; charset=utf-8',
