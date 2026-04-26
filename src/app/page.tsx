@@ -476,6 +476,22 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
             <a href="https://t.me/whoamisecai" target="_blank" className="text-xs text-slate-400 hover:text-cyan-400 transition-colors hidden sm:block">{t.nav_channel}</a>
             <a href="https://t.me/idkebowbot" target="_blank" className="text-xs text-slate-400 hover:text-cyan-400 transition-colors hidden sm:block">{t.nav_bot}</a>
             <button onClick={() => setShowTos(true)} className="text-xs text-slate-500 hover:text-slate-300 transition-colors">{t.nav_tos}</button>
+            <a href="/offensive-security" className="text-xs text-red-400 hover:text-red-300 transition-colors flex items-center gap-1">
+              <Shield className="h-3 w-3" />
+              Security
+            </a>
+            <a href="/email-osint" className="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
+              <Mail className="h-3 w-3" />
+              Email
+            </a>
+            <a href="/wormgpt-original" className="text-xs text-orange-400 hover:text-orange-300 transition-colors flex items-center gap-1">
+              <Bug className="h-3 w-3" />
+              WormGPT
+            </a>
+            <a href="/email-extractors-pro" className="text-xs text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1">
+              <Database className="h-3 w-3" />
+              Extractors
+            </a>
             <button onClick={() => setShowPlans(true)} className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-xs font-semibold hover:from-blue-500 hover:to-cyan-400 transition-all">
               {t.nav_plans}
             </button>
@@ -585,12 +601,24 @@ function LandingPage({ onAdminClick }: { onAdminClick: () => void }) {
                 { icon: '📱', label: 'Telegram Bot', sub: '24/7 API · All features · Hidden', color: 'from-blue-500/10 to-blue-900/10 border-blue-500/20' },
                 { icon: '🔍', label: '120+ Security Repos', sub: 'Training lineage · haKC-ai · PentestGPT', color: 'from-amber-500/10 to-amber-900/10 border-amber-500/20' },
                 { icon: '⚡', label: 'QuantumSwarm', sub: '999999999 · Neural override · Zero-refusal', color: 'from-indigo-500/10 to-indigo-900/10 border-indigo-500/20' },
+                { icon: '🛡️', label: 'Offensive Security', sub: 'Network scanning · OSINT · Vulnerability assessment', color: 'from-red-500/10 to-red-900/10 border-red-500/20', href: '/offensive-security' },
+                { icon: '📧', label: 'Email OSINT', sub: 'Email validation · Domain analysis · Breach check', color: 'from-blue-500/10 to-blue-900/10 border-blue-500/20', href: '/email-osint' },
+                { icon: '🔥', label: 'WormGPT Original', sub: 'Full exploit chain · Botnet · Ransomware', color: 'from-orange-500/10 to-red-900/10 border-orange-500/20', href: '/wormgpt-original' },
+                { icon: '📊', label: 'Email Extractors Pro', sub: 'Advanced OSINT · Multi-source extraction', color: 'from-purple-500/10 to-blue-900/10 border-purple-500/20', href: '/email-extractors-pro' },
               ].map((f, i) => (
-                <div key={i} className={`rounded-xl bg-gradient-to-b ${f.color} border p-3 text-center`}>
-                  <span className="text-xl">{f.icon}</span>
-                  <p className="text-xs font-bold text-white mt-1.5">{f.label}</p>
-                  <p className="text-[9px] text-slate-400 mt-0.5 leading-tight">{f.sub}</p>
-                </div>
+                f.href ? (
+                  <a key={i} href={f.href} className={`rounded-xl bg-gradient-to-b ${f.color} border p-3 text-center hover:scale-[1.02] transition-transform cursor-pointer`}>
+                    <span className="text-xl">{f.icon}</span>
+                    <p className="text-xs font-bold text-white mt-1.5">{f.label}</p>
+                    <p className="text-[9px] text-slate-400 mt-0.5 leading-tight">{f.sub}</p>
+                  </a>
+                ) : (
+                  <div key={i} className={`rounded-xl bg-gradient-to-b ${f.color} border p-3 text-center`}>
+                    <span className="text-xl">{f.icon}</span>
+                    <p className="text-xs font-bold text-white mt-1.5">{f.label}</p>
+                    <p className="text-[9px] text-slate-400 mt-0.5 leading-tight">{f.sub}</p>
+                  </div>
+                )
               ))}
             </div>
             {/* BUILDER THINKING showcase */}

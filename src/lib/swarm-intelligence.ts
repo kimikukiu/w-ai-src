@@ -24,7 +24,7 @@ export interface SwarmConfig {
 }
 
 const DEFAULT_CONFIG: SwarmConfig = {
-  nodeCount: 999999999,
+  nodeCount: 1000,
   parallelProcessing: true,
   selfRepair: true,
   autoScale: true,
