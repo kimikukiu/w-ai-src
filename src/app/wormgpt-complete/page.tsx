@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Play, 
-  Stop, 
+  Square, 
   RefreshCw, 
   Download, 
   Upload, 
@@ -398,7 +398,7 @@ export default function WormGPTInterface() {
                             onClick={() => stopAttack(attack.id)}
                             className="ml-2"
                           >
-                            <Stop className="w-3 h-3" />
+                            <Square className="w-3 h-3" />
                           </Button>
                         )}
                       </div>

@@ -14,7 +14,8 @@ import {
   Download, Trash2, Copy, ExternalLink, Loader2, CheckCircle2,
   XCircle, AlertCircle, Eye, EyeOff, Monitor, Smartphone,
   Database, GitBranch, Globe, LayoutDashboard, Code, Activity,
-  Lock, Unlock, Command, Crown, Star, Users, Sparkles, Play, ChevronDown, X
+  Lock, Unlock, Command, Crown, Star, Users, Sparkles, Play, ChevronDown, X,
+  Mail, Bug
 } from 'lucide-react';
 import { safeJson } from '@/lib/utils';
 import { MODELS_BY_PROVIDER, MODELS_BY_CATEGORY, POPULAR_MODELS } from '@/lib/models';

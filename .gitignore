@@ -87,3 +87,6 @@ skills/
 test
 prompt
 .env*.local
+
+# Local Netlify folder
+.netlify

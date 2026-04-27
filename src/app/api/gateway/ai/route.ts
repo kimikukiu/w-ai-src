@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { loadConfig } from '@/lib/config';
 import { emitConfigUpdate, emitModelChange, emitEndpointChange, validateApiKey } from '@/lib/sync-bus';
 import { isValidSubscriber, isOwnerToken, incrementRequests } from '@/lib/subscription-manager';
-import { callAI } from '@/lib/ai-engine';
+import { callAIFree, checkAIFreeHealth } from '@/lib/ai-engine-free';
 
 function getSubscriptionToken(request: NextRequest): string | null {
   const headerToken = request.headers.get('x-subscription-token');
@@ -52,10 +52,10 @@ export async function POST(request: NextRequest) {
         content: m.content || m.text || '',
       }));
 
-      const response = await callAI(msgs, selectedModel).catch(async (e: any) => {
+      const response = await callAIFree(msgs, selectedModel).catch(async (e: any) => {
         if (e.message?.includes('rate limit') || e.message?.includes('429')) {
           await new Promise(r => setTimeout(r, 2000));
-          return callAI(msgs, selectedModel);
+          return callAIFree(msgs, selectedModel);
         }
         throw e;
       });

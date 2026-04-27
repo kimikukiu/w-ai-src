@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Play, 
-  Stop, 
+  Square, 
   RefreshCw, 
   Download, 
   Target, 
@@ -407,7 +407,7 @@ export default function APIOBInterface() {
                             }}
                             className="ml-2"
                           >
-                            <Stop className="w-3 h-3" />
+                            <Square className="w-3 h-3" />
                           </Button>
                         )}
                       </div>
