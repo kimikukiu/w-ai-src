@@ -10,7 +10,9 @@ const nextConfig: NextConfig = {
   outputFileTracingExcludes: {
     '*': ['./tools/**', './data/sessions/**', './downloads/**', './generated_code/**'],
   },
-  turbopack: {},
+  experimental: {
+    turbo: undefined,
+  },
 };
 
 export default nextConfig;

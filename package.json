@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev -p 9000",
     "build": "next build && npm run post-build",
     "post-build": "node -e \"const fs=require('fs'); const path=require('path'); if(fs.existsSync('.next/standalone')){fs.cpSync('.next/static','.next/standalone/.next/static',{recursive:true,force:true});fs.cpSync('public','.next/standalone/public',{recursive:true,force:true});console.log('Build assets copied successfully');}else{console.log('Standalone build not found, skipping asset copy');}\"",
     "start": "NODE_ENV=production node .next/standalone/server.js",
